@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Component</title>
+    <style>
+        div {
+            position: relative;
+            background-color: red;
+        }
+        .nest {
+            display: flex; /* Each nest in itself is also a flex container*/
+        }
+        .nest.eastwest {
+            flex-direction: column;
+            width: 100px;
+            height: 100%;
+        }
+        .nest.norhsouth {
+            height: 100px;
+            width: 100%;
+        }
+        .dragger {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+        .dragger.eastwest {
+            width: 20px;
+            height: 100%;
+            position: absolute;
+            left: 100px;
+            top: 0;
+        }
+        .dragger.northsouth {
+            width: 100%;
+            height: 20px;
+            position: absolute;
+            top: 100px;
+            left: 0;
+        }
+        .dragger.northsouth:hover {
+            cursor: ns-resize;
+        }
+        .dragger.eastwest:hover {
+            cursor: ew-resize;
+        }
+        .noselect {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+        }
+    </style>
+</head>
+<body>
+<div id="root" style="
+    background-color: chartreuse;
+    height: 600px;
+    display: flex;
+    ">
+    <div id="nestA" class="nest eastwest" style="background-color: pink">
+
+        <div id="nestD" class="nest norhsouth" style="background-color: rgba(255,0,0,0.5)"></div>
+        <div id="nestE" class="nest norhsouth" style="flex-grow: 1; flex-shrink: 1; background-color: rgba(0,255,0,0.5)"></div>
+        <div id="nestF" class="nest norhsouth" style="background-color: rgba(0,0,255,0.5)"></div>
+        <div id="DE" class="dragger northsouth noselect"></div>
+        <div id="EF" class="dragger northsouth noselect" style="top:400px"></div>
+
+
+
+
+
+
+    </div>
+    <div id="nestB" class="nest eastwest" style="flex-grow: 1; background-color: cadetblue"></div>
+    <div id="nestC" class="nest eastwest" style="background-color: grey"></div>
+    <div id="AB" class="dragger eastwest noselect"></div>
+    <div id="BC" class="dragger eastwest noselect" style="left:400px"></div>
+</div>
+<script type="module">
+    import Component from '../src/ui/component.js';
+    import Dragger from '../src/ui/dragger.js';
+    import { UiEventType } from '../src/events/uieventtype.js'
+
+    const root = document.querySelector('#root');
+
+    // Layout 1
+    let A = new Component();
+    A.domFunc = () => document.querySelector('#nestA');
+    A.render(root);
+
+    let B = new Component();
+    B.domFunc = () => document.querySelector('#nestB');
+    B.render(root);
+
+    let C = new Component();
+    C.domFunc = () => document.querySelector('#nestC');
+    C.render(root);
+
+    // Create and position AB dragger
+    let AB = new Dragger('x');
+    AB.domFunc = () => document.querySelector('#AB');
+    AB.render(root);
+    const matchABtoA = () => {
+      const targetRect = A.getElement().getBoundingClientRect();
+      AB.getElement().style.left = `${targetRect.width - 10}px`;
+    };
+    matchABtoA();
+    const matchAtoAB = e => {
+      if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+        const targetRect = AB.getElement().getBoundingClientRect();
+        A.getElement().style.width = `${targetRect.x}px`;
+      }
+    };
+    A.listen(AB, Component.compEventCode(), matchAtoAB);
+
+    // Create and position BC dragger
+    let BC = new Dragger('x');
+    BC.domFunc = () => document.querySelector('#BC');
+    BC.render(root);
+    const matchBCtoC = () => {
+      const rootRect = root.getBoundingClientRect();
+      const targetRect = C.getElement().getBoundingClientRect();
+      BC.getElement().style.left = `${rootRect.width - targetRect.width - 10}px`;
+    };
+    matchBCtoC();
+    const matchCtoBC = e => {
+      if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+        const rootRect = root.getBoundingClientRect();
+        const targetRect = BC.getElement().getBoundingClientRect();
+        C.getElement().style.width = `${rootRect.width - targetRect.x}px`;
+      }
+    };
+    C.listen(BC, Component.compEventCode(), matchCtoBC);
+
+
+    // Layout 2
+    let D = new Component();
+    D.domFunc = () => document.querySelector('#nestD');
+    D.render(root);
+
+    let E = new Component();
+    E.domFunc = () => document.querySelector('#nestE');
+    E.render(root);
+
+    let F = new Component();
+    F.domFunc = () => document.querySelector('#nestF');
+    F.render(root);
+
+    // Create and position DE dragger
+    let DE = new Dragger('y');
+    DE.domFunc = () => document.querySelector('#DE');
+    DE.render(root);
+    const matchDEtoD = () => {
+      const targetRect = D.getElement().getBoundingClientRect();
+      DE.getElement().style.top = `${targetRect.height - 10}px`;
+    };
+    matchDEtoD();
+    const matchDtoDE = e => {
+      if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+        const targetRect = DE.getElement().getBoundingClientRect();
+        D.getElement().style.height = `${targetRect.y}px`;
+      }
+    };
+    D.listen(DE, Component.compEventCode(), matchDtoDE);
+
+    // Create and position EF dragger
+    let EF = new Dragger('y');
+    EF.domFunc = () => document.querySelector('#EF');
+    EF.render(root);
+    const matchEFtoF = () => {
+      const rootRect = A.getElement().getBoundingClientRect();
+      const targetRect = F.getElement().getBoundingClientRect();
+      EF.getElement().style.top = `${rootRect.height - targetRect.height - 10}px`;
+    };
+    matchEFtoF();
+    const matchFtoEF = e => {
+      if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+        const rootRect = A.getElement().getBoundingClientRect();
+        const targetRect = EF.getElement().getBoundingClientRect();
+        F.getElement().style.height = `${rootRect.height - targetRect.y}px`;
+      }
+    };
+    F.listen(EF, Component.compEventCode(), matchFtoEF);
+
+
+</script>
+
+</body>
+</html>

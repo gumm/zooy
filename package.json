@@ -1,0 +1,22 @@
+{
+  "name": "jaui",
+  "description": "UI Building Blocks",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": {
+    "name": "Jan Badenhorst",
+    "email": "janhendrik.badenhorst@gmail.com"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "badu": "*"
+  },
+  "devDependencies": {
+    "google-closure-compiler": "*",
+    "google-closure-library": "*",
+    "material-components-web": "*",
+    "mocha": "*",
+    "ramda": "*",
+    "esm": "*"
+  }
+}
