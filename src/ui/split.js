@@ -1,13 +1,16 @@
 import Component from './component.js';
 import Dragger from './dragger.js';
-import { UiEventType } from '../events/uieventtype.js';
-import { randomId, isDefAndNotNull } from '../../node_modules/badu/module/badu.mjs';
+import {UiEventType} from '../events/uieventtype.js';
+import {
+  randomId,
+  isDefAndNotNull
+} from '../../node_modules/badu/module/badu.mjs';
 
+//--------------------------------------------------------------[ DOM Makers ]--
 const randomColour = opt_a => {
-  return [1,2,3].map(() => Math.floor(Math.random() * 256) + 1)
-      .reduce((p,c) => `${p}${c},`, 'rgba(') + `${opt_a ? opt_a : 0.5}`;
+  return [1, 2, 3].map(() => Math.floor(Math.random() * 256) + 1)
+      .reduce((p, c) => `${p}${c},`, 'rgba(') + `${opt_a ? opt_a : 0.5}`;
 };
-
 
 const makeNestEl = (setElWidth, setElHeight, addOrientClass, width) => {
   const el = document.createElement('div');
@@ -40,27 +43,24 @@ const makeDraggerEl = (addOrientClass, setElHeight, setElWidth, setElOffset,
 };
 
 
-const makeActOnAB = (getElOffset, getElWidth, setElOffset, thickness, ab, bc, a, b, c, root, uS) =>
-    el => {
-      const dOff = getElOffset(el);
-      a.style.flexBasis = dOff + thickness + 'px';
-      uS();
-      el.style.zIndex = 1;
-      bc.style.zIndex = 0;
-
-    };
-
-const makeActOnBC = (getElOffset, getElWidth, setElOffset, thickness, ab, bc, a, b, c, root, uS) =>
-    el => {
-      const dOff = getElOffset(el);
-      const rootRectWidth = getElWidth(root);
-      c.style.flexBasis = rootRectWidth - dOff - thickness + 'px';
-      uS();
-      el.style.zIndex = 1;
-      ab.style.zIndex = 0;
-    };
-
 //----------------------------------------------------------[ Event Handlers ]--
+const makeActOnAB = (getO, hT, bc, a, uS) => el => {
+  const dOff = getO(el);
+  a.style.flexBasis = dOff + hT + 'px';
+  uS();
+  el.style.zIndex = 1;
+  bc.style.zIndex = 0;
+};
+
+const makeActOnBC = (getO, getW, hT, ab, c, root, uS) => el => {
+  const dOff = getO(el);
+  const rootRectWidth = getW(root);
+  c.style.flexBasis = rootRectWidth - dOff - hT + 'px';
+  uS();
+  el.style.zIndex = 1;
+  ab.style.zIndex = 0;
+};
+
 const onDraggerMoved = actOnDragger => e => {
   if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
     actOnDragger(e.detail.getData().target);
@@ -70,7 +70,7 @@ const onDraggerMoved = actOnDragger => e => {
 
 //-----------------------------------------------------[ Orientation Helpers ]--
 const orientGetElWidth = orient => {
-  if(orient === 'EW') {
+  if (orient === 'EW') {
     return el => el.getBoundingClientRect().width;
   } else {
     return el => el.getBoundingClientRect().height;
@@ -78,7 +78,7 @@ const orientGetElWidth = orient => {
 };
 
 const orientGetElOffset = orient => {
-  if(orient === 'EW') {
+  if (orient === 'EW') {
     return el => el.offsetLeft;
   } else {
     return el => el.offsetTop;
@@ -86,7 +86,7 @@ const orientGetElOffset = orient => {
 };
 
 const orientSetElWidth = orient => {
-  if(orient === 'EW') {
+  if (orient === 'EW') {
     return (el, num, op_unit) =>
         el.style.width = `${num}${op_unit ? op_unit : 'px'}`;
   } else {
@@ -96,7 +96,7 @@ const orientSetElWidth = orient => {
 };
 
 const orientSetElHeight = orient => {
-  if(orient === 'EW') {
+  if (orient === 'EW') {
     return (el, num, op_unit) =>
         el.style.height = `${num}${op_unit ? op_unit : 'px'}`;
   } else {
@@ -106,7 +106,7 @@ const orientSetElHeight = orient => {
 };
 
 const orientSetElOffset = orient => {
-  if(orient === 'EW') {
+  if (orient === 'EW') {
     return (el, num, op_unit) =>
         el.style.left = `${num}${op_unit ? op_unit : 'px'}`;
   } else {
@@ -116,7 +116,7 @@ const orientSetElOffset = orient => {
 };
 
 const orientAddOrientClass = orient => {
-  if(orient === 'EW') {
+  if (orient === 'EW') {
     return el => el.classList.add('east-west');
   } else {
     return el => el.classList.add('north-south');
@@ -125,7 +125,7 @@ const orientAddOrientClass = orient => {
 
 
 //--------------------------------------------------------------[ Main Class ]--
-class Split extends Component {
+export default class Split extends Component {
 
   constructor() {
     super();
@@ -153,7 +153,6 @@ class Split extends Component {
     this.updateFuncs_ = [];
 
     window.addEventListener('resize', () => this.updateFuncs_.forEach(e => e()));
-
 
   };
 
@@ -194,13 +193,13 @@ class Split extends Component {
    * @param {string=} orientation Only 'EW' or 'NS'.
    * @param {number=} thickness Thickness of the dragger
    */
-  addSplit(opt_el=void 0, orientation='EW', thickness=8, widthA=100, widthB=100) {
+  addSplit(opt_el = void 0, orientation = 'EW', thickness = 8, widthA = 100, widthB = 100) {
 
     // Sanitize input
     let root = opt_el ? opt_el : this.getElement();
     let refN = '';
     if (opt_el) {
-      const match = [...this.nestMap_.entries()].find(([k,v]) => v === opt_el);
+      const match = [...this.nestMap_.entries()].find(([k, v]) => v === opt_el);
       if (match) {
         refN = match[0];
         root = match[1];
@@ -211,9 +210,9 @@ class Split extends Component {
     if (this.splitNests_.includes(root)) {
       return ['Already used!', root];
     }
-    const orient =  ['EW', 'NS'].includes(orientation) ? orientation : 'EW';
+    const orient = ['EW', 'NS'].includes(orientation) ? orientation : 'EW';
     const freedom = orient === 'EW' ? 'x' : 'y';
-    const halfThick = thickness / 2;
+    const hT = thickness / 2;
 
     // Make sure the container is flexing.
     root.style.display = 'flex';
@@ -247,27 +246,19 @@ class Split extends Component {
 
     const updateSelf = () => {
       const aW = getW(a);
-      setO(ab, aW - halfThick);
-      setO(bc, aW + getW(b) - halfThick)
+      setO(ab, aW - hT);
+      setO(bc, aW + getW(b) - hT)
     };
     updateSelf();
-    this.updateFuncs_.push(updateSelf);
-
-    this.nestMap_.set(`${refN}A`, a).set(`${refN}B`, b).set(`${refN}C`, c);
-    this.splitNests_.push(root);
-
-
 
     // Prep the methods that will act on the nest elements.
-    const actOnAB_ = makeActOnAB(getO, getW, setO, halfThick, ab, bc, a, b, c, root, updateSelf);
-    const actOnBC_ = makeActOnBC(getO, getW, setO, halfThick, ab, bc, a, b, c, root, updateSelf);
+    const actOnAB_ = makeActOnAB(getO, hT, bc, a, updateSelf);
+    const actOnBC_ = makeActOnBC(getO, getW, hT, ab, c, root, updateSelf);
     const actOnAB = onDraggerMoved(actOnAB_, bc, actOnBC_);
     const actOnBC = onDraggerMoved(actOnBC_, ab, actOnAB_);
 
-    this.listen(AB,  Component.compEventCode(), actOnAB);
+    this.listen(AB, Component.compEventCode(), actOnAB);
     this.listen(BC, Component.compEventCode(), actOnBC);
-
-
 
     // Make these things listen
     const draggers = this.draggerMap_.get(`${orient}`);
@@ -276,8 +267,10 @@ class Split extends Component {
     }
     draggers.add(AB);
     draggers.add(BC);
+
+    this.updateFuncs_.push(updateSelf);
+    this.nestMap_.set(`${refN}A`, a).set(`${refN}B`, b).set(`${refN}C`, c);
+    this.splitNests_.push(root);
   }
 
 }
-
-export default Split;
