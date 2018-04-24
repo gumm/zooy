@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Split Test</title>
+    <style>
+        .nest {
+            background-color: rgba(255,255,255,0.5);
+        }
+        .dragger {
+            background-color: rgba(0,0,0,0.5);
+        }
+        .dragger.north-south:hover {
+            cursor: ns-resize;
+        }
+        .dragger.east-west:hover {
+            cursor: ew-resize;
+        }
+    </style>
+</head>
+<body>
+<div id="root" style="
+    position: relative;
+    background-color: chartreuse;
+    height: 600px;
+    ">
+</div>
+<script type="module">
+    import Split from '../src/ui/split.js';
+    const s = new Split();
+    s.domFunc = () => document.getElementById('root');
+    s.render();
+    s.addSplit(undefined, 'NS');
+    window.SPLIT = s;
+
+</script>
+
+</body>
+</html>

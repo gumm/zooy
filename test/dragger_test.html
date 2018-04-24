@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Component</title>
+    <style>
+        div {
+            position: relative;
+            min-width: 20px;
+            min-height: 20px;
+            background-color: red;
+        }
+        .noselect {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+        }
+    </style>
+</head>
+<body>
+<div id="root" style="background-color: chartreuse; width: 200px; height: 200px;"></div>
+<button id="button">TESTME</button>
+<script type="module">
+    import Component from '../src/ui/component.js';
+    import Dragger from '../src/ui/dragger.js';
+    import { UiEventType } from '../src/events/uieventtype.js'
+
+    const button = document.querySelector('#button');
+    const root = document.querySelector('#root');
+
+
+    const makeblueBlock = () => {
+      const el = document.createElement('div');
+      el.style.cssText = "background-color: blue; border: 1px solid black; max-width:100px";
+      return el;
+    };
+
+    const makeDraggableBlock = () => {
+      const el = document.createElement('div');
+      el.style.cssText = "background-color: rgba(123, 123, 123, 0.5); border: 1px solid black; z-index: 2;";
+      el.style.left = '28px';
+      el.style.top = '34px';
+      el.style.padding = '15px';
+      el.style.position = 'absolute';
+      el.classList.add('noselect');
+      let frag = document.createRange().createContextualFragment('<span>One</span><span>Two</span>');
+      el.appendChild(frag);
+      return el;
+    };
+
+    let a = new Component();
+    a.domFunc = makeblueBlock;
+
+    let b = new Dragger();
+    b.domFunc = makeDraggableBlock;
+
+    let c = new Component();
+
+    let ev = Component.makeEvent('hello', [123,456]);
+
+    a.render(root);
+    b.render(root);
+
+    window.ROOT_B = b;
+
+    a.listen(b, Component.compEventCode(), e => {
+      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
+        const data = e.detail.getData();
+        console.log(data.deltaX, data.deltaY);
+      }
+    });
+
+    // console.log(b.getElement());
+    // b.getElement().addEventListener('mousedown', dragStartListener);
+    // b.getElement().addEventListener('mousemove', dragMoveListener);
+    // b.getElement().addEventListener('dragend', dragMoveListener);
+
+
+
+    // b.listen(b.getElement(), 'click', e => console.log('Drag Started', e));
+    // b.listen(b.getElement(), 'dragend', e => console.log('Drag Ended', e));
+
+
+    // c.render(root);
+    //
+    // a.listen(b, 'hello', e => console.log('A got hello', e));
+    // b.listen(c, 'hello', e => console.log('B got hello', e));
+    //
+    //
+    //
+    // b.listen(a, 'hello', e => console.log('B got hello', e));
+    // c.listen(a, 'hello', e => console.log('C got hello', e));
+    //
+    // a.listen(button, 'click', e => console.log('click - click'));
+    // a.listen(root, 'mouseenter', e => console.log(e.type));
+    //
+    // console.log('A is dispatching');
+    // a.dispatchEvent(ev);
+    // b.listen(a, Component.compEventCode(), e => {
+    //   console.log('B got', Component.compEventCode(), e);
+    //   console.log('Value is', e.detail.getValue());
+    //   console.log('Data is', e.detail.getData());
+    // });
+    // [1,2,3,4,5,6,7,8,9,0].forEach(n => a.dispatchCompEvent(n, {v:n}));
+    // a.dispatchCompEvent('hello', {here: 'is some data'});
+    //
+    // console.log('B removes all listeners');
+    // b.removeAllListener();
+    //
+    // console.log('A is dispatching');
+    // a.dispatchEvent(ev);
+
+    // console.log('Dispose A');
+    // a.disposeInternal();
+
+
+    // console.log('C is dispatching');
+    // c.dispatchEvent(ev);
+    //
+    // console.log('B unlisten from C');
+    // b.stopListeningTo(c);
+    //
+    // console.log('C is dispatching');
+    // c.dispatchEvent(ev);
+
+    // console.log('A is dispatching');
+    // a.dispatchEvent(ev);
+    //
+    // console.log('Disposing C');
+    // c.disposeInternal();
+    //
+    console.log('A is dispatching');
+    a.dispatchEvent(ev);
+</script>
+
+</body>
+</html>

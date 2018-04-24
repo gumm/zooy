@@ -23,22 +23,22 @@
             background-color: rgba(255, 0, 0, 0.5);
             position: absolute;
         }
-        .dragger.eastwest {
+        .dragger.east-west {
             width: 20px;
             height: 100%;
             left: 100px;
             top: 0;
         }
-        .dragger.northsouth {
+        .dragger.north-south {
             width: 100%;
             height: 20px;
             top: 100px;
             left: 0;
         }
-        .dragger.northsouth:hover {
+        .dragger.north-south:hover {
             cursor: ns-resize;
         }
-        .dragger.eastwest:hover {
+        .dragger.east-west:hover {
             cursor: ew-resize;
         }
         .noselect {
@@ -69,20 +69,11 @@
     import { UiEventType } from '../src/events/uieventtype.js'
 
     const root = document.querySelector('#root');
+    const A =  document.querySelector('#nestA');
+    const B =  document.querySelector('#nestB');
+    const C =  document.querySelector('#nestC');
 
     // Layout 1
-    let A = new Component();
-    A.domFunc = () => document.querySelector('#nestA');
-    A.render(root);
-
-    let B = new Component();
-    B.domFunc = () => document.querySelector('#nestB');
-    B.render(root);
-
-    let C = new Component();
-    C.domFunc = () => document.querySelector('#nestC');
-    C.render(root);
-
     // Create and position AB dragger
     let AB = new Dragger('x');
     AB.domFunc = () => document.querySelector('#AB');
@@ -95,20 +86,20 @@
 
     const matchAtoAB_ = el => {
       const abX = el.offsetLeft;
-      A.getElement().style.width = `${abX}px`;
-      B.getElement().style.left = `${abX + 20}px`;
+      A.style.width = `${abX}px`;
+      B.style.left = `${abX + 20}px`;
     };
 
     const matchCtoBC_ = el => {
       const bcX = el.offsetLeft;
       const rootRect = root.getBoundingClientRect();
-      B.getElement().style.right = `${rootRect.width - bcX}px`;
-      C.getElement().style.left = `${bcX + 20}px`;
-      C.getElement().style.right = 0;
+      B.style.right = `${rootRect.width - bcX}px`;
+      C.style.left = `${bcX + 20}px`;
+      C.style.right = 0;
     };
 
     const matchAtoAB = e => {
-      if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
         const ab = e.detail.getData().target;
         const bc = BC.getElement();
         if (ab.offsetLeft + 20 > bc.offsetLeft) {
@@ -120,7 +111,7 @@
     };
 
     const matchCtoBC = e => {
-      if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
         const bc = e.detail.getData().target;
         const ab = AB.getElement();
         if (bc.offsetLeft < ab.offsetLeft + 20) {
@@ -134,10 +125,9 @@
     matchAtoAB_(AB.getElement());
     matchCtoBC_(BC.getElement());
 
-    A.listen(AB, Component.compEventCode(), matchAtoAB);
-    C.listen(BC, Component.compEventCode(), matchCtoBC);
-
-
+    const L = new Component();
+    L.listen(AB,  Component.compEventCode(), matchAtoAB);
+    L.listen(BC, Component.compEventCode(), matchCtoBC);
 
 
 
@@ -165,7 +155,7 @@
     // };
     // matchDEtoD();
     // const matchDtoDE = e => {
-    //   if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+    //   if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
     //     const targetRect = DE.getElement().getBoundingClientRect();
     //     D.getElement().style.height = `${targetRect.y}px`;
     //   }
@@ -183,7 +173,7 @@
     // };
     // matchEFtoF();
     // const matchFtoEF = e => {
-    //   if (e.detail.getValue() === UiEventType.COMP_DRAGGED) {
+    //   if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
     //     const rootRect = A.getElement().getBoundingClientRect();
     //     const targetRect = EF.getElement().getBoundingClientRect();
     //     F.getElement().style.height = `${rootRect.height - targetRect.y}px`;
