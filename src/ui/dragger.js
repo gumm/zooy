@@ -40,14 +40,16 @@ const normalizeEvent = ev => {
  * @return {Array<number>}
  */
 const getPos = el => {
-  const style = window.getComputedStyle(el);
-  return [style.getPropertyValue('left'), style.getPropertyValue('top')]
-      .map(e => e.replace(/[^\d.]/g, ' ')
-          .split(' ')
-          .filter(e => e !== '')
-          .map(e => +e)
-      )
-      .map(e => e[0]);
+  // const style = window.getComputedStyle(el);
+  // return [style.getPropertyValue('left'), style.getPropertyValue('top')]
+  //     .map(e => e.replace(/[^\d.]/g, ' ')
+  //         .split(' ')
+  //         .filter(e => e !== '')
+  //         .map(e => +e)
+  //     )
+  //     .map(e => e[0]);
+
+  return [el.offsetLeft, el.offsetTop];
 };
 
 
@@ -123,7 +125,6 @@ const yMoveOnlyListener = (emit, target, xOrg, yOrg) => event => {
   target.style.top = `${ev.clientY - yOrg}px`;
   emit(ev);
 };
-
 
 //--------------------------------------------------------[ Event Emitters ]--
 const makeEmitter = (comp, evType) => (left, top, xOrg, yOrg, target) => ev => {

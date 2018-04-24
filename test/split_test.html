@@ -30,7 +30,9 @@
     const s = new Split();
     s.domFunc = () => document.getElementById('root');
     s.render();
-    s.addSplit(undefined, 'NS');
+    s.addSplit(undefined, 'EW');
+    s.addSplit(s.getNest('B'), 'NS');
+    s.addSplit(s.getNest('BB'), 'EW');
     window.SPLIT = s;
 
 </script>

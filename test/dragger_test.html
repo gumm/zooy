@@ -5,6 +5,7 @@
     <title>Test Component</title>
     <style>
         div {
+            color: white;
             position: relative;
             min-width: 20px;
             min-height: 20px;
@@ -23,118 +24,79 @@
 </head>
 <body>
 <div id="root" style="background-color: chartreuse; width: 200px; height: 200px;"></div>
-<button id="button">TESTME</button>
 <script type="module">
     import Component from '../src/ui/component.js';
     import Dragger from '../src/ui/dragger.js';
     import { UiEventType } from '../src/events/uieventtype.js'
 
-    const button = document.querySelector('#button');
     const root = document.querySelector('#root');
 
-
-    const makeblueBlock = () => {
+    const makeBlock = colour => () => {
       const el = document.createElement('div');
-      el.style.cssText = "background-color: blue; border: 1px solid black; max-width:100px";
+      el.style.backgroundColor = colour;
       return el;
     };
 
-    const makeDraggableBlock = () => {
+    const makeDraggableBlock = name => () => {
       const el = document.createElement('div');
       el.style.cssText = "background-color: rgba(123, 123, 123, 0.5); border: 1px solid black; z-index: 2;";
-      el.style.left = '28px';
-      el.style.top = '34px';
+      el.setAttribute('id', name);
+        el.style.left = '28px';
+        el.style.top = '34px';
+
       el.style.padding = '15px';
       el.style.position = 'absolute';
       el.classList.add('noselect');
-      let frag = document.createRange().createContextualFragment('<span>One</span><span>Two</span>');
-      el.appendChild(frag);
+      el.textContent = name;
       return el;
     };
 
+    let DRAG_A = new Dragger('xy');
+    DRAG_A.domFunc = makeDraggableBlock('FullFreedom');
+    DRAG_A.render(root);
+
+    let DRAG_X = new Dragger('x');
+    DRAG_X.domFunc = makeDraggableBlock('X-ONLY');
+    DRAG_X.render(root);
+    console.log(DRAG_X.getElement());
+
+    let DRAG_Y = new Dragger('y');
+    DRAG_Y.domFunc = makeDraggableBlock('Y-ONLY');
+    DRAG_Y.render(root);
+
     let a = new Component();
-    a.domFunc = makeblueBlock;
-
-    let b = new Dragger();
-    b.domFunc = makeDraggableBlock;
-
-    let c = new Component();
-
-    let ev = Component.makeEvent('hello', [123,456]);
-
+    a.domFunc = makeBlock('slateblue');
     a.render(root);
-    b.render(root);
-
-    window.ROOT_B = b;
-
-    a.listen(b, Component.compEventCode(), e => {
+    a.listen(DRAG_A, Component.compEventCode(), (function(e) {
       if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
         const data = e.detail.getData();
-        console.log(data.deltaX, data.deltaY);
+        this.getElement().textContent = `${data.deltaX}, ${data.deltaY}`;
       }
-    });
+    }).bind(a));
 
-    // console.log(b.getElement());
-    // b.getElement().addEventListener('mousedown', dragStartListener);
-    // b.getElement().addEventListener('mousemove', dragMoveListener);
-    // b.getElement().addEventListener('dragend', dragMoveListener);
+    let b = new Component();
+    b.domFunc = makeBlock('limegreen');
+    b.render(root);
+    b.listen(DRAG_X, Component.compEventCode(), (function(e) {
+      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
+        const data = e.detail.getData();
+        this.getElement().textContent = `${data.deltaX}, ${data.deltaY}`;
+      }
+    }).bind(b));
 
+    let c = new Component();
+    c.domFunc = makeBlock('lightgrey');
+    c.render(root);
+    c.listen(DRAG_Y, Component.compEventCode(), (function(e) {
+      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
+        const data = e.detail.getData();
+        this.getElement().textContent = `${data.deltaX}, ${data.deltaY}`;
+      }
+    }).bind(c));
 
-
-    // b.listen(b.getElement(), 'click', e => console.log('Drag Started', e));
-    // b.listen(b.getElement(), 'dragend', e => console.log('Drag Ended', e));
-
-
-    // c.render(root);
-    //
-    // a.listen(b, 'hello', e => console.log('A got hello', e));
-    // b.listen(c, 'hello', e => console.log('B got hello', e));
-    //
-    //
-    //
-    // b.listen(a, 'hello', e => console.log('B got hello', e));
-    // c.listen(a, 'hello', e => console.log('C got hello', e));
-    //
-    // a.listen(button, 'click', e => console.log('click - click'));
-    // a.listen(root, 'mouseenter', e => console.log(e.type));
-    //
-    // console.log('A is dispatching');
-    // a.dispatchEvent(ev);
-    // b.listen(a, Component.compEventCode(), e => {
-    //   console.log('B got', Component.compEventCode(), e);
-    //   console.log('Value is', e.detail.getValue());
-    //   console.log('Data is', e.detail.getData());
-    // });
-    // [1,2,3,4,5,6,7,8,9,0].forEach(n => a.dispatchCompEvent(n, {v:n}));
-    // a.dispatchCompEvent('hello', {here: 'is some data'});
-    //
-    // console.log('B removes all listeners');
-    // b.removeAllListener();
-    //
-    // console.log('A is dispatching');
-    // a.dispatchEvent(ev);
-
-    // console.log('Dispose A');
-    // a.disposeInternal();
+    window.DRAG_A = DRAG_A;
 
 
-    // console.log('C is dispatching');
-    // c.dispatchEvent(ev);
-    //
-    // console.log('B unlisten from C');
-    // b.stopListeningTo(c);
-    //
-    // console.log('C is dispatching');
-    // c.dispatchEvent(ev);
-
-    // console.log('A is dispatching');
-    // a.dispatchEvent(ev);
-    //
-    // console.log('Disposing C');
-    // c.disposeInternal();
-    //
-    console.log('A is dispatching');
-    a.dispatchEvent(ev);
 </script>
 
 </body>
