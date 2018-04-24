@@ -31,6 +31,7 @@ const makeDraggerEl = (addOrientClass, setElHeight, setElWidth, setElOffset,
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
   el.classList.add('dragger');
+  el.style.backgroundColor = randomColour(1);
   el.style.position = 'absolute';
   addOrientClass(el);
   setElHeight(el, 100, '%');
@@ -124,7 +125,7 @@ const orientAddOrientClass = orient => {
 
 
 //--------------------------------------------------------------[ Main Class ]--
-class Split2 extends Component {
+class Split extends Component {
 
   constructor() {
     super();
@@ -279,4 +280,4 @@ class Split2 extends Component {
 
 }
 
-export default Split2;
+export default Split;

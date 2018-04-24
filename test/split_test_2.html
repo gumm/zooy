@@ -20,19 +20,21 @@
 </head>
 <body>
 <div id="root" style="
-    position: relative;
+    position: absolute; top: 0; left: 0;
     background-color: lightgrey;
-    height: 600px;
+    height: 100%;
+    width: 100%;
     ">
 </div>
 <script type="module">
-    import Split from '../src/ui/split2.js';
+    import Split from '../src/ui/split.js';
     const s = new Split();
     s.domFunc = () => document.getElementById('root');
     s.render();
-    s.addSplit(undefined, 'EW');
-    s.addSplit(s.getNest('B'), 'NS');
-    s.addSplit(s.getNest('BB'), 'EW');
+    s.addSplit(undefined, 'NS', 5, 100, 50);
+    s.addSplit(s.getNest('B'), 'EW', 5, 250, 250);
+    s.addSplit(s.getNest('BA'), 'NS', 5, 100, 100);
+    s.addSplit(s.getNest('BC'), 'NS', 5, 100, 100);
     window.SPLIT = s;
 
 </script>
