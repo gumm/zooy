@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Split Test</title>
+    <title>FLEX Split Test</title>
     <style>
         .nest {
             background-color: rgba(255,255,255,0.2);
         }
         .dragger {
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.2);
         }
         .dragger.north-south:hover {
             cursor: ns-resize;
@@ -26,7 +26,7 @@
     ">
 </div>
 <script type="module">
-    import Split from '../src/ui/split.js';
+    import Split from '../src/ui/split2.js';
     const s = new Split();
     s.domFunc = () => document.getElementById('root');
     s.render();
