@@ -3,119 +3,134 @@ import Dragger from './dragger.js';
 import { UiEventType } from '../events/uieventtype.js';
 import { randomId } from '../../node_modules/badu/module/badu.mjs';
 
-const makeNestEl = (orient, opt_end) => {
+
+const makeNestEl = (setElHeight, addOrientClass) => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
   el.classList.add('nest');
   el.style.position = 'absolute';
-  switch (orient) {
-    case 'NS':
-      el.classList.add('north-south');
-      el.style.width = '100%';
-      opt_end ? el.style.bottom = '0' : null;
-      break;
-    default:  // Default is EW
-      el.classList.add('east-west');
-      el.style.height = '100%';
-      opt_end ? el.style.right = '0' : null;
-  }
+  setElHeight(el, 100, '%');
+  addOrientClass(el);
   return el;
 };
 
-const makeDraggerEl = (orient, thickness, offset) => () => {
+const makeDraggerEl = (addOrientClass, setElHeight, setElWidth, setElOffset,
+                       thickness, offset) => () => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
   el.classList.add('dragger');
   el.style.position = 'absolute';
-  switch (orient) {
-    case 'NS':
-      el.classList.add('north-south');
-      el.style.height = thickness + 'px';
-      el.style.width = '100%';
-      el.style.top = offset + '%';
-      break;
-    default:  // Default is EW
-      el.classList.add('east-west');
-      el.style.height = '100%';
-      el.style.width = thickness + 'px';
-      el.style.left = offset + '%';
-  }
+  addOrientClass(el);
+  setElHeight(el, 100, '%');
+  setElWidth(el, thickness);
+  setElOffset(el, offset);
   return el;
 };
 
 
-const makeActOnAB = (orient, thickness, A, B) => {
-  if (orient === 'EW') {
-    return el => {
-      const abX = el.offsetLeft;
-      A.style.width = `${abX}px`;
-      B.style.left = `${abX + thickness}px`;
-    }
-  } else {
-    return el => {
-      const abY = el.offsetTop;
-      A.style.height = `${abY}px`;
-      B.style.top = `${abY + thickness}px`;
-    }
-  }
-};
+const makeActOnAB = (getElOffset, getElWidth, setElWidth, setElOffset,
+                     thickness, a, b, c) =>
+    (el, opt_bc, opt_func) => {
 
-const makeActOnBC = (orient, thickness, B, C, root) => {
-  if (orient === 'EW') {
-    return el => {
-      const bcX = el.offsetLeft;
-      const rootRect = root.getBoundingClientRect();
-      B.style.right = `${rootRect.width - bcX}px`;
-      C.style.width = `${rootRect.width - bcX - thickness}px`;
-      C.style.right = '0';
-    }
-  } else {
-    return el => {
-      const bcY = el.offsetTop;
-      const rootRect = root.getBoundingClientRect();
-      B.style.bottom = `${rootRect.height - bcY}px`;
-      C.style.height = `${rootRect.height - bcY - thickness}px`;
-      C.style.bottom = '0';
-    }
-  }
-};
+      // Prevent dragger from crossing
+      if (opt_bc && opt_func) {
+        if (getElOffset(el) >= getElOffset(opt_bc)) {
+          setElOffset(opt_bc, getElOffset(el));
+          opt_func(opt_bc);
+        }
+      }
 
-const onABMoved = (orient, thickness, bc, actOnAB_, actOnBC_) => e => {
+      const abX = getElOffset(el);
+      setElWidth(a, abX);
+      setElOffset(b, abX + thickness);
+      setElWidth(b, getElOffset(c) - abX - thickness * 2);
+    };
+
+const makeActOnBC = (getElOffset, getElWidth, setElWidth, setElOffset,
+                     thickness, b, c, root) =>
+    (el, opt_ab, opt_func) => {
+
+      // Prevent dragger from crossing
+      if (opt_ab && opt_func) {
+        if (getElOffset(el) <= getElOffset(opt_ab)) {
+          setElOffset(opt_ab, getElOffset(el));
+          opt_func(opt_ab);
+        }
+      }
+
+      const bcX = getElOffset(el);
+      const rootRectWidth = getElWidth(root);
+      setElWidth(b, bcX - getElOffset(b));
+      setElWidth(c, rootRectWidth - bcX - thickness);
+      setElOffset(c, bcX + thickness);
+    };
+
+//----------------------------------------------------------[ Event Handlers ]--
+const onDraggerMoved = (actOnDragger, otherDragEl, actOnOtherDragger) => e => {
   if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
-    const ab = e.detail.getData().target;
-    if(orient === 'EW') {
-      if (ab.offsetLeft + thickness > bc.offsetLeft) {
-        bc.style.left = `${ab.offsetLeft + thickness}px`;
-        actOnBC_(bc);
-      }
-    } else {
-      if (ab.offsetTop + thickness > bc.offsetTop) {
-        bc.style.top = `${ab.offsetTop + thickness}px`;
-        actOnBC_(bc);
-      }
-    }
-    actOnAB_(ab);
+    const draggerEl = e.detail.getData().target;
+    actOnDragger(draggerEl, otherDragEl, actOnOtherDragger);
   }
 };
 
-const onBCMoved = (orient, thickness, ab, actOnAB_, actOnBC_) => e => {
-  if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
-    const bc = e.detail.getData().target;
-    if(orient === 'EW') {
-      if (bc.offsetLeft < ab.offsetLeft + thickness) {
-        ab.style.left = `${bc.offsetLeft - thickness}px`;
-        actOnAB_(ab);
-      }
-    } else {
-      if (bc.offsetTop < ab.offsetTop + thickness) {
-        ab.style.top = `${bc.offsetTop - thickness}px`;
-        actOnAB_(ab);
-      }
-    }
-    actOnBC_(bc);
+
+//-----------------------------------------------------[ Orientation Helpers ]--
+const orientGetElWidth = orient => {
+  if(orient === 'EW') {
+    return el => el.getBoundingClientRect().width;
+  } else {
+    return el => el.getBoundingClientRect().height;
   }
 };
 
+const orientGetElOffset = orient => {
+  if(orient === 'EW') {
+    return el => el.offsetLeft;
+  } else {
+    return el => el.offsetTop;
+  }
+};
+
+const orientSetElWidth = orient => {
+  if(orient === 'EW') {
+    return (el, num, op_unit) =>
+        el.style.width = `${num}${op_unit ? op_unit : 'px'}`;
+  } else {
+    return (el, num, op_unit) =>
+        el.style.height = `${num}${op_unit ? op_unit : 'px'}`;
+  }
+};
+
+const orientSetElHeight = orient => {
+  if(orient === 'EW') {
+    return (el, num, op_unit) =>
+        el.style.height = `${num}${op_unit ? op_unit : 'px'}`;
+  } else {
+    return (el, num, op_unit) =>
+        el.style.width = `${num}${op_unit ? op_unit : 'px'}`;
+  }
+};
+
+const orientSetElOffset = orient => {
+  if(orient === 'EW') {
+    return (el, num, op_unit) =>
+        el.style.left = `${num}${op_unit ? op_unit : 'px'}`;
+  } else {
+    return (el, num, op_unit) =>
+        el.style.top = `${num}${op_unit ? op_unit : 'px'}`;
+  }
+};
+
+const orientAddOrientClass = orient => {
+  if(orient === 'EW') {
+    return el => el.classList.add('east-west');
+  } else {
+    return el => el.classList.add('north-south');
+  }
+};
+
+
+//--------------------------------------------------------------[ Main Class ]--
 class Split extends Component {
 
   constructor() {
@@ -178,8 +193,9 @@ class Split extends Component {
    * @param {string=} orientation Only 'EW' or 'NS'.
    * @param {number=} thickness Thickness of the dragger
    */
-  addSplit(opt_el=void 0, orientation='EW', thickness=20) {
+  addSplit(opt_el=void 0, orientation='EW', thickness=20, widthA=50, widthB=50) {
 
+    // Sanitize input
     let root = opt_el ? opt_el : this.getElement();
     let refN = '';
     if (opt_el) {
@@ -188,48 +204,60 @@ class Split extends Component {
         refN = match[0];
         root = match[1];
       } else {
-        console.log(match);
-        return;
+        return ['Element not managed by this component', opt_el];
       }
     }
     if (this.splitNests_.includes(root)) {
       return ['Already used!', root];
     }
-
     const orient =  ['EW', 'NS'].includes(orientation) ? orientation : 'EW';
     const freedom = orient === 'EW' ? 'x' : 'y';
 
-    const a = makeNestEl(orient);
-    const b = makeNestEl(orient);
-    const c = makeNestEl(orient, true);
+    // Prep all the helper functions
+    const getW = orientGetElWidth(orient);
+    const getO = orientGetElOffset(orient);
+    const setW = orientSetElWidth(orient);
+    const setH = orientSetElHeight(orient);
+    const setO = orientSetElOffset(orient);
+    const addC = orientAddOrientClass(orient);
 
+    // Make the nest elements
+    const a = makeNestEl(setH, addC);
+    const b = makeNestEl(setH, addC);
+    const c = makeNestEl(setH, addC);
+    [a, b, c].forEach(e => root.appendChild(e));
+
+    // Prep the methods that will act on the nest elements.
+    const actOnAB_ = makeActOnAB(getO, getW, setW, setO, thickness, a, b, c);
+    const actOnBC_ = makeActOnBC(getO, getW, setW, setO, thickness, b, c, root);
+
+    // Make the dragger components
     const AB = new Dragger(freedom);
-    AB.domFunc = makeDraggerEl(orient, thickness, 33);
+    AB.domFunc = makeDraggerEl(addC, setH, setW, setO, thickness, widthA);
+    AB.render(root);
+    const ab = AB.getElement();
 
     const BC = new Dragger(freedom);
-    BC.domFunc = makeDraggerEl(orient, thickness, 66);
-
-    [a, b, c].forEach(e => root.appendChild(e));
-    AB.render(root);
+    BC.domFunc = makeDraggerEl(addC, setH, setW, setO, thickness, getW(root) - thickness - widthB);
     BC.render(root);
-
-    // Store a reference to the dragger elements.
-    const ab = AB.getElement();
     const bc = BC.getElement();
+
 
     this.nestMap_.set(`${refN}A`, a).set(`${refN}B`, b).set(`${refN}C`, c);
     this.splitNests_.push(root);
 
-    const actOnAB_ = makeActOnAB(orient, thickness, a, b);
-    const actOnBC_ = makeActOnBC(orient, thickness, b, c, root);
-    const actOnAB = onABMoved(orient, thickness, bc, actOnAB_, actOnBC_);
-    const actOnBC = onBCMoved(orient, thickness, ab, actOnAB_, actOnBC_);
+    const actOnAB = onDraggerMoved(actOnAB_, bc, actOnBC_);
+    const actOnBC = onDraggerMoved(actOnBC_, ab, actOnAB_);
 
     const updateSelf = () => {
-      actOnAB_(ab);
       actOnBC_(bc);
+      actOnAB_(ab);
     };
     updateSelf();
+
+    const externalChange = () => {
+      updateSelf();
+    };
 
     this.listen(AB,  Component.compEventCode(), actOnAB);
     this.listen(BC, Component.compEventCode(), actOnBC);
@@ -237,12 +265,10 @@ class Split extends Component {
     // Make these things listen
     const draggers = this.draggerMap_.get(`${orient}`);
     for (const e of draggers) {
-      this.listen(e, Component.compEventCode(), updateSelf)
+      this.listen(e, Component.compEventCode(), externalChange)
     }
     draggers.add(AB);
     draggers.add(BC);
-
-
 
   }
 

@@ -147,14 +147,20 @@ const makeEmitter = (comp, evType) => (left, top, xOrg, yOrg, target) => ev => {
 
 class Dragger extends Component {
 
-  constructor(degreesOfFreedom) {
+  /**
+   * @param {string} freedom Restrict the directions in which the
+   * dragger can be moved.
+   */
+  constructor(freedom='xy') {
     super();
 
     /**
      * @type {string}
      * @private
      */
-    this.degreesOfFreedom_ = degreesOfFreedom || 'xy';
+    this.degreesOfFreedom_ = ['x', 'y', 'xy'].includes(freedom)
+        ? freedom
+        : 'xy';
 
     /**
      * @type {?Element}
