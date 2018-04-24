@@ -149,33 +149,22 @@ export default class Split extends Component {
      */
     this.splitNests_ = [];
 
+    /**
+     * @type {Array<Function>}
+     * @private
+     */
+    this.refreshFuncs_ = [];
 
-    this.updateFuncs_ = [];
-
-    window.addEventListener('resize', () => this.updateFuncs_.forEach(e => e()));
-
+    window.addEventListener('resize', this.onWindowSizeChange_);
   };
 
   /**
-   * @return {Array<!Element>}
+   * When the window size changes, refresh the layout.
+   * @private
    */
-  get nestElements() {
-    return [...this.nestMap_.values()];
-  }
-
-  /**
-   * @return {Array<string>}
-   */
-  get nestNames() {
-    return [...this.nestMap_.keys()];
-  }
-
-  /**
-   * @return {Map<string, !Element>}
-   */
-  get nestMap() {
-    return this.nestMap_;
-  }
+  onWindowSizeChange_() {
+    this.refreshFuncs_.forEach(e => e());
+  };
 
   /**
    * @param s
@@ -192,8 +181,11 @@ export default class Split extends Component {
    *    a member of this split-group, and if so, is split.
    * @param {string=} orientation Only 'EW' or 'NS'.
    * @param {number=} thickness Thickness of the dragger
+   * @param {number=} widthA Width of the A nest
+   * @param {number=} widthC Width of the C nest
    */
-  addSplit(opt_el = void 0, orientation = 'EW', thickness = 8, widthA = 100, widthB = 100) {
+  addSplit(opt_el = void 0, orientation = 'EW', thickness = 8,
+           widthA = 100, widthC = 100) {
 
     // Sanitize input
     let root = opt_el ? opt_el : this.getElement();
@@ -229,7 +221,7 @@ export default class Split extends Component {
     // Make the nest elements
     const a = makeNestEl(setW, setH, addC, widthA);
     const b = makeNestEl(setW, setH, addC);
-    const c = makeNestEl(setW, setH, addC, widthB);
+    const c = makeNestEl(setW, setH, addC, widthC);
     [a, b, c].forEach(e => root.appendChild(e));
 
 
@@ -268,7 +260,7 @@ export default class Split extends Component {
     draggers.add(AB);
     draggers.add(BC);
 
-    this.updateFuncs_.push(updateSelf);
+    this.refreshFuncs_.push(updateSelf);
     this.nestMap_.set(`${refN}A`, a).set(`${refN}B`, b).set(`${refN}C`, c);
     this.splitNests_.push(root);
   }
