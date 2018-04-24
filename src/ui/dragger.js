@@ -52,23 +52,30 @@ const getPos = el => {
 
 
 /**
- * @param {Function} emitter
+ * @param {Function} onStart
+ * @param {Function} onMove
+ * @param {Function} onEnd
  * @param {string} degreesOfFreedom
  * @return {Function}
  */
-const dragStartListener = (emitter, degreesOfFreedom) => event => {
+const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) => event => {
+  event.preventDefault();
   const ev = normalizeEvent(event);
   const target = ev.currentTarget;
   const [left, top] = getPos(target);
   const xOrg = ev.clientX - left;
   const yOrg = ev.clientY - top;
-  const emit = emitter(left, top, xOrg, yOrg, target);
 
-  let dragFunc = freeMoveListener(emit, target, xOrg, yOrg);
+  const startEmit = onStart(left, top, xOrg, yOrg, target);
+  const endEmit = onEnd(left, top, xOrg, yOrg, target);
+  const moveEmit = onMove(left, top, xOrg, yOrg, target);
+
+  // Drag move.
+  let dragFunc = freeMoveListener(moveEmit, target, xOrg, yOrg);
   if (degreesOfFreedom === 'x') {
-    dragFunc = xMoveOnlyListener(emit, target, xOrg, yOrg);
+    dragFunc = xMoveOnlyListener(moveEmit, target, xOrg, yOrg);
   } else if (degreesOfFreedom === 'y') {
-    dragFunc = yMoveOnlyListener(emit, target, xOrg, yOrg);
+    dragFunc = yMoveOnlyListener(moveEmit, target, xOrg, yOrg);
   }
 
   const cancelFunc = e => {
@@ -77,12 +84,14 @@ const dragStartListener = (emitter, degreesOfFreedom) => event => {
     document.removeEventListener(EV.TOUCHMOVE, dragFunc, true);
     document.removeEventListener(EV.MOUSEUP, cancelFunc, true);
     document.removeEventListener(EV.TOUCHEND, cancelFunc, true);
+    endEmit(e);
   };
 
   document.addEventListener(EV.MOUSEUP, cancelFunc, true);
   document.addEventListener(EV.TOUCHEND, cancelFunc, true);
   document.addEventListener(EV.MOUSEMOVE, dragFunc, true);
-  document.addEventListener(EV.TOUCHMOVE, dragFunc, true)
+  document.addEventListener(EV.TOUCHMOVE, dragFunc, true);
+  startEmit(event);
 };
 
 
@@ -113,6 +122,24 @@ const yMoveOnlyListener = (emit, target, xOrg, yOrg) => event => {
   const ev = normalizeEvent(event);
   target.style.top = `${ev.clientY - yOrg}px`;
   emit(ev);
+};
+
+
+//--------------------------------------------------------[ Event Emitters ]--
+const makeEmitter = (comp, evType) => (left, top, xOrg, yOrg, target) => ev => {
+    comp.dispatchCompEvent(evType, {
+      component: comp,
+      browserEvent: ev,
+      left: left,
+      top: top,
+      clientX: ev.clientX,
+      clientY: ev.clientY,
+      xOrg: xOrg,
+      yOrg: yOrg,
+      deltaX: ev.clientX - xOrg - left,
+      deltaY: ev.clientY - yOrg - top,
+      target: target
+    })
 };
 
 
@@ -182,30 +209,16 @@ class Dragger extends Component {
   }
 
   //------------------------------------------------------[ Dragger Specific ]--
-  makeDragEmitterFunc_() {
-    return (left, top, xOrg, yOrg, target) => ev => {
-      this.dispatchCompEvent(UiEventType.COMP_DRAGGED, {
-        component: this,
-        browserEvent: ev,
-        clientX: ev.clientX,
-        clientY: ev.clientY,
-        xOrg: xOrg,
-        yOrg: yOrg,
-        deltaX: ev.clientX - xOrg - left,
-        deltaY: ev.clientY - yOrg - top,
-        target: target
-      })
-    }
-  };
-
-
   /**
    * Make the component draggable
    */
   unLock() {
     if (this.isInDocument && this.isLocked_) {
-      const emitter = this.makeDragEmitterFunc_();
-      const dragFunc = dragStartListener(emitter, this.degreesOfFreedom_);
+      const onMove = makeEmitter(this, UiEventType.COMP_DRAG_MOVE);
+      const onStart = makeEmitter(this, UiEventType.COMP_DRAG_START);
+      const onEnd = makeEmitter(this, UiEventType.COMP_DRAG_END);
+      const dragFunc = dragStartListener(
+          onStart, onMove, onEnd, this.degreesOfFreedom_);
       this.isLocked_ = false;
       this.dragHandle_ = this.dragHandle_ || this.getElement();
       this.listen(this.dragHandle_, EV.MOUSEDOWN, dragFunc);

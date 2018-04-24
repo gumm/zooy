@@ -348,7 +348,9 @@ class Component extends EventTarget {
         this.target_.insertBefore(this.element_, null);
       }
     } else {
-      document.body.appendChild(this.element_);
+      if (!isInPage(this.element_)) {
+        document.body.appendChild(this.element_);
+      }
     }
 
     // If this component has a parent component that isn't in the document yet,

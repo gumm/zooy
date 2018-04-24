@@ -16,7 +16,9 @@ export const UiEventType = {
    * and the in-line scripts from the AJAX call has been eval'd.
    */
   COMP: privateRandom(),
-  COMP_DRAGGED: privateRandom(),
+  COMP_DRAG_START: privateRandom(),
+  COMP_DRAG_MOVE: privateRandom(),
+  COMP_DRAG_END: privateRandom(),
   VIEW: privateRandom(),
   READY: privateRandom(),
   PANEL_MINIMIZE: privateRandom(),
