@@ -1,5 +1,20 @@
 .nest {
-    background-color: rgba(255,255,255,0.2);
+    background-color: lightgray;
+}
+.nest.closed {
+    border: none !important;
+}
+.nest.north-south._A {
+    border-bottom: 1px solid darkgray;
+}
+.nest.north-south._C {
+    border-top: 1px solid darkgray;
+}
+.nest.east-west._A {
+    border-right: 1px solid darkgray;
+}
+.nest.east-west._C {
+    border-left: 1px solid darkgray;
 }
 .dragger {
     background-color: transparent;
@@ -11,6 +26,10 @@
 }
 .dragger:hover {
     opacity: 1;
+}
+.dragger.locked:hover {
+    opacity: 0 !important;
+    cursor: auto !important;
 }
 .dragger.north-south {
     flex-direction: column;
@@ -25,23 +44,26 @@
     cursor: ew-resize;
 }
 .grabber {
-    color: darkgray;
-    background-color: lightgray;
+    color: lightgray;
     border-radius: 8px;
     text-align: center;
-    font-size: 15px;
-    line-height: 12px;
-    text-wrap: normal;
+    font-size: 20px;
 }
 .grabber::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
     content: '● ● ●';
+    -webkit-text-stroke: 1px darkgray;
 }
 .grabber.east-west {
-    width: 100%;
-    height: 40px;
-    line-height: 13px;
+    height: 50px;
+}
+.grabber.east-west:after {
+    content: '●\A●\A●';
 }
 .grabber.north-south {
-    height: 100%;
-    width: 40px;
+    width: 50px;
 }

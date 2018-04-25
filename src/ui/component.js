@@ -2,6 +2,26 @@ import { UiEventType } from '../events/uieventtype.js'
 import { removeNode, isInPage } from '../dom/utils.js';
 import { isDef } from "../../node_modules/badu/module/badu.mjs";
 
+/*
+EVENT LISTENER LEAK DETECTOR
+
+var listenerCount = 0;
+(function() {
+    var ael = Node.prototype.addEventListener;
+    Node.prototype.addEventListener = function() {
+         listenerCount++;
+         ael.apply(this, arguments);
+    }
+    var rel = Node.prototype.removeEventListener;
+    Node.prototype.removeEventListener = function() {
+         listenerCount--;
+         rel.apply(this, arguments);
+    }
+})();
+
+ */
+
+
 
 /**
  * Errors thrown by the component.

@@ -15,13 +15,19 @@
 </div>
 <script type="module">
     import Split from '../src/ui/split.js';
-    const s = new Split();
+    const s = new Split(20);
     s.domFunc = () => document.getElementById('root');
     s.render();
-    s.addSplit(undefined, 'NS', 100, 50);
-    s.addSplit(s.getNest('B'), 'EW', 250, 250);
+    s.addSplit(undefined, 'NS', 100, 30);
+    s.addSplit(s.getNest('B'), 'EW', 400, 400);
     s.addSplit(s.getNest('BA'), 'NS', 100, 100);
     s.addSplit(s.getNest('BC'), 'NS', 100, 100);
+    s.close('BC', undefined, true);
+    s.close('BAA', undefined, true);
+    s.close('BAC', undefined, true);
+    s.close('BCA', undefined, true);
+    s.close('BCC', undefined, true);
+    s.lock('C');
     window.SPLIT = s;
 </script>
 
