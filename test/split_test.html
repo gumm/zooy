@@ -3,22 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>FLEX Split Test</title>
-    <style>
-        /*transition: flex-basis 500ms ease-in-out;*/
-        .nest {
-            background-color: rgba(255,255,255,0.2);
-            /*transition: flex-basis 200ms ease-in-out;*/
-        }
-        .dragger {
-            background-color: rgba(0,0,0,0.2);
-        }
-        .dragger.north-south:hover {
-            cursor: ns-resize;
-        }
-        .dragger.east-west:hover {
-            cursor: ew-resize;
-        }
-    </style>
+    <link rel="stylesheet" href="../src/css/split.css">
 </head>
 <body>
 <div id="root" style="
@@ -38,7 +23,6 @@
     s.addSplit(s.getNest('BA'), 'NS', 100, 100);
     s.addSplit(s.getNest('BC'), 'NS', 100, 100);
     window.SPLIT = s;
-
 </script>
 
 </body>

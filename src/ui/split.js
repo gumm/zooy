@@ -36,6 +36,13 @@ const makeDraggerEl = (setW, setH, addC, thickness) => () => {
   addC(el);
   setH(el, 100, '%');
   setW(el, thickness);
+
+  const grabber = document.createElement('div');
+  grabber.classList.add('grabber');
+  addC(grabber);
+
+  el.appendChild(grabber);
+
   return el;
 };
 

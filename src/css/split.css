@@ -1,0 +1,47 @@
+.nest {
+    background-color: rgba(255,255,255,0.2);
+}
+.dragger {
+    background-color: transparent;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    align-content: stretch;
+    transition: opacity 500ms ease-in-out;
+}
+.dragger:hover {
+    opacity: 1;
+}
+.dragger.north-south {
+    flex-direction: column;
+}
+.dragger.east-west {
+    flex-direction: row;
+}
+.dragger.north-south:hover {
+    cursor: ns-resize;
+}
+.dragger.east-west:hover {
+    cursor: ew-resize;
+}
+.grabber {
+    color: darkgray;
+    background-color: lightgray;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 12px;
+    text-wrap: normal;
+}
+.grabber::after {
+    content: '● ● ●';
+}
+.grabber.east-west {
+    width: 100%;
+    height: 40px;
+    line-height: 13px;
+}
+.grabber.north-south {
+    height: 100%;
+    width: 40px;
+}
