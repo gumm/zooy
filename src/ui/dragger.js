@@ -1,56 +1,7 @@
 import Component from './component.js';
 import { UiEventType } from '../events/uieventtype.js';
-
-
-// noinspection SpellCheckingInspection
-/**
- * @type {{
- *    TOUCHSTART: string,
- *    TOUCHMOVE: string,
- *    TOUCHEND: string,
- *    MOUSEDOWN: string,
- *    MOUSEUP: string,
- *    MOUSEMOVE: string
- * }}
- */
-const EV = {
-  TOUCHSTART: 'touchstart',
-  TOUCHMOVE: 'touchmove',
-  TOUCHEND: 'touchend',
-  MOUSEDOWN: 'mousedown',
-  MOUSEUP: 'mouseup',
-  MOUSEMOVE: 'mousemove',
-};
-
-const touchEvents = [EV.TOUCHMOVE, EV.TOUCHSTART, EV.TOUCHEND];
-
-const isTouchEvent = ev => touchEvents.includes(ev.type);
-
-const normalizeEvent = ev => {
-  if (isTouchEvent(ev)) {
-    ev.clientX = ev.targetTouches[0].clientX;
-    ev.clientY = ev.targetTouches[0].clientY;
-  }
-  return ev;
-};
-
-
-/**
- * @param {Element} el
- * @return {Array<number>}
- */
-const getPos = el => {
-  // const style = window.getComputedStyle(el);
-  // return [style.getPropertyValue('left'), style.getPropertyValue('top')]
-  //     .map(e => e.replace(/[^\d.]/g, ' ')
-  //         .split(' ')
-  //         .filter(e => e !== '')
-  //         .map(e => +e)
-  //     )
-  //     .map(e => e[0]);
-
-  return [el.offsetLeft, el.offsetTop];
-};
+import { getPos } from '../dom/utils.js';
+import { EV, normalizeEvent } from '../events/mouseandtouchevents.js';
 
 
 /**
@@ -58,7 +9,7 @@ const getPos = el => {
  * @param {Function} onMove
  * @param {Function} onEnd
  * @param {string} degreesOfFreedom
- * @return {Function}
+ * @return {function<Event>}
  */
 const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) => event => {
   event.preventDefault();
@@ -81,7 +32,6 @@ const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) => event =>
   }
 
   const cancelFunc = e => {
-    console.log('Mouse Up Event');
     document.removeEventListener(EV.MOUSEMOVE, dragFunc, true);
     document.removeEventListener(EV.TOUCHMOVE, dragFunc, true);
     document.removeEventListener(EV.MOUSEUP, cancelFunc, true);

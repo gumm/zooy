@@ -1,20 +1,6 @@
 import { UiEventType } from '../events/uieventtype.js'
-
+import { removeNode, isInPage } from '../dom/utils.js';
 import { isDef } from "../../node_modules/badu/module/badu.mjs";
-
-/**
- * Removes a node from its parent.
- * @param {Node} node The node to remove.
- * @return {Node} The node removed if removed; else, null.
- */
-const removeNode = function(node) {
-  return node && node.parentNode ? node.parentNode.removeChild(node) : null;
-};
-
-
-const isInPage = node => {
-  return (node === document.body) ? false : document.body.contains(node);
-};
 
 
 /**
@@ -489,6 +475,7 @@ class Component extends EventTarget {
 }
 
 
+//--------------------------------------------[ Standard component event data]--
 class CompEventData {
   constructor(value, opt_data) {
     /**
