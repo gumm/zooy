@@ -1,5 +1,34 @@
+/* Let's get this party started */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    /*-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);*/
+    /*-webkit-border-radius: 10px;*/
+    /*border-radius: 10px;*/
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    /*-webkit-border-radius: 10px;*/
+    /*border-radius: 10px;*/
+    background: lightgray;
+    /*-webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.4);*/
+}
+::-webkit-scrollbar-thumb:window-inactive {
+    background: lightgray;
+}
+
+
+
+
 .nest {
     background-color: lightgray;
+    overflow: hidden;
+    overflow-y: auto;
+    display: flex;
 }
 .nest.closed {
     border: none !important;
@@ -19,17 +48,17 @@
 .dragger {
     background-color: transparent;
     opacity: 0;
+    /*background-color: black;*/
+    /*opacity: 0.5;*/
     display: flex;
     align-items: center;
     align-content: stretch;
-    transition: opacity 500ms ease-in-out;
 }
 .dragger:hover {
     opacity: 1;
 }
-.dragger.locked:hover {
-    opacity: 0 !important;
-    cursor: auto !important;
+.dragger.locked {
+    display: none;
 }
 .dragger.north-south {
     flex-direction: column;

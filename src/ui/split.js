@@ -5,13 +5,24 @@ import {
   isNumber,
   randomId,
   isDefAndNotNull,
-  maybeNumber
 } from '../../node_modules/badu/module/badu.mjs';
-import { randomColour } from '../dom/utils.js';
-import { EV } from '../events/mouseandtouchevents.js';
+import {randomColour,} from '../dom/utils.js';
+import {EV,} from '../events/mouseandtouchevents.js';
+
+const maybeFunc = func => () => {
+  func ? func() : null;
+};
 
 
 //--------------------------------------------------------------[ DOM Makers ]--
+/**
+ * @param {Function} setW
+ * @param {Function} setH
+ * @param {Function} addC
+ * @param {number|undefined}width
+ * @param {Array<string>} classArr
+ * @return {HTMLDivElement}
+ */
 const makeNestEl = (setW, setH, addC, width, classArr) => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
@@ -24,12 +35,20 @@ const makeNestEl = (setW, setH, addC, width, classArr) => {
     el.style.flexGrow = '1';
     setW(el, 0);
   }
-  setH(el, 100, '%');
+  setH(el, 'auto', '');
   addC(el);
   classArr.forEach(e => el.classList.add(e));
   return el;
 };
 
+
+/**
+ * @param {function(!HTMLDivElement, number, string=):void} setW
+ * @param {function(!HTMLDivElement, number, string=):void} setH
+ * @param {function(!HTMLDivElement):void} addC
+ * @param {number} thickness
+ * @return {function(): !HTMLDivElement}
+ */
 const makeDraggerEl = (setW, setH, addC, thickness) => () => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
@@ -39,43 +58,51 @@ const makeDraggerEl = (setW, setH, addC, thickness) => () => {
   setH(el, 100, '%');
   setW(el, thickness);
 
+  // Append an inner grabber.
   const grabber = document.createElement('div');
   grabber.classList.add('grabber');
   addC(grabber);
-
   el.appendChild(grabber);
-
   return el;
 };
 
 
 //----------------------------------------------------------[ Event Handlers ]--
-const makeActOnAB = (getO, hT, bc, a, uS) => el => {
-  const dOff = getO(el);
-  a.style.flexBasis = dOff + hT + 'px';
-  uS();
-  el.style.zIndex = 1;
-  bc.style.zIndex = 0;
+/**
+ */
+const actOnAB = m => {
+  m.ownNest.style.flexBasis = m.ownOffset() + m.hT + 'px';
+  m.matchOtherToNest();
 };
 
-const makeActOnBC = (getO, getW, hT, ab, c, root, uS) => el => {
-  const dOff = getO(el);
-  const rootRectWidth = getW(root);
-  c.style.flexBasis = rootRectWidth - dOff - hT + 'px';
-  uS();
-  el.style.zIndex = 1;
-  ab.style.zIndex = 0;
+/**
+ */
+const actOnBC = m => {
+  m.ownNest.style.flexBasis =
+      m.rootSize() - m.ownOffset() - m.hT + 'px';
+  m.matchOtherToNest();
 };
 
-const onDraggerEvent = actOnDragger => e => {
+const onDraggerEvent = e => {
   const data = e.detail.getData();
+  const model = data.component.model;
   switch (e.detail.getValue()) {
     case UiEventType.COMP_DRAG_MOVE:
-      actOnDragger(data.target);
+      model.onDrag(model);
+      model.otherDragger.model.matchOtherToNest();
       break;
     case UiEventType.COMP_DRAG_START:
+      model.ownDraggerEl.style.zIndex = 1;
+      model.otherDraggerEl.style.zIndex = 0;
       break;
     case UiEventType.COMP_DRAG_END:
+      const otherNest = model.otherNest;
+      console.log(model.otherDragger.model.nestSize());
+      console.log(otherNest.style.flexBasis);
+      console.log(otherNest);
+
+
+      // resizeNest_();
       break;
     default:
       // Do nothing.
@@ -84,6 +111,10 @@ const onDraggerEvent = actOnDragger => e => {
 
 
 //-----------------------------------------------------[ Orientation Helpers ]--
+/**
+ * @param {string} orient
+ * @return {function(HTMLDivElement): number}
+ */
 const orientGetElWidth = orient => {
   if (orient === 'EW') {
     return el => el.getBoundingClientRect().width;
@@ -92,6 +123,10 @@ const orientGetElWidth = orient => {
   }
 };
 
+/**
+ * @param {string} orient
+ * @return {function(HTMLDivElement): number}
+ */
 const orientGetElOffset = orient => {
   if (orient === 'EW') {
     return el => el.offsetLeft;
@@ -100,6 +135,10 @@ const orientGetElOffset = orient => {
   }
 };
 
+/**
+ * @param {string} orient
+ * @return {function(*, *, *): string}
+ */
 const orientSetElWidth = orient => {
   if (orient === 'EW') {
     return (el, num, op_unit) =>
@@ -110,6 +149,10 @@ const orientSetElWidth = orient => {
   }
 };
 
+/**
+ * @param {string} orient
+ * @return {function(*, *, *): string}
+ */
 const orientSetElHeight = orient => {
   if (orient === 'EW') {
     return (el, num, op_unit) =>
@@ -120,6 +163,10 @@ const orientSetElHeight = orient => {
   }
 };
 
+/**
+ * @param orient
+ * @return {function(*, *, *): string}
+ */
 const orientSetElOffset = orient => {
   if (orient === 'EW') {
     return (el, num, op_unit) =>
@@ -130,12 +177,70 @@ const orientSetElOffset = orient => {
   }
 };
 
+/**
+ * @param orient
+ * @return {function(*): void}
+ */
 const orientAddOrientClass = orient => {
   if (orient === 'EW') {
     return el => el.classList.add('east-west');
   } else {
     return el => el.classList.add('north-south');
   }
+};
+
+const resizeNest_ = (drgOffset, nestFlexBasis, model, isClose,
+                     opt_onDoneFunc, opt_skipTrans) => {
+  const context = model.context;
+  const orientString = model.orient === 'EW' ? 'left' : 'top';
+  const drgEl = model.ownDraggerEl;
+  const nestEl = model.ownNest;
+  const ms = 500;
+
+  // Just set the values. No transitions, no checking of current values.
+  if (opt_skipTrans) {
+    model.setOwnOffset(drgOffset);
+    nestEl.style.flexBasis = `${nestFlexBasis}px`;
+    isClose
+        ? nestEl.classList.add('closed')
+        : nestEl.classList.remove('closed');
+    maybeFunc(opt_onDoneFunc)();
+  } else {
+
+    let timeoutID;
+    const onTransitionEnd = () => {
+      context.stopListeningTo(drgEl, EV.TRANSITIONEND);
+      context.stopListeningTo(nestEl, EV.TRANSITIONEND);
+      drgEl.style.transition = null;
+      nestEl.style.transition = null;
+      if (isClose) {
+        nestEl.classList.add('closed')
+      }
+      context.refreshAll_();
+      maybeFunc(opt_onDoneFunc)();
+      window.clearTimeout(timeoutID);
+    };
+
+    // Don't even begin this unless we have to.
+    // Else you will leak events, as the transition will never start,
+    // and thus never end.
+    if (model.ownOffset() !== drgOffset) {
+      context.listen(drgEl, EV.TRANSITIONEND, onTransitionEnd);
+    }
+
+    // A hard stop to make sure we fire what needs to be fired.
+    // Will be canceled if the transition end fired before this.
+    timeoutID = window.setTimeout(onTransitionEnd, ms + 50);
+
+    drgEl.style.transition = `${orientString} ${ms}ms ease-in-out`;
+    nestEl.style.transition = `flex-basis ${ms}ms ease-in-out`;
+    nestEl.style.flexBasis = `${nestFlexBasis}px`;
+    model.setOwnOffset(drgOffset);
+    if (!isClose) {
+      nestEl.classList.remove('closed');
+    }
+  }
+
 };
 
 
@@ -150,7 +255,7 @@ export default class Split extends Component {
      * @type {number}
      * @private
      */
-    this.thickness_ = isNumber(opt_thickness) ?  opt_thickness : 12;
+    this.thickness_ = isNumber(opt_thickness) ? opt_thickness : 12;
 
     /**
      * Pre-calculated half-width of the draggers
@@ -161,7 +266,7 @@ export default class Split extends Component {
 
     /**
      * Holds reference between the nest designation, and the nest element.
-     * @type {Map<string, !Element>}
+     * @type {Map<string, !HTMLDivElement>}
      * @private
      */
     this.nestMap_ = new Map();
@@ -175,7 +280,7 @@ export default class Split extends Component {
     /**
      * Once a nest (or the root element) is split, it ends here, and
      * this is checked to make sure we don't split the same thing twice.
-     * @type {Set<!Element>}
+     * @type {Set<!HTMLDivElement>}
      * @private
      */
     this.splitNests_ = new Set();
@@ -201,32 +306,52 @@ export default class Split extends Component {
 
   /**
    * @param s
-   * @return {!Element | undefined}
+   * @return {!HTMLDivElement | undefined}
    */
   getNest(s) {
     return this.nestMap_.get(s);
   }
 
-  open(s, width, func, opt_skipAni=false) {
-    if(this.openFuncs_.has(s)) {
+  open(s, width, func, opt_skipAni = false) {
+    if (this.openFuncs_.has(s)) {
       this.openFuncs_.get(s)(width, func, opt_skipAni);
     }
   }
 
-  close(s, func, opt_skipAni=false) {
-    if(this.closeFuncs_.has(s)) {
+  openAndUnlock(s, func, opt_skipAni = false) {
+    if (this.openFuncs_.has(s)) {
+      this.openFuncs_.get(s)(
+          () => {
+            this.unlock(s);
+            maybeFunc(func)
+          }, opt_skipAni);
+    }
+  }
+
+  close(s, func, opt_skipAni = false) {
+    if (this.closeFuncs_.has(s)) {
       this.closeFuncs_.get(s)(func, opt_skipAni);
     }
   }
 
+  closeAndLock(s, func, opt_skipAni = false) {
+    if (this.closeFuncs_.has(s)) {
+      this.closeFuncs_.get(s)(
+          () => {
+            this.lock(s);
+            maybeFunc(func)
+          }, opt_skipAni);
+    }
+  }
+
   lock(s) {
-    if(this.draggerMap_.has(s)) {
+    if (this.draggerMap_.has(s)) {
       this.draggerMap_.get(s)[1].lock();
     }
   }
 
   unlock(s) {
-    if(this.draggerMap_.has(s)) {
+    if (this.draggerMap_.has(s)) {
       this.draggerMap_.get(s)[1].unlock();
     }
   }
@@ -237,7 +362,7 @@ export default class Split extends Component {
 
   /**
    * Split an element into 3
-   * @param {Element=} opt_el The element to split. If not given, the
+   * @param {HTMLDivElement=} opt_el The element to split. If not given, the
    *    components own element is used. Else, the element is checked to be
    *    a member of this split-group, and if so, is split.
    * @param {string=} orientation Only 'EW' or 'NS'.
@@ -265,7 +390,6 @@ export default class Split extends Component {
     const freedom = orient === 'EW' ? 'x' : 'y';
     const thickness = this.thickness_;
     const hT = this.halfThick_;
-    const orientString = orient === 'EW' ? 'left' : 'top';
     const refA = `${refN}A`;
     const refB = `${refN}B`;
     const refC = `${refN}C`;
@@ -277,6 +401,7 @@ export default class Split extends Component {
     root.style.display = 'flex';
     root.style.flexDirection = orient === 'EW' ? 'row' : 'column';
     root.style.overflow = 'hidden';
+    root.style.padding = '0';
 
     // Prep all the helper functions
     const getW = orientGetElWidth(orient);
@@ -303,6 +428,46 @@ export default class Split extends Component {
     BC.render(root);
     const bc = BC.getElement();
 
+    AB.model = {
+        context:this,
+        orient,
+        hT,
+        root,
+        ownNest: a,
+        ownDraggerEl: ab,
+        midNest: b,
+        otherNest: c,
+        otherDraggerEl: bc,
+        otherDragger: BC,
+        matchOtherToNest: () => setO(bc, getW(a) + getW(b) - hT),
+        ownOffset: () => getO(ab),
+        nestOffset: () => getO(a),
+        nestSize: () => getW(a),
+        setOwnOffset: n => setO(ab, n),
+        rootSize: () => getW(root),
+        onDrag: actOnAB
+    };
+
+    BC.model = {
+      context:this,
+      orient,
+      hT,
+      root,
+      ownNest: c,
+      ownDraggerEl: bc,
+      midNest: b,
+      otherNest: a,
+      otherDraggerEl: ab,
+      otherDragger: AB,
+      matchOtherToNest: () => setO(ab, getW(a) - hT),
+      ownOffset: () => getO(bc),
+      nestOffset: () => getO(c),
+      nestSize: () => getW(c),
+      setOwnOffset: n => setO(bc, n),
+      rootSize: () => getW(root),
+      onDrag: actOnBC
+    };
+
     const matchDraggersToNest = () => {
       const aW = getW(a);
       setO(ab, aW - hT);
@@ -310,73 +475,25 @@ export default class Split extends Component {
     };
     matchDraggersToNest();
 
-    // Prep the methods that will act on the nest elements.
-    const actOnAB_ = makeActOnAB(getO, hT, bc, a, matchDraggersToNest);
-    const actOnBC_ = makeActOnBC(getO, getW, hT, ab, c, root, matchDraggersToNest);
-    const actOnAB = onDraggerEvent(actOnAB_, bc, actOnBC_);
-    const actOnBC = onDraggerEvent(actOnBC_, ab, actOnAB_);
+    this.listen(AB, Component.compEventCode(), onDraggerEvent);
+    this.listen(BC, Component.compEventCode(), onDraggerEvent);
 
-    this.listen(AB, Component.compEventCode(), actOnAB);
-    this.listen(BC, Component.compEventCode(), actOnBC);
-
-    const resizeNest_ = (draggerTarget, nestTarget, bc, c, isClose, opt_aF,
-                         opt_skipTrans) => {
-
-      // Just set the values. No transitions, no checking of current values.
-      if (opt_skipTrans) {
-        setO(bc, draggerTarget);
-        c.style.flexBasis = `${nestTarget}px`;
-        isClose ? c.classList.add('closed') : c.classList.remove('closed');
-      } else {
-
-        // Don't even begin this unless we have to.
-        // Else you will leak events, as the transition will never start,
-        // and thus never end.
-        if (getO(bc) !== draggerTarget) {
-          this.listen(bc, EV.TRANSITIONEND, () => {
-            this.stopListeningTo(bc, EV.TRANSITIONEND);
-            bc.style.transition = null;
-          });
-          bc.style.transition = `${orientString} 500ms ease-in-out`;
-          setO(bc, draggerTarget);
-        }
-
-        if (maybeNumber(c.style.flexBasis.split('px')[0]) !== nestTarget) {
-          this.listen(c, EV.TRANSITIONEND, () => {
-            this.stopListeningTo(c, EV.TRANSITIONEND);
-            c.style.transition = null;
-            this.refreshAll_();
-            if (isClose) {
-              c.classList.add('closed')
-            }
-            opt_aF ? opt_aF() : null;
-          });
-
-          if (!isClose) {
-            c.classList.remove('closed');
-          }
-          c.style.transition = 'flex-basis 500ms ease-in-out';
-          c.style.flexBasis = `${nestTarget}px`;
-        }
-      }
-
-
-    };
-
-    const openA = (value = defOpenA, opt_aF = nullFunc, opt_skipTrans = false) => {
-      resizeNest_(value, value, ab, a, false, opt_aF, opt_skipTrans);
+    const openA = (value = defOpenA, opt_aF = nullFunc,
+                   opt_skipTrans = false) => {
+      resizeNest_(value, value, AB.model, false, opt_aF, opt_skipTrans);
     };
 
     const closeA = (opt_aF = nullFunc, opt_Trans = false) => {
-      resizeNest_(0, 0, ab, a, true, opt_aF, opt_Trans);
+      resizeNest_(0, 0, AB.model, true, opt_aF, opt_Trans);
     };
 
-    const openC = (value = defOpenC, opt_aF = nullFunc, opt_skipTrans = false) => {
-      resizeNest_(getW(root) - value, value, bc, c, false, opt_aF, opt_skipTrans);
+    const openC = (value = defOpenC, opt_aF = nullFunc,
+                   opt_skipTrans = false) => {
+      resizeNest_(getW(root) - value, value, BC.model, false, opt_aF, opt_skipTrans);
     };
 
     const closeC = (opt_aF = nullFunc, opt_skipTrans = false) => {
-      resizeNest_(getW(root), 0, bc, c, true, opt_aF, opt_skipTrans);
+      resizeNest_(getW(root), 0, BC.model, true, opt_aF, opt_skipTrans);
     };
 
     this.listen(ab, EV.DBLCLICK, () => {

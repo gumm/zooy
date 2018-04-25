@@ -15,6 +15,7 @@
 </div>
 <script type="module">
     import Split from '../src/ui/split.js';
+    import lorum from './lorum.js'
     const s = new Split(20);
     s.domFunc = () => document.getElementById('root');
     s.render();
@@ -22,6 +23,16 @@
     s.addSplit(s.getNest('B'), 'EW', 400, 400);
     s.addSplit(s.getNest('BA'), 'NS', 100, 100);
     s.addSplit(s.getNest('BC'), 'NS', 100, 100);
+
+    const bb = s.getNest('BB');
+    bb.innerText = lorum;
+    bb.style.padding = 40 + 'px';
+
+    const ba = s.getNest('BAB');
+    ba.innerText = lorum;
+    ba.style.padding = 40 + 'px';
+
+
     s.close('BC', undefined, true);
     s.close('BAA', undefined, true);
     s.close('BAC', undefined, true);
