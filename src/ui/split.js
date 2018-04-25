@@ -28,7 +28,7 @@ const makeNestEl = (setW, setH, addC, width, classArr) => {
   el.setAttribute('id', randomId(7));
   el.classList.add('nest');
   el.style.position = 'relative';
-  // el.style.backgroundColor = randomColour();
+  el.style.backgroundColor = randomColour();
   if (isDefAndNotNull(width)) {
     el.style.flexBasis = width + 'px';
   } else {
