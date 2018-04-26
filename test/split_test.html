@@ -24,13 +24,17 @@
     s.addSplit(s.getNest('BA'), 'NS', 100, 100);
     s.addSplit(s.getNest('BC'), 'NS', 100, 100);
 
-    const bb = s.getNest('BB');
-    bb.innerText = lorum;
-    bb.style.padding = 40 + 'px';
+    const BB = s.getNest('BB');
+    BB.innerText = lorum;
+    BB.style.padding = 40 + 'px';
 
-    const ba = s.getNest('BAB');
-    ba.innerText = lorum;
-    ba.style.padding = 40 + 'px';
+    const BAB = s.getNest('BAB');
+    BAB.innerText = lorum;
+    BAB.style.padding = 40 + 'px';
+
+    const BCB = s.getNest('BCB');
+    BCB.innerText = lorum;
+    BCB.style.padding = 40 + 'px';
 
 
     s.close('BC', undefined, true);

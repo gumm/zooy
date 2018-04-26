@@ -21,14 +21,14 @@ const maybeFunc = func => () => {
  * @param {Function} addC
  * @param {number|undefined}width
  * @param {Array<string>} classArr
- * @return {HTMLDivElement}
+ * @return {HTMLElement}
  */
 const makeNestEl = (setW, setH, addC, width, classArr) => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
   el.classList.add('nest');
   el.style.position = 'relative';
-  el.style.backgroundColor = randomColour();
+  // el.style.backgroundColor = randomColour();
   if (isDefAndNotNull(width)) {
     el.style.flexBasis = width + 'px';
   } else {
@@ -43,11 +43,11 @@ const makeNestEl = (setW, setH, addC, width, classArr) => {
 
 
 /**
- * @param {function(!HTMLDivElement, number, string=):void} setW
- * @param {function(!HTMLDivElement, number, string=):void} setH
- * @param {function(!HTMLDivElement):void} addC
+ * @param {function(!HTMLElement, number, string=):void} setW
+ * @param {function(!HTMLElement, number, string=):void} setH
+ * @param {function(!HTMLElement):void} addC
  * @param {number} thickness
- * @return {function(): !HTMLDivElement}
+ * @return {function(): !HTMLElement}
  */
 const makeDraggerEl = (setW, setH, addC, thickness) => () => {
   const el = document.createElement('div');
@@ -113,7 +113,7 @@ const onDraggerEvent = e => {
 //-----------------------------------------------------[ Orientation Helpers ]--
 /**
  * @param {string} orient
- * @return {function(HTMLDivElement): number}
+ * @return {function(HTMLElement): number}
  */
 const orientGetElWidth = orient => {
   if (orient === 'EW') {
@@ -125,7 +125,7 @@ const orientGetElWidth = orient => {
 
 /**
  * @param {string} orient
- * @return {function(HTMLDivElement): number}
+ * @return {function(HTMLElement): number}
  */
 const orientGetElOffset = orient => {
   if (orient === 'EW') {
@@ -266,7 +266,7 @@ export default class Split extends Component {
 
     /**
      * Holds reference between the nest designation, and the nest element.
-     * @type {Map<string, !HTMLDivElement>}
+     * @type {Map<string, !HTMLElement>}
      * @private
      */
     this.nestMap_ = new Map();
@@ -280,7 +280,7 @@ export default class Split extends Component {
     /**
      * Once a nest (or the root element) is split, it ends here, and
      * this is checked to make sure we don't split the same thing twice.
-     * @type {Set<!HTMLDivElement>}
+     * @type {Set<!HTMLElement>}
      * @private
      */
     this.splitNests_ = new Set();
@@ -306,7 +306,7 @@ export default class Split extends Component {
 
   /**
    * @param s
-   * @return {!HTMLDivElement | undefined}
+   * @return {!HTMLElement | undefined}
    */
   getNest(s) {
     return this.nestMap_.get(s);
@@ -362,7 +362,7 @@ export default class Split extends Component {
 
   /**
    * Split an element into 3
-   * @param {HTMLDivElement=} opt_el The element to split. If not given, the
+   * @param {HTMLElement=} opt_el The element to split. If not given, the
    *    components own element is used. Else, the element is checked to be
    *    a member of this split-group, and if so, is split.
    * @param {string=} orientation Only 'EW' or 'NS'.
