@@ -36,3 +36,23 @@ export const randomColour = opt_a => {
   return [1, 2, 3].map(() => Math.floor(Math.random() * 256) + 1)
       .reduce((p, c) => `${p}${c},`, 'rgba(') + `${opt_a ? opt_a : 0.5}`;
 };
+
+
+export const totalWidth = el => {
+  const s = window.getComputedStyle(el);
+  const width = el.offsetWidth;
+  const margin = parseFloat(s.marginLeft) + parseFloat(s.marginRight);
+  const padding = parseFloat(s.paddingLeft) + parseFloat(s.paddingRight);
+  const border = parseFloat(s.borderLeftWidth) + parseFloat(s.borderRightWidth);
+  return width + margin - padding + border
+};
+
+export const totalHeight = el => {
+  const s = window.getComputedStyle(el);
+  const height = el.offsetHeight;
+  const margin = parseFloat(s.marginTop) + parseFloat(s.marginBottom);
+  const padding = parseFloat(s.paddingTop) + parseFloat(s.paddingBottom);
+  const border = parseFloat(s.borderTopWidth) + parseFloat(s.borderBottomWidth);
+  return height + margin - padding + border
+};
+

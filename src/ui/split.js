@@ -67,31 +67,6 @@ const makeDraggerEl = (setW, setH, addC, thickness) => () => {
 
 
 //----------------------------------------------------------[ Event Handlers ]--
-const checkForCollision_ = model => {
-  if (model.collision()) {
-    if (!model.colliding) {
-      // We entered the colliding state.
-      // Take a reference of this position.
-      model.onCollisionOwnSize = model.nestSize();
-      model.onCollisionOwnOffset = model.ownOffset();
-      console.log('BOOM!');
-    }
-    model.colliding = true;
-
-    // From this point on the drag "feels" elastic.
-    model.matchOtherToNest();
-    model.otherDragger.model.matchOtherToNest();
-  } else {
-    if (model.colliding) {
-      // We were colliding, but not any more...
-      model.matchOtherToNest();
-    }
-    model.colliding = false;
-  }
-};
-
-
-
 const onDraggerEvent = e => {
   const data = e.detail.getData();
   const model = data.component.model;
@@ -108,7 +83,26 @@ const onDraggerEvent = e => {
 
     case UiEventType.COMP_DRAG_MOVE:
       model.doDrag();
-      checkForCollision_(model);
+      if (model.collision()) {
+        if (!model.colliding) {
+          // We entered the colliding state.
+          // Take a reference of this position.
+          model.onCollisionOwnSize = model.nestSize();
+          model.onCollisionOwnOffset = model.ownOffset();
+          console.log('BOOM!');
+        }
+        model.colliding = true;
+
+        // From this point on the drag "feels" elastic.
+        model.matchOtherToNest();
+        model.otherDragger.model.matchOtherToNest();
+      } else {
+        if (model.colliding) {
+          // We were colliding, but not any more...
+          model.matchOtherToNest();
+        }
+        model.colliding = false;
+      }
       break;
 
     case UiEventType.COMP_DRAG_END:
@@ -368,6 +362,20 @@ export default class Split extends Component {
 
     window.addEventListener('resize', () => this.refreshAll_());
   };
+
+  get nests() {
+    return [...this.nestMap_.values()].filter(e => !this.splitNests_.has(e))
+  }
+
+  get draggers() {
+    return [...this.draggerMap_.values()].map(e => e[1]);
+  }
+
+  get NSdraggers() {
+    return [...this.draggerMap_.values()]
+        .filter(([a,]) => a === 'NS')
+        .map(([a, b]) => b);
+  }
 
   /**
    * When the window size changes, refresh the layout.

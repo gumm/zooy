@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FLEX Split Test</title>
+    <link rel="stylesheet" href="../src/css/split.css">
+</head>
+<body>
+<div id="root" style="
+    position: absolute; top: 0; left: 0;
+    background-color: lightgrey;
+    height: 100%;
+    width: 100%;
+    ">
+</div>
+<script type="module">
+    import Split from '../src/ui/split.js';
+    import lorum from './lorum.js'
+    const s = new Split(30);
+    s.domFunc = () => document.getElementById('root');
+    s.render();
+    s.addSplit(undefined, 'EW');
+    s.addSplit(s.getNest('A'), 'NS');
+    s.addSplit(s.getNest('B'), 'NS');
+    s.addSplit(s.getNest('BB'), 'EW');
+    // s.addSplit(s.getNest('BBB'), 'NS');
+    // s.addSplit(s.getNest('C'), 'NS');
+    // s.addSplit(s.getNest('AA'), 'EW');
+    // s.addSplit(s.getNest('AB'), 'EW');
+    // s.addSplit(s.getNest('AC'), 'EW');
+    // s.addSplit(s.getNest('AAA'), 'NS');
+    // s.addSplit(s.getNest('AAB'), 'NS');
+    // s.addSplit(s.getNest('AAC'), 'NS');
+    // s.addSplit(s.getNest('AAAA'), 'EW');
+    // s.addSplit(s.getNest('AAAB'), 'EW');
+    // s.addSplit(s.getNest('AAAC'), 'EW');
+
+    s.nests.forEach(e => {
+      e.style.padding = 10 + 'px';
+      e.innerText = lorum;
+    });
+    // console.log(s.draggers);
+    // console.log(s.NSdraggers);
+
+    // const BB = s.getNest('BB');
+    // BB.innerText = lorum;
+    // BB.style.padding = 40 + 'px';
+    //
+    // const BAB = s.getNest('BAB');
+    // BAB.innerText = lorum;
+    // BAB.style.padding = 40 + 'px';
+    //
+    // const BCB = s.getNest('BCB');
+    // BCB.innerText = lorum;
+    // BCB.style.padding = 40 + 'px';
+
+
+    // // s.close('BC', undefined, true);
+    // s.close('BAA', undefined, true);
+    // s.close('BAC', undefined, true);
+    // s.close('BCA', undefined, true);
+    // s.close('BCC', undefined, true);
+    // s.lock('C');
+    window.SPLIT = s;
+</script>
+
+</body>
+</html>

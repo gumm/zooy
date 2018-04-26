@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BITBUCKET Split Test</title>
+    <!--<link rel="stylesheet" href="../src/css/split.css">-->
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        .nest {
+            border:1px solid tomato;
+            flex-basis: 300px;
+            position: relative;
+        }
+        .mid {
+            flex-grow: 1;
+        }
+        .dragger {
+            position: absolute;
+            width: 30px;
+            height: 100%;
+            top:0;
+            border: 1px solid slateblue;
+        }
+        .dragger.ab {
+            right: -15px;
+        }
+        .dragger.bc {
+            left: -15px;
+        }
+    </style>
+</head>
+<body>
+<div id="root" style="
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    background-color: lightgrey;
+    height: 70%;
+    width: 70%;
+    display: flex;
+    flex-direction: row;
+    ">
+    <div class="nest">
+        <div class="dragger ab"></div>
+    </div>
+    <div class="nest mid"></div>
+    <div class="nest">
+        <div class="dragger bc"></div>
+    </div>
+</div>
+<!--<script type="module">-->
+    <!--import Split from '../src/ui/split.js';-->
+    <!--import lorum from './lorum.js'-->
+    <!--const s = new Split(30);-->
+    <!--s.domFunc = () => document.getElementById('root');-->
+    <!--s.render();-->
+    <!--s.addSplit(undefined, 'EW', [80], [340]);-->
+    <!--s.closeAndLock('C', undefined, true);-->
+    <!--s.lock('A');-->
+    <!--s.addSplit(s.getNest('B'), 'EW', [300], [0]);-->
+
+    <!--s.getNest('A').classList.add('bluebar');-->
+
+    <!--// s.getNest('BA');-->
+        <!--// .classList.add('menu');-->
+    <!--s.getNest('C');-->
+        <!--// .classList.add('gKJLsR');-->
+    <!--// s.addSplit(s.getNest('BA'), 'NS', 100, 100);-->
+    <!--// s.addSplit(s.getNest('BC'), 'NS', 100, 100);-->
+    <!--//-->
+    <!--// const BB = s.getNest('BB');-->
+    <!--// BB.innerText = lorum;-->
+    <!--// BB.style.padding = 40 + 'px';-->
+    <!--//-->
+    <!--// const BAB = s.getNest('BAB');-->
+    <!--// BAB.innerText = lorum;-->
+    <!--// BAB.style.padding = 40 + 'px';-->
+    <!--//-->
+    <!--// const BCB = s.getNest('BCB');-->
+    <!--// BCB.innerText = lorum;-->
+    <!--// BCB.style.padding = 40 + 'px';-->
+    <!--//-->
+    <!--//-->
+    <!--// s.close('BC', undefined, true);-->
+    <!--// s.close('BAA', undefined, true);-->
+    <!--// s.close('BAC', undefined, true);-->
+    <!--// s.close('BCA', undefined, true);-->
+    <!--// s.close('BCC', undefined, true);-->
+    <!--// s.lock('C');-->
+    <!--window.SPLIT = s;-->
+<!--</script>-->
+
+</body>
+</html>
