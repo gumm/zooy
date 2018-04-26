@@ -45,6 +45,8 @@ const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) =>
       document.addEventListener(EV.MOUSEMOVE, dragFunc, true);
       document.addEventListener(EV.TOUCHMOVE, dragFunc, true);
       startEmit(event);
+
+      return cancelFunc;
     };
 
 
@@ -129,7 +131,14 @@ class Dragger extends Component {
      */
     this.isLocked_ = true;
 
+
+    this.cancelDrag_ = () => null;
+
   };
+
+  cancelDrag(event) {
+    this.cancelDrag_(event);
+  }
 
   //---------------------------------------------------[ Getters and Setters ]--
   /**
@@ -170,6 +179,9 @@ class Dragger extends Component {
    * Make the component draggable
    */
   unlock() {
+    const wrapperFunc = func => e => {
+      this.cancelDrag_ = func(e);
+    };
     if (this.isInDocument && this.isLocked_) {
       const onMove = makeEmitter(this, UiEventType.COMP_DRAG_MOVE);
       const onStart = makeEmitter(this, UiEventType.COMP_DRAG_START);
@@ -178,7 +190,7 @@ class Dragger extends Component {
           onStart, onMove, onEnd, this.degreesOfFreedom_);
       this.isLocked_ = false;
       this.dragHandle_ = this.dragHandle_ || this.getElement();
-      this.listen(this.dragHandle_, EV.MOUSEDOWN, dragFunc);
+      this.listen(this.dragHandle_, EV.MOUSEDOWN, wrapperFunc(dragFunc));
       this.listen(this.dragHandle_, EV.TOUCHSTART, dragFunc);
       this.dragHandle_.classList.remove('locked');
     }
