@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FLEX Split Test</title>
+    <link rel="stylesheet" href="../src/css/split.css">
+    <style>
+        .root {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .sitehead {
+            position: relative;
+            flex-basis: 90px;
+            background-color: #666666;
+        }
+        .main {
+            position: relative;
+            flex-grow: 1;
+            background-color: lightgray;
+        }
+        .footer {
+            position: relative;
+            flex-basis: 18px;
+            background-color: #666666;
+        }
+        .A, .C {
+            box-shadow: rgba(0,0,0,.5) 0 0 10px;
+            background-color: #F5F5F5;
+            z-index: 1;
+        }
+        .nest.closed {
+            box-shadow: none;
+        }
+        .AA, .AB, .AC, .CA, .CB, .CC {
+            background-color: transparent;
+        }
+        .B {
+            z-index: 0;
+        }
+        .grabber {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="root">
+    <div class="sitehead"></div>
+    <div id="main" class="main"></div>
+    <div class="footer"></div>
+</div>
+<script type="module">
+    import Split from '../src/ui/split.js';
+    const s = new Split(30);
+    s.domFunc = () => document.getElementById('main');
+    s.render();
+    s.addSplit(undefined, 'EW', [300], [400]);
+    s.addSplit(s.getNest('A'), 'NS', [100], [100]);
+    s.addSplit(s.getNest('C'), 'NS', [100], [100]);
+
+    s.closeAndLock('AA', undefined, true);
+    s.closeAndLock('AC', undefined, true);
+    s.closeAndLock('CA', undefined, true);
+    s.closeAndLock('CC', undefined, true);
+    window.SPLIT = s;
+</script>
+
+</body>
+</html>

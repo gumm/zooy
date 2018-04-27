@@ -46,14 +46,16 @@ const makeNestEl = (setW, setH, addC, width, classArr) => {
  * @param {function(!HTMLElement, number, string=): void} setH
  * @param {function(!HTMLElement): void} addC
  * @param {number} thickness
+ * @param {Array<string>} classArr
  * @return {function(): !HTMLElement}
  */
-const makeDraggerEl = (setW, setH, addC, thickness) => () => {
+const makeDraggerEl = (setW, setH, addC, thickness, classArr) => () => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
   el.classList.add('dragger');
   el.style.position = 'absolute';
   addC(el);
+  classArr.forEach(e => el.classList.add(e));
   setH(el, 100, '%');
   setW(el, thickness);
 
@@ -79,6 +81,7 @@ const onDraggerEvent = e => {
       model.preCollisionOtherOffset = model.otherOffset();
       model.ownDraggerEl.style.zIndex = 1;
       model.otherDraggerEl.style.zIndex = 0;
+      model.unClose();
       break;
 
     case UiEventType.COMP_DRAG_MOVE:
@@ -89,7 +92,6 @@ const onDraggerEvent = e => {
           // Take a reference of this position.
           model.onCollisionOwnSize = model.nestSize();
           model.onCollisionOwnOffset = model.ownOffset();
-          console.log('BOOM!');
         }
         model.colliding = true;
 
@@ -176,10 +178,12 @@ const orientGetElOffset = orient => {
 const orientSetElWidth = orient => {
   if (orient === 'EW') {
     return (el, num, op_unit) => {
-        el.style.width = `${num}${op_unit ? op_unit : 'px'}`};
+      el.style.width = `${num}${op_unit ? op_unit : 'px'}`
+    };
   } else {
     return (el, num, op_unit) => {
-        el.style.height = `${num}${op_unit ? op_unit : 'px'}`};
+      el.style.height = `${num}${op_unit ? op_unit : 'px'}`
+    };
   }
 };
 
@@ -190,10 +194,12 @@ const orientSetElWidth = orient => {
 const orientSetElHeight = orient => {
   if (orient === 'EW') {
     return (el, num, op_unit) => {
-        el.style.height = `${num}${op_unit ? op_unit : 'px'}`};
+      el.style.height = `${num}${op_unit ? op_unit : 'px'}`
+    };
   } else {
     return (el, num, op_unit) => {
-        el.style.width = `${num}${op_unit ? op_unit : 'px'}`};
+      el.style.width = `${num}${op_unit ? op_unit : 'px'}`
+    };
   }
 };
 
@@ -204,10 +210,12 @@ const orientSetElHeight = orient => {
 const orientSetElOffset = orient => {
   if (orient === 'EW') {
     return (el, num, op_unit) => {
-        el.style.left = `${num}${op_unit ? op_unit : 'px'}`};
+      el.style.left = `${num}${op_unit ? op_unit : 'px'}`
+    };
   } else {
     return (el, num, op_unit) => {
-        el.style.top = `${num}${op_unit ? op_unit : 'px'}`};
+      el.style.top = `${num}${op_unit ? op_unit : 'px'}`
+    };
   }
 };
 
@@ -582,12 +590,12 @@ export default class Split extends Component {
     // Make the dragger components
     const freedom = orient === 'EW' ? 'x' : 'y';
     const AB = new Dragger(freedom);
-    AB.domFunc = makeDraggerEl(setW, setH, addC, thickness);
+    AB.domFunc = makeDraggerEl(setW, setH, addC, thickness, ['__A']);
     AB.render(root);
     const ab = AB.getElement();
 
     const BC = new Dragger(freedom);
-    BC.domFunc = makeDraggerEl(setW, setH, addC, thickness);
+    BC.domFunc = makeDraggerEl(setW, setH, addC, thickness, ['__C']);
     BC.render(root);
     const bc = BC.getElement();
 
@@ -602,39 +610,38 @@ export default class Split extends Component {
     // Extend the dragger's model with the required info about this setup
     // to be able to do everything it needs functionally.
     AB.model = {
-        context: this,
-        orient,
-        hT,
-        defaultSize: defSizeA,
-        maxSize: minSizeA,
-        minSize: maxSizeA,
-        root,
-        ownNest: a,
-        ownDraggerEl: ab,
-        midNest: b,
-        otherNest: c,
-        otherDraggerEl: bc,
-        otherDragger: BC,
-        doDrag: () => a.style.flexBasis = getO(ab) + hT + 'px',
-        matchOtherToNest: () => setO(bc, getW(a) + getW(b) - hT),
-        ownOffset: () => getO(ab),
-        nestOffset: () => getO(a),
-        nestSize: () => getW(a),
-        setOwnOffset: n => setO(ab, n),
-        rootSize: () => getW(root),
-        otherNestSize: () => getW(c),
-        otherOffset: () => getO(bc),
-        resize: (value=defSizeA, opt_aF=nullFunc, opt_skipTrans=false) => {
-          resizeNest_(value, value, AB, false, opt_aF, opt_skipTrans)
-        },
-        close: (opt_aF=nullFunc, opt_Trans=false) => {
-          resizeNest_(0, 0, AB, true, opt_aF, opt_Trans);
-        },
-        mustOpen: () => getO(ab) <= Math.max(30, minSizeA),
-        toggle: () => AB.model.mustOpen()
-            ? AB.model.resize()
-            : AB.model.close(),
-        collision: () => AB.model.preCollisionOtherSize > BC.model.nestSize()
+      context: this,
+      orient,
+      hT,
+      defaultSize: defSizeA,
+      maxSize: minSizeA,
+      minSize: maxSizeA,
+      root,
+      ownNest: a,
+      ownDraggerEl: ab,
+      midNest: b,
+      otherNest: c,
+      otherDraggerEl: bc,
+      otherDragger: BC,
+      doDrag: () => a.style.flexBasis = getO(ab) + hT + 'px',
+      unClose: () => a.classList.remove('closed'),
+      matchOtherToNest: () => setO(bc, getW(a) + getW(b) - hT),
+      ownOffset: () => getO(ab),
+      nestOffset: () => getO(a),
+      nestSize: () => getW(a),
+      setOwnOffset: n => setO(ab, n),
+      rootSize: () => getW(root),
+      otherNestSize: () => getW(c),
+      otherOffset: () => getO(bc),
+      mustOpen: () => getO(ab) <= Math.max(30, minSizeA),
+      collision: () => AB.model.preCollisionOtherSize > BC.model.nestSize(),
+      toggle: () => AB.model.mustOpen() ? AB.model.resize() : AB.model.close(),
+      resize: (value = defSizeA, opt_aF = nullFunc, opt_skipTrans = false) => {
+        resizeNest_(value, value, AB, false, opt_aF, opt_skipTrans)
+      },
+      close: (opt_aF = nullFunc, opt_Trans = false) => {
+        resizeNest_(0, 0, AB, true, opt_aF, opt_Trans);
+      }
     };
 
     BC.model = {
@@ -652,6 +659,7 @@ export default class Split extends Component {
       otherDraggerEl: ab,
       otherDragger: AB,
       doDrag: () => c.style.flexBasis = getW(root) - getO(bc) - hT + 'px',
+      unClose: () => c.classList.remove('closed'),
       matchOtherToNest: () => setO(ab, getW(a) - hT),
       ownOffset: () => getO(bc),
       nestOffset: () => getO(c),
@@ -660,18 +668,16 @@ export default class Split extends Component {
       rootSize: () => getW(root),
       otherNestSize: () => getW(a),
       otherOffset: () => getO(ab),
+      mustOpen: () => (getW(root) - getO(bc)) <= Math.max(30, minSizeC),
+      collision: () => BC.model.preCollisionOtherSize > AB.model.nestSize(),
+      toggle: () => BC.model.mustOpen() ? BC.model.resize() : BC.model.close(),
       resize: (value = defSizeC, opt_aF = nullFunc,
                opt_skipTrans = false) => {
         resizeNest_(getW(root) - value, value, BC, false, opt_aF, opt_skipTrans);
       },
       close: (opt_aF = nullFunc, opt_skipTrans = false) => {
         resizeNest_(getW(root), 0, BC, true, opt_aF, opt_skipTrans);
-      },
-      mustOpen: () => (getW(root) - getO(bc)) <= Math.max(30, minSizeC),
-      toggle: () => BC.model.mustOpen()
-          ? BC.model.resize()
-          : BC.model.close(),
-      collision: () => BC.model.preCollisionOtherSize > AB.model.nestSize()
+      }
     };
 
 

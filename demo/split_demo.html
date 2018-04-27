@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slit DEMO</title>
+    <link rel="stylesheet" href="../src/css/split.css">
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        .nest {
+            border: 20px solid #666666;
+        }
+        .north-south._A {
+            border-bottom: none;
+        }
+        .north-south._C {
+            border-top: none;
+        }
+        .east-west._A {
+            border-right: none;
+        }
+        .east-west._C {
+            border-left: none;
+        }
+        .A, .dragger.__A .grabber {
+            background-color: tomato;
+        }
+        .B {
+            background-color: steelblue;
+        }
+        .C, .dragger.__C .grabber {
+            background-color: darkgoldenrod;
+        }
+        .grabber {
+            border: none;
+        }
+
+    </style>
+</head>
+<body>
+<div id="left" style="
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    background-color: lightgrey;
+    height: 70%;
+    width: calc(35% - 7%);
+    ">
+</div>
+<div id="right" style="
+    position: absolute;
+    top: 15%;
+    right: 15%;
+    background-color: lightgrey;
+    height: 70%;
+    width: calc(35% - 7%);
+    ">
+</div>
+<script type="module">
+    import Split from '../src/ui/split.js';
+
+    const l = new Split(30);
+    l.domFunc = () => document.getElementById('left');
+    l.render();
+    l.addSplit(undefined, 'EW');
+
+    const r = new Split(30);
+    r.domFunc = () => document.getElementById('right');
+    r.render();
+    r.addSplit(undefined, 'NS');
+</script>
+
+</body>
+</html>

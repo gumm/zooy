@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FLEX Split Test</title>
+    <link rel="stylesheet" href="../src/css/split.css">
+    <style>
+        .north-south._A {
+            border-bottom: 1px solid darkgray;
+        }
+        .north-south._C {
+            border-top: 1px solid darkgray;
+        }
+        .east-west._A {
+            border-right: 1px solid darkgray;
+        }
+        .east-west._C {
+            border-left: 1px solid darkgray;
+        }
+    </style>
+</head>
+<body>
+<div id="root" style="
+    position: absolute; top: 0; left: 0;
+    background-color: lightgrey;
+    height: 100%;
+    width: 100%;
+    ">
+</div>
+<script type="module">
+    import Split from '../src/ui/split.js';
+    import lorum from './lorum.js'
+    const s = new Split(30);
+    s.domFunc = () => document.getElementById('root');
+    s.render();
+    s.addSplit(undefined, 'EW');
+    s.addSplit(s.getNest('A'), 'NS');
+    s.addSplit(s.getNest('B'), 'NS');
+    s.addSplit(s.getNest('BB'), 'EW');
+
+    s.nests.forEach(e => {
+      e.style.padding = 10 + 'px';
+      e.innerText = lorum;
+    });
+</script>
+
+</body>
+</html>
