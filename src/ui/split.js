@@ -5,13 +5,12 @@ import {
   isNumber,
   randomId,
   isDefAndNotNull,
+  maybeFunc,
 } from '../../node_modules/badu/module/badu.mjs';
 import {randomColour,} from '../dom/utils.js';
 import {EV,} from '../events/mouseandtouchevents.js';
 
-const maybeFunc = func => () => {
-  func ? func() : null;
-};
+
 
 
 //--------------------------------------------------------------[ DOM Makers ]--

@@ -1,0 +1,146 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<style>
+        .tst_flex-container {
+            display: flex;
+            flex-flow: column nowrap;
+        }
+
+        .tst_flex-item {
+            flex: 1;
+            order: 1;
+        }
+
+        .tst_panel_a {
+            position: relative;
+            margin-left: 20px;
+            margin-right: 20px;
+            width: calc(100% - 40px);
+            height: 100%;
+        }
+
+        .tst_content > .tst_panel_a {
+            position: absolute;
+            height: auto;
+            top: 0;
+            bottom: 0;
+        }
+
+        .tst_toolbar {
+            background: rgba(141, 229, 146, 0.36);
+        }
+
+        .tst_tabbar {
+            background: rgba(24, 42, 255, 0.47);
+        }
+
+        .tst_content {
+            position: relative;
+            background-color: rgba(128, 76, 140, 0.36);
+            flex: 999999 !important;
+        }
+
+        .tst_actionbar {
+            background: rgba(109, 173, 221, 0.46);
+        }
+
+        .tst_button {
+            font: 24px Helvetica;
+            height: 50px;
+            position: relative;
+            float: left;
+            padding: 0 5px;
+            margin: 5px;
+            background-color: #ff71f8;
+            line-height: 56px;
+            text-align: center;
+        }
+
+        .tst_tabbar > .tst_button {
+            font-size: 18px;
+            height: 35px;
+            float: left;
+            margin: 5px;
+            background-color: #5b6aff;
+            line-height: 38px;
+        }
+
+        .tst_toolbar > .tst_button {
+            font-size: 12px;
+            height: 25px;
+            float: left;
+            margin: 5px;
+            background-color: #9bff4f;
+            line-height: 28px;
+        }
+
+        .scrolly_content {
+            position: absolute;
+            height: auto;
+            left:0;
+            right:0;
+            top: 0;
+            bottom: 0;
+            overflow: auto;
+        }
+    </style>
+
+<div class="tst_panel_a tst_flex-container">
+    <div class="tst_toolbar tst_flex-item">
+    </div>
+    <div class="tst_tabbar tst_flex-item">
+        <div class="tst_button">TAB-1</div>
+        <div class="tst_button">TAB-2</div>
+        <div class="tst_button">TAB-3</div>
+    </div>
+    <div class="tst_content tst_flex-item">
+
+
+        <div class="tst_panel_a tst_flex-container">
+            <div class="tst_toolbar tst_flex-item">
+                <div class="tst_button"><i class="material-icons">face</i></div>
+                <div class="tst_button"><i class="material-icons">face</i></div>
+                <div class="tst_button"><i class="material-icons">face</i></div>
+            </div>
+            <div class="tst_tabbar tst_flex-item">
+            </div>
+            <div class="tst_content tst_flex-item">
+                <div class="scrolly_content">
+
+                    <h1>I gotta piss</h1>
+                    <p>Normally, both your asses would be dead as fucking fried chicken, but you happen to pull this shit while I'm in a transitional period so I don't wanna kill you, I wanna help you. But I can't give you this case, it don't belong to me. Besides, I've already been through too much shit this morning over this case to hand it over to your dumb ass. </p>
+
+                    <h1>Hold on to your butts</h1>
+                    <p>Well, the way they make shows is, they make one show. That show's called a pilot. Then they show that show to the people who make shows, and on the strength of that one show they decide if they're going to make more shows. Some pilots get picked and become television programs. Some don't, become nothing. She starred in one of the ones that became nothing. </p>
+
+                    <h1>No man, I don't eat pork</h1>
+                    <p>Your bones don't break, mine do. That's clear. Your cells react to bacteria and viruses differently than mine. You don't get sick, I do. That's also clear. But for some reason, you and I react the exact same way to water. We swallow it too fast, we choke. We get some in our lungs, we drown. However unreal it may seem, we are connected, you and I. We're on the same curve, just on opposite ends. </p>
+
+                    <h1>Are you ready for the truth?</h1>
+                    <p>Now that there is the Tec-9, a crappy spray gun from South Miami. This gun is advertised as the most popular gun in American crime. Do you believe that shit? It actually says that in the little book that comes with it: the most popular gun in American crime. Like they're actually proud of that shit.  </p>
+
+                    <h1>Hold on to your butts</h1>
+                    <p>Now that we know who you are, I know who I am. I'm not a mistake! It all makes sense! In a comic, you know how you can tell who the arch-villain's going to be? He's the exact opposite of the hero. And most times they're friends, like you and me! I should've known way back when... You know why, David? Because of the kids. They called me Mr Glass. </p>
+
+                    <!-- end slipsum code -->
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="tst_actionbar tst_flex-item">
+        <button data-mdc-auto-init="MDCRipple" class="mdc-button">Submit</button>
+        <button data-mdc-auto-init="MDCRipple" class="mdc-button">Cancel</button>
+        <button data-mdc-auto-init="MDCRipple" class="mdc-button">Delete</button>
+    </div>
+</div>
+
+
+
+<!--<div class="panel">-->
+    <!--<div class="toolbar flex-item"></div>-->
+    <!--<div class="tabbar flex-item"></div>-->
+    <!--<div class="body flex-item"></div>-->
+    <!--<div class="actionbar flex-item "></div>-->
+<!--</div>-->

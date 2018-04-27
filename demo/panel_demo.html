@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Component</title>
+    <link rel="stylesheet"
+          href="../node_modules/material-components-web/dist/material-components-web.css">
+    <link rel="stylesheet" href="../src/css/split.css">
+    <script src="../node_modules/material-components-web/dist/material-components-web.js"></script>
+    <style>
+        .nest.A {
+            background-color: cornflowerblue;
+        }
+        .nest.B {
+            background-color: tomato;
+        }
+        .nest.C {
+            background-color: goldenrod;
+        }
+    </style>
+</head>
+<body class="mdc-typography">
+<div id="root" style="
+    position: absolute;
+    top:25%;
+    left: 15%;
+    width: 75%;
+    height:50%;
+    background-color: grey">
+</div>
+<script type="module">
+
+  import Split from '../src/ui/split.js';
+  import Panel from '../src/ui/panel.js';
+
+  const s = new Split(30);
+  s.domFunc = () => document.getElementById('root');
+  s.render();
+  s.addSplit(undefined, 'EW');
+
+  const p = new Panel('../demo/panel/empty.html');
+  p.target = s.getNest('B');
+  p.readyFunc = mdc.autoInit;
+  p.renderWithTemplate();
+
+
+
+</script>
+<script>mdc.autoInit()</script>
+
+</body>
+</html>

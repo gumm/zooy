@@ -78,6 +78,19 @@ const ComponentError = {
 
 class Component extends EventTarget {
 
+  //----------------------------------------------------------------[ Static ]--
+  static makeEvent(event, data)  {
+    return new CustomEvent(event, {detail: data});
+  };
+
+  static compEventCode() {
+    return UiEventType.COMP;
+  }
+
+  static compReadyCode() {
+    return UiEventType.READY;
+  }
+
   constructor() {
     super();
 
@@ -97,29 +110,29 @@ class Component extends EventTarget {
 
     /**
      * The DOM element for the component.
-     * @private {Element}
+     * @private {Element|undefined}
      */
-    this.element_ = null;
+    this.element_ =  void 0;
 
     /**
      * Arbitrary data object associated with the component.  Such as meta-data.
      * @private {*}
      */
-    this.model_ = null;
+    this.model_ = void 0;
 
     /**
      * A DOM element where this component will be rendered to.
      * This does not need to be an element in this component's parent DOM.
-     * @private {Element?}
+     * @private {Element|undefined}
      */
-    this.target_ = null;
+    this.target_ = void 0;
 
     /**
      * Parent component to which events will be propagated.  This property is
      * strictly private and must not be accessed directly outside of this class!
-     * @private {Component?}
+     * @private {Component|undefined}
      */
-    this.parent_ = null;
+    this.parent_ = void 0;
 
     /**
      * A map of child components.  Lazily initialized on first use.  Must be
@@ -152,26 +165,19 @@ class Component extends EventTarget {
      * @type {Function}
      * @private
      */
-    this.beforeReadyFunc_ = () => null;
+    this.beforeReadyFunc_ = () => void 0;
 
   };
-
-
-  //----------------------------------------------------------------[ Static ]--
-  static makeEvent(event, data)  {
-    return new CustomEvent(event, {detail: data});
-  };
-
-  static compEventCode() {
-    return UiEventType.COMP;
-  }
-
-  static compReadyCode() {
-    return UiEventType.READY;
-  }
 
 
   //---------------------------------------------------[ Getters and Setters ]--
+  /**
+   * @param {Element|undefined} e
+   */
+  set target(e) {
+    this.target_ = e;
+  }
+
   /**
    * Sets the model associated with the UI component.
    * @param {*} m
@@ -205,10 +211,19 @@ class Component extends EventTarget {
 
   /**
    * A function that makes a DOM element.
-   * @param {!function():!Element} func
+   * @param {!function():(Element|DocumentFragment)} func
    */
   set domFunc(func) {
     this.makeDomFunc_ = func;
+  }
+
+  /**
+   * @param {Function} func A callback guaranteed to fire after the panels is
+   * ready, and in the document, but before the
+   * {@code UiEventType.READY} event is fired.
+   */
+  set readyFunc(func) {
+    this.beforeReadyFunc_ = func;
   }
 
 
@@ -371,16 +386,6 @@ class Component extends EventTarget {
 
 
   //------------------------------------------------------------[ Life-cycle ]--
-  /**
-   * @param {Function} func A callback guaranteed to fire after the panels is
-   * ready, and in the document, but before the
-   * {@code UiEventType.READY} event is fired.
-   */
-  setBeforeReadyCallback(func) {
-    this.beforeReadyFunc_ = func;
-  };
-
-
   executeBeforeReady() {
     this.beforeReadyFunc_();
   }

@@ -57,7 +57,8 @@
 
     let ev = Component.makeEvent('hello', [123,456]);
 
-    a.render(root);
+    a.target = root;
+    a.render();
     b.render(root);
     c.render(root);
 

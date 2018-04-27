@@ -1,5 +1,5 @@
 {
-  "name": "jaui",
+  "name": "jabui",
   "description": "UI Building Blocks",
   "version": "0.0.1",
   "main": "index.js",
@@ -8,15 +8,19 @@
     "email": "janhendrik.badenhorst@gmail.com"
   },
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gumm/jabui.git"
+  },
   "dependencies": {
-    "badu": "*"
+    "badu": "^1.2.15"
   },
   "devDependencies": {
+    "esm": "^3.0.28",
     "google-closure-compiler": "*",
     "google-closure-library": "*",
-    "material-components-web": "*",
+    "material-components-web": "^0.35.0",
     "mocha": "*",
-    "ramda": "*",
-    "esm": "*"
+    "ramda": "*"
   }
 }
