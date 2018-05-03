@@ -7,20 +7,24 @@
     "name": "Jan Badenhorst",
     "email": "janhendrik.badenhorst@gmail.com"
   },
+  "scripts": {
+    "build_css": "./node_modules/node-sass/bin/node-sass src/sass/main.scss > src/css/main.css --output-style compressed"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gumm/jabui.git"
   },
   "dependencies": {
-    "badu": "^1.2.15"
+    "badu": "*"
   },
   "devDependencies": {
-    "esm": "^3.0.28",
+    "esm": "*",
     "google-closure-compiler": "*",
     "google-closure-library": "*",
-    "material-components-web": "^0.35.0",
+    "material-components-web": "*",
     "mocha": "*",
-    "ramda": "*"
+    "ramda": "*",
+    "node-sass": "*"
   }
 }

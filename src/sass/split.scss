@@ -1,0 +1,58 @@
+.nest {
+  background-color: lightgray;
+  overflow: hidden;
+  overflow-y: auto;
+  display: flex;
+}
+.nest.closed {
+  border: none;
+  padding: 0 !important;
+}
+.north-south._A {
+  /*border-bottom: 1px solid darkgray;*/
+}
+.north-south._C {
+  /*border-top: 1px solid darkgray;*/
+}
+.east-west._A {
+  /*border-right: 1px solid darkgray;*/
+}
+.east-west._C {
+  /*border-left: 1px solid darkgray;*/
+}
+.dragger {
+  background-color: transparent;
+  opacity: 0;
+  /*background-color: rgba(0,0,0,0.2);*/
+  /*opacity: 0.5;*/
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+}
+.dragger:hover {
+  opacity: 1;
+}
+.dragger.locked {
+  display: none;
+}
+.dragger.north-south {
+  flex-direction: row;
+}
+.dragger.east-west {
+  flex-direction: column;
+}
+.dragger.north-south:hover {
+  cursor: ns-resize;
+}
+.dragger.east-west:hover {
+  cursor: ew-resize;
+}
+.grabber {
+  background-color: lightgray;
+  border: 1px solid darkgray;
+  border-radius: 5px;
+  flex-basis: 80px;
+  min-width: 10px;
+  min-height: 10px;
+}

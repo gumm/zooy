@@ -1,5 +1,6 @@
 import Component from './component.js';
 
+
 class Panel extends Component {
 
   
