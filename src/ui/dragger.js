@@ -15,7 +15,7 @@ const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) =>
     event => {
       event.preventDefault();
       const ev = normalizeEvent(event);
-      const target = /** @type {!HTMLElement} */ ev.currentTarget;
+      const target = /** @type {!HTMLElement} */ (ev.currentTarget);
       const [left, top] = getPos(target);
       const xOrg = ev.clientX - left;
       const yOrg = ev.clientY - top;
