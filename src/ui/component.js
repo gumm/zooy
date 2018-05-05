@@ -236,7 +236,7 @@ class Component extends EventTarget {
   }
 
   /**
-   * @param {!EventTarget|!Component} target
+   * @param {!EventTarget|!Component|!Node} target
    * @param {string} event
    * @param {!Function} action
    * @param {boolean|!Object} options
@@ -264,10 +264,11 @@ class Component extends EventTarget {
 
   /**
    * Stop listening to all events on target.
-   * @param {!EventTarget|!Component} target
+   * @param {!EventTarget|!Component|!Node|undefined} target
    * @param {string=} opt_event
    */
   stopListeningTo(target, opt_event) {
+    if (!target) { return }
     if (this.listeningTo_.has(target)) {
       if (isDef(opt_event)) {
         Object

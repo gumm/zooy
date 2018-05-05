@@ -18,16 +18,16 @@
     "url": "git+https://github.com/gumm/jabui.git"
   },
   "dependencies": {
-    "badu": "*"
+    "badu": "^1.2.16"
   },
   "devDependencies": {
-    "esm": "*",
+    "esm": "^3.0.29",
     "google-closure-compiler": "*",
     "google-closure-library": "*",
-    "material-components-web": "*",
+    "material-components-web": "^0.35.1",
     "mocha": "*",
-    "ramda": "*",
     "node-sass": "*",
+    "ramda": "*",
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0"

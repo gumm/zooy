@@ -655,12 +655,12 @@ export default class Split extends Component {
     const AB = new Dragger(freedom);
     AB.domFunc = makeDraggerEl(setW, setH, addC, thickness, ['__A']);
     AB.render(root);
-    const ab = AB.getElement();
+    const ab = /** @type {!Element} */(AB.getElement());
 
     const BC = new Dragger(freedom);
     BC.domFunc = makeDraggerEl(setW, setH, addC, thickness, ['__C']);
     BC.render(root);
-    const bc = BC.getElement();
+    const bc = /** @type {!Element} */(BC.getElement());
 
     // Once rendered, the dragger can be matched the their nests.
     const matchDraggersToNest = () => {

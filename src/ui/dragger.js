@@ -115,10 +115,10 @@ class Dragger extends Component {
         : 'xy';
 
     /**
-     * @type {?Element}
+     * @type {!Node|undefined}
      * @private
      */
-    this.dragHandle_ = null;
+    this.dragHandle_ = void 0;
 
     /**
      * Track state. A dragger can either be locked (not draggable) or
@@ -132,7 +132,7 @@ class Dragger extends Component {
     this.isLocked_ = true;
 
 
-    this.cancelDrag_ = () => null;
+    this.cancelDrag_ = e => null;
 
   };
 
@@ -189,7 +189,8 @@ class Dragger extends Component {
       const dragFunc = dragStartListener(
           onStart, onMove, onEnd, this.degreesOfFreedom_);
       this.isLocked_ = false;
-      this.dragHandle_ = this.dragHandle_ || this.getElement();
+      this.dragHandle_ = /** @type {!Node} */ (
+          this.dragHandle_ || this.getElement());
       this.listen(this.dragHandle_, EV.MOUSEDOWN, wrapperFunc(dragFunc));
       this.listen(this.dragHandle_, EV.TOUCHSTART, dragFunc);
       this.dragHandle_.classList.remove('locked');

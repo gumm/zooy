@@ -33,7 +33,7 @@ ES6=(
 
 DEV=(
   "--language_in=ES6_Strict"
-  "--language_out=ES6_Strict"
+  "--language_out=ES5_Strict"
   "--compilation_level=ADVANCED"
 #  "--js_output_file=dist/dag-solve.min.js"
   "--hide_warnings_for=node_modules"
