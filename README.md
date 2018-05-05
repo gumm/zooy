@@ -1,2 +1,2 @@
 ## zooy
-A collection of UI building blocks
+A collection of UI building blocks.
