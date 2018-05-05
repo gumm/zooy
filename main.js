@@ -3,11 +3,11 @@ import Dragger from './src/ui/dragger.js';
 import Panel from './src/ui/panel.js';
 import Split from './src/ui/split.js';
 
-const jabui = {
+const zooy = {
   Component,
   Dragger,
   Panel,
   Split
 };
 
-export default jabui;
+export default zooy;
