@@ -19,8 +19,8 @@ import {EV,} from '../events/mouseandtouchevents.js';
  * @param {!Function} setH
  * @param {!Function} addC
  * @param {number|undefined}width
- * @param {Array<string>} classArr
- * @return {HTMLElement}
+ * @param {!Array<string>} classArr
+ * @return {!Element}
  */
 const makeNestEl = (setW, setH, addC, width, classArr) => {
   const el = document.createElement('div');
@@ -31,7 +31,7 @@ const makeNestEl = (setW, setH, addC, width, classArr) => {
   if (isDefAndNotNull(width)) {
     el.style.flexBasis = width + 'px';
   } else {
-    el.style.flexGrow = '1';
+    el.style.flexGrow = 1;
     setW(el, 0);
   }
   setH(el, 'auto', '');
@@ -41,12 +41,12 @@ const makeNestEl = (setW, setH, addC, width, classArr) => {
 };
 
 /**
- * @param {function(!HTMLElement, number, string=): void} setW
- * @param {function(!HTMLElement, number, string=): void} setH
- * @param {function(!HTMLElement): void} addC
+ * @param {function(!Element, number, string=): void} setW
+ * @param {function(!Element, number, string=): void} setH
+ * @param {function(!Element): void} addC
  * @param {number} thickness
- * @param {Array<string>} classArr
- * @return {function(): !HTMLElement}
+ * @param {!Array<string>} classArr
+ * @return {function(): !Element}
  */
 const makeDraggerEl = (setW, setH, addC, thickness, classArr) => () => {
   const el = document.createElement('div');
@@ -148,86 +148,150 @@ const onDoubleClick = component => e => {
 //-----------------------------------------------------[ Orientation Helpers ]--
 /**
  * @param {string} orient
- * @return {function(!HTMLElement): number}
+ * @return {function(!Element): number}
  */
 const orientGetElWidth = orient => {
+  let f;
   if (orient === 'EW') {
-    return el => el.getBoundingClientRect().width;
+    /**
+     * @param {!Element} el
+     * @return {number}
+     */
+    f = el => el.getBoundingClientRect().width;
   } else {
-    return el => el.getBoundingClientRect().height;
+    /**
+     * @param {!Element} el
+     * @return {number}
+     */
+    f = el => el.getBoundingClientRect().height;
   }
+  return f;
 };
 
 /**
  * @param {string} orient
- * @return {function(!HTMLElement): number}
+ * @return {function(!Element): number}
  */
 const orientGetElOffset = orient => {
+  let f;
   if (orient === 'EW') {
-    return el => el.offsetLeft;
+    /**
+     * @param {!Element} el
+     * @return {number}
+     */
+    f = el => el.offsetLeft;
   } else {
-    return el => el.offsetTop;
+    /**
+     * @param {!Element} el
+     * @return {number}
+     */
+    f = el => el.offsetTop;
   }
+  return f;
 };
 
 /**
  * @param {string} orient
- * @return {function(!HTMLElement, number|string, string=): void}
+ * @return {function(!Element, (number|string), string=): void}
  */
 const orientSetElWidth = orient => {
+  let f;
   if (orient === 'EW') {
-    return (el, num, op_unit) => {
+    /**
+     * @param {!Element} el
+     * @param {number|string} num
+     * @param {string=} op_unit
+     */
+    f = (el, num, op_unit) => {
       el.style.width = `${num}${op_unit ? op_unit : 'px'}`
     };
   } else {
-    return (el, num, op_unit) => {
+    /**
+     * @param {!Element} el
+     * @param {number|string} num
+     * @param {string=} op_unit
+     */
+    f = (el, num, op_unit) => {
       el.style.height = `${num}${op_unit ? op_unit : 'px'}`
     };
   }
+  return f;
 };
 
 /**
  * @param {string} orient
- * @return {function(!HTMLElement, number|string, string=): void}
+ * @return {function(!Element, (number|string), string=): void}
  */
 const orientSetElHeight = orient => {
+  let f;
   if (orient === 'EW') {
-    return (el, num, op_unit) => {
+    /**
+     * @param {!Element} el
+     * @param {number|string} num
+     * @param {string=} op_unit
+     */
+    f = (el, num, op_unit) => {
       el.style.height = `${num}${op_unit ? op_unit : 'px'}`
     };
   } else {
-    return (el, num, op_unit) => {
+    /**
+     * @param {!Element} el
+     * @param {number|string} num
+     * @param {string=} op_unit
+     */
+    f = (el, num, op_unit) => {
       el.style.width = `${num}${op_unit ? op_unit : 'px'}`
     };
   }
+  return f;
 };
 
 /**
  * @param orient
- * @return {function(!HTMLElement, number|string, string=): void}
+ * @return {function(!Element, (number|string), string=): void}
  */
 const orientSetElOffset = orient => {
+  let f;
   if (orient === 'EW') {
-    return (el, num, op_unit) => {
+    /**
+     * @param {!Element} el
+     * @param {number|string} num
+     * @param {string=} op_unit
+     */
+    f = (el, num, op_unit) => {
       el.style.left = `${num}${op_unit ? op_unit : 'px'}`
     };
   } else {
-    return (el, num, op_unit) => {
+    /**
+     * @param {!Element} el
+     * @param {number|string} num
+     * @param {string=} op_unit
+     */
+    f = (el, num, op_unit) => {
       el.style.top = `${num}${op_unit ? op_unit : 'px'}`
     };
   }
+  return f;
 };
 
 /**
  * @param {string} orient
- * @return {function(HTMLElement): void}
+ * @return {function(!Element): void}
  */
 const orientAddOrientClass = orient => {
+  let f;
   if (orient === 'EW') {
-    return el => el.classList.add('east-west');
+    /**
+     * @param {!Element} el
+     */
+    f = el => el.classList.add('east-west');
   } else {
-    return el => el.classList.add('north-south');
+    /**
+     * @param {!Element} el
+     */
+    f = el => el.classList.add('north-south');
   }
+  return f;
 };
 
 
@@ -324,13 +388,13 @@ export default class Split extends Component {
 
     /**
      * Holds reference between the nest designation, and the nest element.
-     * @type {Map<string, !HTMLElement>}
+     * @type {!Map<string, !Element>}
      * @private
      */
     this.nestMap_ = new Map();
 
     /**
-     * @type {Set<Function>}
+     * @type {!Set<!Function>}
      * @private
      */
     this.refreshFuncs_ = new Set();
@@ -338,7 +402,7 @@ export default class Split extends Component {
     /**
      * Once a nest (or the root element) is split, it ends here, and
      * this is checked to make sure we don't split the same thing twice.
-     * @type {Set<!HTMLElement>}
+     * @type {!Set<!Element>}
      * @private
      */
     this.splitNests_ = new Set();
@@ -352,7 +416,7 @@ export default class Split extends Component {
 
     /**
      * Map of nest names to methods that close them.
-     * @type {Map<string, Function>}
+     * @type {!Map<string, !Function>}
      * @private
      */
     this.closeFuncs_ = new Map();
@@ -362,7 +426,7 @@ export default class Split extends Component {
      * The value of the map is a two-element array. The first element is a
      * string, denoting the orientation ('EW', 'NS') and the second is the
      * actual dragger component.
-     * @type {Map<string, Array<string|!Dragger>>}
+     * @type {!Map<string, !Array<string|!Dragger>>}
      * @private
      */
     this.draggerMap_ = new Map();
@@ -396,7 +460,7 @@ export default class Split extends Component {
 
   /**
    * @param s
-   * @return {!HTMLElement | undefined}
+   * @return {!Element | undefined}
    */
   getNest(s) {
     return this.nestMap_.get(s);
@@ -518,7 +582,7 @@ export default class Split extends Component {
    * Example: If nest C is split, the resultant nests are named CA, CB, and CC.
    * When one of these (for example CA) is split further, the pattern continues
    * with the resulting nests being CAA, CAB, CAC etc.
-   * @param {HTMLElement=} opt_el The element to split. If not given, the
+   * @param {Element=} opt_el The element to split. If not given, the
    *    components own element is used. Else, the element is checked to be
    *    a member of this split-group, and if so, is split.
    * @param {string=} orientation Only 'EW' or 'NS'. Defaults to 'EW'

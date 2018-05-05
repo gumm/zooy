@@ -8,7 +8,9 @@
     "email": "janhendrik.badenhorst@gmail.com"
   },
   "scripts": {
-    "build_css": "./node_modules/node-sass/bin/node-sass src/sass/main.scss > src/css/main.css --output-style compressed"
+    "compile_dev": "npm run rollup && build/compile.sh `pwd` dev",
+    "build_css": "./node_modules/node-sass/bin/node-sass src/sass/main.scss > src/css/main.css --output-style compressed",
+    "rollup": "npx rollup -c"
   },
   "license": "Apache-2.0",
   "repository": {
@@ -25,6 +27,9 @@
     "material-components-web": "*",
     "mocha": "*",
     "ramda": "*",
-    "node-sass": "*"
+    "node-sass": "*",
+    "rollup": "^0.57.1",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.3.0"
   }
 }

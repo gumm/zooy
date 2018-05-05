@@ -75,7 +75,6 @@ const ComponentError = {
 };
 
 
-
 class Component extends EventTarget {
 
   //----------------------------------------------------------------[ Static ]--
@@ -96,10 +95,11 @@ class Component extends EventTarget {
 
     /**
      * A function that returns a newly minted element.
-     * @return {HTMLElement}
+     * @return {!HTMLElement|!Element|!DocumentFragment}
      * @private
      */
-    this.makeDomFunc_ = () => document.createElement('div');
+    this.makeDomFunc_ = () =>
+        /** @type {!HTMLElement} */(document.createElement('div'));
 
 
     /**
@@ -110,7 +110,7 @@ class Component extends EventTarget {
 
     /**
      * The DOM element for the component.
-     * @private {Element|undefined}
+     * @private {!Node|undefined}
      */
     this.element_ =  void 0;
 
@@ -147,14 +147,14 @@ class Component extends EventTarget {
      * When adding a listener, immediately also create the un-listen functions
      * and store those in a object keyed with the event.
      * Store these objects against the target in a map
-     * @type {Map<EventTarget, Object<string, Function>>}
+     * @type {Map<!EventTarget, !Object<string, !Function>>}
      * @private
      */
     this.listeningTo_ = new Map();
 
     /**
      * A set of components that are currently listening to this component
-     * @type {Set<any>}
+     * @type {!Set<!EventTarget>}
      * @private
      */
     this.isObservedBy_ = new Set();
@@ -162,7 +162,7 @@ class Component extends EventTarget {
     /**
      * A function guaranteed to be called before the component ready
      * event is fired.
-     * @type {Function}
+     * @type {!Function}
      * @private
      */
     this.beforeReadyFunc_ = () => void 0;
@@ -211,14 +211,14 @@ class Component extends EventTarget {
 
   /**
    * A function that makes a DOM element.
-   * @param {!function():(Element|DocumentFragment)} func
+   * @param {!function():(!HTMLElement|!Element|!DocumentFragment)} func
    */
   set domFunc(func) {
     this.makeDomFunc_ = func;
   }
 
   /**
-   * @param {Function} func A callback guaranteed to fire after the panels is
+   * @param {!Function} func A callback guaranteed to fire after the panels is
    * ready, and in the document, but before the
    * {@code UiEventType.READY} event is fired.
    */
@@ -229,17 +229,17 @@ class Component extends EventTarget {
 
   //-----------------------------------------------[ Listeners and Listening ]--
   /**
-   * @param {EventTarget|Component} comp
+   * @param {!EventTarget|!Component} comp
    */
   isListenedToBy(comp) {
     this.isObservedBy_.add(comp);
   }
 
   /**
-   * @param {EventTarget|Component} target
+   * @param {!EventTarget|!Component} target
    * @param {string} event
-   * @param {Function} action
-   * @param {boolean|Object} options
+   * @param {!Function} action
+   * @param {boolean|!Object} options
    */
   listen(target, event, action, options=false) {
     target.addEventListener(event, action, options);
@@ -264,16 +264,18 @@ class Component extends EventTarget {
 
   /**
    * Stop listening to all events on target.
-   * @param {EventTarget|Component} target
-   * @param {string?} opt_event
+   * @param {!EventTarget|!Component} target
+   * @param {string=} opt_event
    */
   stopListeningTo(target, opt_event) {
     if (this.listeningTo_.has(target)) {
       if (isDef(opt_event)) {
-        Object.entries(this.listeningTo_.get(target)).forEach(([key, value]) => {
-          if (key === opt_event) {
-            value();
-          }
+        Object
+            .entries(this.listeningTo_.get(target))
+            .forEach(([key, value]) => {
+              if (key === opt_event) {
+                /** @type {!Function} */(value)();
+              }
         });
         if (!Object.keys(this.listeningTo_.get(target)).length) {
           this.listeningTo_.delete(target);
@@ -300,7 +302,8 @@ class Component extends EventTarget {
   //--------------------------------------------------------[ DOM Management ]--
   /**
    * Gets the component's element.
-   * @return {Element} The element for the component.
+   * @return {!Node|undefined} The element
+   *    for the component.
    */
   getElement() {
     return this.element_;
@@ -359,18 +362,19 @@ class Component extends EventTarget {
     if (!this.element_) {
       this.createDom();
     }
+    const rootEl = /** @type {!Node} */(this.element_);
 
     if (opt_target) {
       this.target_ = opt_target;
     }
 
     if (this.target_) {
-      if (!isInPage(this.element_)) {
-        this.target_.insertBefore(this.element_, null);
+      if (!isInPage(rootEl)) {
+        this.target_.insertBefore(rootEl, null);
       }
     } else {
-      if (!isInPage(this.element_)) {
-        document.body.appendChild(this.element_);
+      if (!isInPage(/** @type {!Node} */(rootEl))) {
+        document.body.appendChild(rootEl);
       }
     }
 
@@ -446,7 +450,6 @@ class Component extends EventTarget {
    * remove event handlers and clean up the component.  Propagates the call to
    * the component's children, if any. Removes the component's DOM from the
    * document unless it was decorated.
-   * @override
    * @protected
    */
   disposeInternal() {
@@ -466,8 +469,7 @@ class Component extends EventTarget {
     }
 
     this.children_ = null;
-    this.childIndex_ = null;
-    this.element_ = null;
+    this.element_ = void 0;
     this.model_ = null;
     this.parent_ = null;
 

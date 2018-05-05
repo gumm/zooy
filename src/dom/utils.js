@@ -1,7 +1,7 @@
 
 /**
  * Removes a node from its parent.
- * @param {Node} node The node to remove.
+ * @param {!Node} node The node to remove.
  * @return {Node} The node removed if removed; else, null.
  */
 export const removeNode = function(node) {
@@ -9,7 +9,7 @@ export const removeNode = function(node) {
 };
 
 /**
- * @param {Node} node
+ * @param {!Node} node
  * @return {boolean}
  */
 export const isInPage = node => {
@@ -17,8 +17,8 @@ export const isInPage = node => {
 };
 
 /**
- * @param {HTMLElement} el
- * @return {Array<number>}
+ * @param {!HTMLElement} el
+ * @return {!Array<number>}
  */
 export const getPos = el => {
   return [el.offsetLeft, el.offsetTop];

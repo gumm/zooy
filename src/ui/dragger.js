@@ -9,7 +9,7 @@ import {EV, normalizeEvent} from '../events/mouseandtouchevents.js';
  * @param {Function} onMove
  * @param {Function} onEnd
  * @param {string} degreesOfFreedom
- * @return {function<Event>}
+ * @return {function(!Event)}
  */
 const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) =>
     event => {
@@ -51,11 +51,11 @@ const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) =>
 
 
 /**
- * @param {Function} emit
- * @param {HTMLElement} target
+ * @param {!Function} emit
+ * @param {!HTMLElement} target
  * @param {number} xOrg
  * @param {number} yOrg
- * @return {Function}
+ * @return {!Function}
  */
 const freeMoveListener = (emit, target, xOrg, yOrg) => event => {
   event.preventDefault();
