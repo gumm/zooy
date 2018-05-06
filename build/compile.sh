@@ -40,7 +40,7 @@ DEV=(
   "--dependency_mode=STRICT"
   "--entry_point=main.js"
 #  "node_modules/!(test)**/!(test).js"
-  "node_modules/badu/module/badu.mjs"
+  "node_modules/badu/src/badu.js"
   "src/**.js"
   "main.js"
 )

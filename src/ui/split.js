@@ -6,7 +6,7 @@ import {
   randomId,
   isDefAndNotNull,
   maybeFunc,
-} from '../../node_modules/badu/module/badu.mjs';
+} from '../../node_modules/badu/src/badu.js';
 import {randomColour,} from '../dom/utils.js';
 import {EV,} from '../events/mouseandtouchevents.js';
 
@@ -438,6 +438,12 @@ export default class Split extends Component {
     return [...this.nestMap_.values()].filter(e => !this.splitNests_.has(e))
   }
 
+  get nestNames() {
+    return [...this.nestMap_.entries()]
+        .filter(([k,v]) => !this.splitNests_.has(v))
+        .map(([k, ]) => k);
+  }
+
   get draggers() {
     return [...this.draggerMap_.values()].map(e => e[1]);
   }
@@ -532,6 +538,10 @@ export default class Split extends Component {
             maybeFunc(func)
           }, opt_skipAni);
     }
+  }
+
+  closeAndLockAll() {
+    this.nestNames.forEach(n => this.closeAndLock(n, undefined, true));
   }
 
   /**

@@ -1,6 +1,6 @@
 import { UiEventType } from '../events/uieventtype.js'
 import { removeNode, isInPage } from '../dom/utils.js';
-import { isDef } from "../../node_modules/badu/module/badu.mjs";
+import { isDef } from "../../node_modules/badu/src/badu.js";
 
 /*
 EVENT LISTENER LEAK DETECTOR
@@ -215,6 +215,10 @@ class Component extends EventTarget {
    */
   set domFunc(func) {
     this.makeDomFunc_ = func;
+  }
+
+  setElementInternal_(frag) {
+    this.element_ = frag;
   }
 
   /**
