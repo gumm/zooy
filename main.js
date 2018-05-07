@@ -4,14 +4,18 @@ import Panel from './src/ui/panel.js';
 import FormPanel from './src/ui/form.js';
 import Split from './src/ui/split.js';
 import UserManager from './src/user/usermanager.js';
+import View from './src/ui/view.js';
+import Conductor from './src/ui/conductor.js';
 
 const zooy = {
   Component,
   Dragger,
   Panel,
-  Split,
   FormPanel,
-  UserManager
+  Split,
+  UserManager,
+  View,
+  Conductor
 };
 
 export default zooy;

@@ -1,26 +1,7 @@
+import ZooyEventData from '../events/zooyeventdata.js';
+import EVT from './evt.js';
 import { UiEventType } from '../events/uieventtype.js'
 import { removeNode, isInPage } from '../dom/utils.js';
-import { isDef } from "../../node_modules/badu/src/badu.js";
-
-/*
-EVENT LISTENER LEAK DETECTOR
-
-var listenerCount = 0;
-(function() {
-    var ael = Node.prototype.addEventListener;
-    Node.prototype.addEventListener = function() {
-         listenerCount++;
-         ael.apply(this, arguments);
-    }
-    var rel = Node.prototype.removeEventListener;
-    Node.prototype.removeEventListener = function() {
-         listenerCount--;
-         rel.apply(this, arguments);
-    }
-})();
-
- */
-
 
 
 /**
@@ -75,13 +56,9 @@ const ComponentError = {
 };
 
 
-class Component extends EventTarget {
+export default class Component extends EVT {
 
   //----------------------------------------------------------------[ Static ]--
-  static makeEvent(event, data)  {
-    return new CustomEvent(event, {detail: data});
-  };
-
   static compEventCode() {
     return UiEventType.COMP;
   }
@@ -141,23 +118,6 @@ class Component extends EventTarget {
      * @private {Map<string, Component>?}
      */
     this.children_ = new Map();
-
-    /**
-     * A map of listener targets to a object of event: functions
-     * When adding a listener, immediately also create the un-listen functions
-     * and store those in a object keyed with the event.
-     * Store these objects against the target in a map
-     * @type {Map<!EventTarget, !Object<string, !Function>>}
-     * @private
-     */
-    this.listeningTo_ = new Map();
-
-    /**
-     * A set of components that are currently listening to this component
-     * @type {!Set<!EventTarget>}
-     * @private
-     */
-    this.isObservedBy_ = new Set();
 
     /**
      * A function guaranteed to be called before the component ready
@@ -228,79 +188,6 @@ class Component extends EventTarget {
    */
   set readyFunc(func) {
     this.beforeReadyFunc_ = func;
-  }
-
-
-  //-----------------------------------------------[ Listeners and Listening ]--
-  /**
-   * @param {!EventTarget|!Component} comp
-   */
-  isListenedToBy(comp) {
-    this.isObservedBy_.add(comp);
-  }
-
-  /**
-   * @param {!EventTarget|!Component|!Node} target
-   * @param {string} event
-   * @param {!Function} action
-   * @param {boolean|!Object} options
-   */
-  listen(target, event, action, options=false) {
-    target.addEventListener(event, action, options);
-    const currVal = this.listeningTo_.get(target) || {};
-    currVal[event] = () => target.removeEventListener(event, action, options);
-    this.listeningTo_.set(target, currVal);
-
-    if (isDef(target.isListenedToBy)) {
-      target.isListenedToBy(this);
-    }
-  };
-
-  /**
-   * Remove self from all components tt are listening to me.
-   */
-  stopBeingListenedTo() {
-    for (const observer of this.isObservedBy_) {
-      observer.stopListeningTo(this);
-      this.isObservedBy_.delete(observer);
-    }
-  }
-
-  /**
-   * Stop listening to all events on target.
-   * @param {!EventTarget|!Component|!Node|undefined} target
-   * @param {string=} opt_event
-   */
-  stopListeningTo(target, opt_event) {
-    if (!target) { return }
-    if (this.listeningTo_.has(target)) {
-      if (isDef(opt_event)) {
-        Object
-            .entries(this.listeningTo_.get(target))
-            .forEach(([key, value]) => {
-              if (key === opt_event) {
-                /** @type {!Function} */(value)();
-              }
-        });
-        if (!Object.keys(this.listeningTo_.get(target)).length) {
-          this.listeningTo_.delete(target);
-        }
-      } else {
-        Object.values(this.listeningTo_.get(target)).forEach(e => e());
-        this.listeningTo_.delete(target);
-      }
-
-    }
-  }
-
-  /**
-   * Removes all the event listeners that is managed by this
-   * component.
-   */
-  removeAllListener() {
-    for (const target of this.listeningTo_.keys()) {
-      this.stopListeningTo(target);
-    }
   }
 
 
@@ -447,6 +334,7 @@ class Component extends EventTarget {
     this.stopBeingListenedTo();
     this.removeAllListener();
     this.isInDocument = false;
+    removeNode(this.getElement());
   };
 
 
@@ -458,12 +346,11 @@ class Component extends EventTarget {
    * @protected
    */
   disposeInternal() {
+    super.disposeInternal();
+
     if (this.isInDocument) {
       this.exitDocument();
     }
-
-    this.stopBeingListenedTo();
-    this.removeAllListener();
 
     // Disposes of the component's children, if any.
     [...this.children_.values()].forEach(child => child.disposeInternal());
@@ -477,7 +364,6 @@ class Component extends EventTarget {
     this.element_ = void 0;
     this.model_ = null;
     this.parent_ = null;
-
   };
 
 
@@ -499,39 +385,9 @@ class Component extends EventTarget {
    *     if any of the handlers returns false this will also return false.
    */
   dispatchCompEvent(value, opt_data) {
-    const dataObj = new CompEventData(value, opt_data);
-    const event = Component.makeEvent(UiEventType.COMP, dataObj);
+    const dataObj = new ZooyEventData(value, opt_data);
+    const event = EVT.makeEvent(UiEventType.COMP, dataObj);
     return this.dispatchEvent(event);
   };
 
 }
-
-
-//--------------------------------------------[ Standard component event data]--
-class CompEventData {
-  constructor(value, opt_data) {
-    /**
-     * @type {string|number}
-     * @private
-     */
-    this.value_ = value;
-
-    /**
-     * @type {string|number|Object|Map|Set}
-     * @private
-     */
-    this.data_ = opt_data || {};
-  }
-
-  getValue() {
-    return this.value_;
-  }
-
-  getData() {
-    return this.data_;
-  }
-}
-
-
-export { CompEventData };
-export default Component;

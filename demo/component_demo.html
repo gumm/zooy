@@ -35,6 +35,7 @@
 
 <button id="button">TESTME</button>
 <script type="module">
+    import EVT from '../src/ui/evt.js';
     import Component from '../src/ui/component.js';
 
     const button = document.querySelector('#button');
@@ -55,7 +56,7 @@
     let c = new Component();
     c.domFunc = makeBlock('limegreen');
 
-    let ev = Component.makeEvent('hello', [123,456]);
+    let ev = EVT.makeEvent('hello', [123,456]);
 
     a.target = root;
     a.render();

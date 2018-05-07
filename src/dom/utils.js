@@ -63,63 +63,63 @@ export const getValue = function(el) {
   }
 };
 
-/**
- * Returns the form data as a map or an application/x-www-url-encoded
- * string. This doesn't support file inputs.
- * @param {HTMLFormElement} form The form.
- */
-export const getFormDataMap = form => {
-  const map = new Map();
-  [...form.elements].forEach(el => {
-    if (  // Make sure we don't include elements that are not part of the form.
-    // Some browsers include non-form elements. Check for 'form' property.
-    // See http://code.google.com/p/closure-library/issues/detail?id=227
-    // and
-    // http://www.whatwg.org/specs/web-apps/current-work/multipage/the-input-element.html#the-input-element
-        (el.form !== form) || el.disabled ||
-        // HTMLFieldSetElement has a form property but no value.
-        el.tagName.toLowerCase() === 'fieldset') {
-      return;
-    }
-
-    let name = el.name;
-    switch (el.type.toLowerCase()) {
-      case 'file':
-        // file inputs are not supported
-      case 'submit':
-      case 'reset':
-      case 'button':
-        // don't submit these
-        break;
-      case 'select-multiple':
-        const values = getValue(el);
-        if (values != null) {
-          for (let value, j = 0; value = values[j]; j++) {
-            map.set(name, value);
-          }
-        }
-        break;
-      default:
-        const value = getValue(el);
-        if (value != null) {
-          map.set(name, value);
-        }
-    }
-  });
-
-  // input[type=image] are not included in the elements collection
-  const inputs = form.getElementsByTagName('input');
-  [...inputs].forEach(input => {
-    if (input.form === form && input.type.toLowerCase() === 'image') {
-      let name = input.name;
-      map.set(name, input.value);
-      map.set(name + '.x', '0');
-      map.set(name + '.y', '0');
-    }
-  });
-
-  return map;
-};
+// /**
+//  * Returns the form data as a map or an application/x-www-url-encoded
+//  * string. This doesn't support file inputs.
+//  * @param {HTMLFormElement} form The form.
+//  */
+// export const getFormDataMap = form => {
+//   const map = new Map();
+//   [...form.elements].forEach(el => {
+//     if (  // Make sure we don't include elements that are not part of the form.
+//     // Some browsers include non-form elements. Check for 'form' property.
+//     // See http://code.google.com/p/closure-library/issues/detail?id=227
+//     // and
+//     // http://www.whatwg.org/specs/web-apps/current-work/multipage/the-input-element.html#the-input-element
+//         (el.form !== form) || el.disabled ||
+//         // HTMLFieldSetElement has a form property but no value.
+//         el.tagName.toLowerCase() === 'fieldset') {
+//       return;
+//     }
+//
+//     let name = el.name;
+//     switch (el.type.toLowerCase()) {
+//       case 'file':
+//         // file inputs are not supported
+//       case 'submit':
+//       case 'reset':
+//       case 'button':
+//         // don't submit these
+//         break;
+//       case 'select-multiple':
+//         const values = getValue(el);
+//         if (values != null) {
+//           for (let value, j = 0; value = values[j]; j++) {
+//             map.set(name, value);
+//           }
+//         }
+//         break;
+//       default:
+//         const value = getValue(el);
+//         if (value != null) {
+//           map.set(name, value);
+//         }
+//     }
+//   });
+//
+//   // input[type=image] are not included in the elements collection
+//   const inputs = form.getElementsByTagName('input');
+//   [...inputs].forEach(input => {
+//     if (input.form === form && input.type.toLowerCase() === 'image') {
+//       let name = input.name;
+//       map.set(name, input.value);
+//       map.set(name + '.x', '0');
+//       map.set(name + '.y', '0');
+//     }
+//   });
+//
+//   return map;
+// };
 
 
 /**
@@ -220,6 +220,7 @@ export const evalScripts = comp => arr => {
   });
 };
 
+
 export const splitScripts = data => {
   const DF = new DOMParser().parseFromString(data, 'text/html');
   const df = /** @type {Document} */ (DF);
@@ -229,9 +230,35 @@ export const splitScripts = data => {
   };
 };
 
+
 /**
  * @param {string} t
  */
 export const handleTemplateProm = t => Promise.resolve(splitScripts(t));
+
+
+export const enableClass = (e, className, bool) => {
+  bool ? e.classList.add(className) : e.classList.remove(className);
+};
+
+
+/**
+ * Removes a class if an element has it, and adds it the element doesn't have
+ * it.  Won't affect other classes on the node.  This method may throw a DOM
+ * exception if the class name is empty or invalid.
+ * @param {Element} element DOM node to toggle class on.
+ * @param {string} className Class to toggle.
+ * @return {boolean} True if class was added, false if it was removed
+ *     (in other words, whether element has the class after this function has
+ *     been called).
+ */
+export const toggleClass = (element, className) => {
+  const add = [...element.classList].includes(className);
+  enableClass(element, className, add);
+  return add;
+};
+
+
+export const getElDataMap = el => Object.assign({}, el.dataset);
 
 

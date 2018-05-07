@@ -205,7 +205,7 @@ const basicPatchInit = (jwt, useDocumentCookies = true) =>
 const formPostInit = (jwt, formPanel) => {
   const useDocumentCookies = false;
   const resp = basicPostInit(jwt, useDocumentCookies);
-  resp['body'] = new FormData(formPanel.getForm());
+  resp['body'] = new FormData(formPanel.formEl);
   return resp;
 };
 

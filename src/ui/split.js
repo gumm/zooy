@@ -500,10 +500,9 @@ export default class Split extends Component {
   openAndUnlock(s, size, func, opt_skipAni = false) {
     if (this.resizeFuncs_.has(s)) {
       this.resizeFuncs_.get(s)(
-          () => {
-            this.unlock(s);
-            maybeFunc(func)
-          }, opt_skipAni);
+          size,
+          () => {this.unlock(s); maybeFunc(func)},
+          opt_skipAni);
     }
   }
 
@@ -540,8 +539,12 @@ export default class Split extends Component {
     }
   }
 
-  closeAndLockAll() {
-    this.nestNames.forEach(n => this.closeAndLock(n, undefined, true));
+  closeAndLockAll(func = undefined, opt_skipAni = false) {
+    this.nestNames.forEach(n => this.closeAndLock(n, func, opt_skipAni));
+  }
+
+  openAndUnlockAll(size = undefined, func = undefined, opt_skipAni = false) {
+    this.nestNames.forEach(n => this.openAndUnlock(n, size, func, opt_skipAni));
   }
 
   /**
@@ -744,8 +747,7 @@ export default class Split extends Component {
       mustOpen: () => (getW(root) - getO(bc)) <= Math.max(30, minSizeC),
       collision: () => BC.model.preCollisionOtherSize > AB.model.nestSize(),
       toggle: () => BC.model.mustOpen() ? BC.model.resize() : BC.model.close(),
-      resize: (value = defSizeC, opt_aF = nullFunc,
-               opt_skipTrans = false) => {
+      resize: (value = defSizeC, opt_aF = nullFunc, opt_skipTrans = false) => {
         resizeNest_(getW(root) - value, value, BC, false, opt_aF, opt_skipTrans);
       },
       close: (opt_aF = nullFunc, opt_skipTrans = false) => {

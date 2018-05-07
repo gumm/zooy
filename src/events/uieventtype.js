@@ -19,6 +19,7 @@ export const UiEventType = {
   COMP_DRAG_START: privateRandom(),
   COMP_DRAG_MOVE: privateRandom(),
   COMP_DRAG_END: privateRandom(),
+  PANEL: privateRandom(),
   VIEW: privateRandom(),
   READY: privateRandom(),
   PANEL_MINIMIZE: privateRandom(),
