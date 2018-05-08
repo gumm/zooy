@@ -246,7 +246,7 @@ class FormPanel extends Panel {
         const el = this.getElement();
         const parent = el.parentNode;
         this.setElementInternal_(this.responseObject.html);
-        parent.replaceChild(this.responseObject.html, el);
+        parent.replaceChild(this.getElement(), el);
       } else {
         // Just replace the form component.
         let newForm = /** @type {!Element} */ (this.responseObject.html).querySelector('form');

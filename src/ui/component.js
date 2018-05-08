@@ -177,10 +177,6 @@ export default class Component extends EVT {
     this.makeDomFunc_ = func;
   }
 
-  setElementInternal_(frag) {
-    this.element_ = frag;
-  }
-
   /**
    * @param {!Function} func A callback guaranteed to fire after the panels is
    * ready, and in the document, but before the
@@ -192,6 +188,10 @@ export default class Component extends EVT {
 
 
   //--------------------------------------------------------[ DOM Management ]--
+  setElementInternal_(frag) {
+    this.element_ = frag;
+  }
+
   /**
    * Gets the component's element.
    * @return {!Node|undefined} The element
