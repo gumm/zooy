@@ -159,7 +159,8 @@ class Panel extends Component {
         this.dispatchPanelEvent(trg.getAttribute('data-zv'), {
           orgEvt: e,
           trigger: trg,
-          href: trg.href || trg.getAttribute('data-href')
+          href: trg.href || trg.getAttribute('data-href'),
+          pk: trg.getAttribute('data-pk'),
         });
       });
     });
@@ -174,28 +175,31 @@ class Panel extends Component {
       this.listen(el, 'MDCIconToggle:change', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
-        const isOn = e.event_['detail']['isOn'];
+        console.log(e.detail);
+        const isOn = e.detail['isOn'];
         const hrefAt = isOn ? '__on' : '__off';
         const hrefTog = trg.getAttribute(`data-href${hrefAt}`);
         this.dispatchPanelEvent(trg.getAttribute('data-zv'), {
           orgEvt: e,
           trigger: trg,
           href: trg.href || trg.getAttribute('data-href'),
-          hrefTog: hrefTog
+          hrefTog: hrefTog,
+          pk: trg.getAttribute('data-pk'),
+          isOn: isOn
         });
       });
     });
 
     // Activate Menu items
-    const ms = panel.querySelectorAll('.mdc-simple-menu');
+    const ms = panel.querySelectorAll('.mdc-menu');
     Array.from(ms).forEach(el => {
-      this.listen(el, 'MDCSimpleMenu:selected', e => {
+      this.listen(el, 'MDCMenu:selected', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
-        let v = e.event_['detail']['item'].getAttribute('data-zv');
+        let v = e.detail['item'].getAttribute('data-zv');
         this.dispatchPanelEvent(v, {
           orgEvt: e,
-          trigger: e.event_['detail']['item'],
+          trigger: e.detail['item'],
           href: trg.href || trg.getAttribute('data-href')
         });
       });

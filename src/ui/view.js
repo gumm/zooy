@@ -9,15 +9,15 @@ import Panel from './panel.js';
 /**
  * Toggle the whole tree display either open or closed
  * @param {Panel} panel
- * @param {{custom:{isOn: boolean}}} eventData
+ * @param {{isOn: boolean}} eventData
  */
-const toggleTree = (panel, eventData) => {
+const toggleTree = (eventData, panel) => {
   // The first level children. From a pure usability perspective
   // its nicer if we don't to close these. If we did, the tree *always* ends
   // up with only one element revealed. So we keep the first level children
   // open at all times.
   const fc = panel.getElement().querySelector('.children');
-  const isOn = /**@type {boolean} */ (eventData.custom['isOn']);
+  const isOn = /**@type {boolean} */ (eventData.isOn);
   const children = panel.getElement().querySelectorAll('.children');
   const revealIcons = panel.getElement().querySelectorAll('.tst_reveal_icon');
   [...children].forEach(e => enableClass(
@@ -196,7 +196,7 @@ export default class View extends EVT {
   initPanelEventsInternal_() {
     return new Map()
         .set('toggle_tree', (eventData, ePanel) => {
-          toggleTree(ePanel, /**@type {{custom:{isOn:boolean}}}*/ (eventData))
+          toggleTree(eventData, ePanel)
         })
         .set('tree_toggle-children', (eventData, ePanel) => {
           toggleTreeChildren(
@@ -204,12 +204,13 @@ export default class View extends EVT {
               /**@type {{trigger:!HTMLElement}}*/ (eventData))
         })
         .set('destroy_me', (eventData, ePanel) => {
-          ePanel.dispose();
+          this.removePanel(ePanel);
         })
         .set('switch_view', (eventData, ePanel) => {
-          let view = eventData.trigger.getAttribute('data-view');
-          let pk = eventData.trigger.getAttribute('data-pk');
-          this.dispatchViewEvent(`switch_view_${view}`, pk);
+          const viewType = eventData.trigger.getAttribute('data-view');
+          const pk = eventData.trigger.getAttribute('data-pk');
+          console.log('We came here...', viewType, pk);
+          this.dispatchViewEvent('switch_view', {viewType, pk});
         });
   };
 
