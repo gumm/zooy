@@ -209,7 +209,6 @@ export default class View extends EVT {
         .set('switch_view', (eventData, ePanel) => {
           const viewType = eventData.trigger.getAttribute('data-view');
           const pk = eventData.trigger.getAttribute('data-pk');
-          console.log('We came here...', viewType, pk);
           this.dispatchViewEvent('switch_view', {viewType, pk});
         });
   };

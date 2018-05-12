@@ -3,6 +3,8 @@ import {UiEventType} from '../events/uieventtype.js';
 import {replaceNode, splitScripts} from '../dom/utils.js'
 import {isDefAndNotNull} from '../../node_modules/badu/src/badu.js';
 
+const tie = '|-<>-|';
+
 /**
  * A class for managing the display of field level messages on a form.
  */
@@ -63,7 +65,8 @@ class FieldErrs {
    *      This will be formatted bold.
    */
   displayAlert(field, msg, css) {
-    const alertDom = document.getElementById(`${field.id}-helper-text`) || document.createElement('p');
+    const alertDom = document.getElementById(`${field.id}-helper-text`) ||
+        document.createElement('p');
     alertDom.textContent = msg;
     this.fMap.set(field, alertDom);
   };
@@ -147,7 +150,7 @@ class FormPanel extends Panel {
     this.fieldErr_ = new FieldErrs(this);
 
     /**
-     * @type {function(!FormPanel):(?|null|Promise<?>)}
+     * @type {function(!FormPanel, string=):(?|null|Promise<?>)}
      */
     this.onSubmitSucFunc = panel => null;
 
@@ -224,7 +227,7 @@ class FormPanel extends Panel {
 
   //------------------------------------------------------------[ Round Trip ]--
   /**
-   * @param {function(!FormPanel):(?|null|Promise<?>)} func
+   * @param {function(!FormPanel, string=):(?|null|Promise<?>)} func
    */
   onSubmitSuccess(func) {
     this.onSubmitSucFunc = func;
@@ -249,7 +252,8 @@ class FormPanel extends Panel {
         parent.replaceChild(this.getElement(), el);
       } else {
         // Just replace the form component.
-        let newForm = /** @type {!Element} */ (this.responseObject.html).querySelector('form');
+        let newForm = /** @type {!Element} */ (this.responseObject.html)
+            .querySelector('form');
         if (newForm) {
           replaceNode(newForm, this.form_);
         }
@@ -289,12 +293,22 @@ class FormPanel extends Panel {
       // Nothing further to do here.
       success = true;
     } else if (reply === 'redirected_success\n') {
-         console.log(`2.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+      console.log(`2.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
       // Indicate that we were redirected, but are done.
       // Nothing further to do here. Set the 'redirected' flag to false,
       // and we will fall through to the correct response below.
       success = true;
       this.redirected = false;
+    } else if (reply.startsWith(tie)) {
+        console.log(`2.1.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+        // Indicates a panel redirect. I bit of a wierd one.
+        // We are done with the form, and now need to go to some other
+        // panel. The calling code should understand what comes next.
+        const targetUrl = reply.split(tie)[1];
+        return Promise.resolve(this).then(p => {
+          this.onSubmitSucFunc(this, targetUrl);
+          this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
+        });
     } else {
          console.log(`3.REDIRECTED: ${this.redirected}\nREPLY: Some form HTML`);
       // We received something other than a simple "we are done".

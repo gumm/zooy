@@ -69,6 +69,7 @@ const checkStatus = response => {
  * @return {function(!Response): !Promise<?>}
  */
 const checkStatusTwo = panel => response => {
+
   const panelUri = stripLeadingSlash(getPath(panel.uri).toString());
   const responseUri = stripLeadingSlash(getPath(response.url));
   const isRedirected = panelUri !== responseUri;
@@ -441,6 +442,7 @@ export default class UserManager {
    */
   patchJson(uri, payload) {
     const req = new Request(uri.toString());
+    console.log('HERE IS THE JWT', this.jwt);
     return fetch(req, jsonPatchInit(this.jwt, payload))
         .then(checkStatus)
         .then(getJson)

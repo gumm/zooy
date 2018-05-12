@@ -1,5 +1,5 @@
 import Component from './component.js';
-import { evalScripts, splitScripts, getElDataMap } from '../dom/utils.js';
+import { evalScripts, splitScripts, getElDataMap, enableClass } from '../dom/utils.js';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';
@@ -165,6 +165,27 @@ class Panel extends Component {
       });
     });
 
+    const listItems = panel.querySelectorAll('.mdc-list');
+    const unActivate = e => enableClass(e, 'mdc-list-item--activated', false);
+    Array.from(listItems).forEach(el => {
+      this.listen(el, 'click', e => {
+        e.stopPropagation();
+        const ul = e.currentTarget;
+        Array.from(ul.querySelectorAll('li')).forEach(unActivate);
+        const trg = e.target;
+        enableClass(trg, 'mdc-list-item--activated', true);
+        this.dispatchPanelEvent(trg.getAttribute('data-zv'), {
+          orgEvt: e,
+          ul: ul,
+          trigger: trg,
+          href: trg.href || trg.getAttribute('data-href'),
+          pk: trg.getAttribute('data-pk'),
+        });
+      });
+    });
+
+
+
     // Activate toggle icons
     // We intercept the click on these as well, as we want to stop its
     // propagation.
@@ -175,7 +196,6 @@ class Panel extends Component {
       this.listen(el, 'MDCIconToggle:change', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
-        console.log(e.detail);
         const isOn = e.detail['isOn'];
         const hrefAt = isOn ? '__on' : '__off';
         const hrefTog = trg.getAttribute(`data-href${hrefAt}`);
