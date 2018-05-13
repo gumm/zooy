@@ -220,8 +220,8 @@ class FormPanel extends Panel {
           user && user.formSubmit(this);
         }
       });
-      return form;
     }
+    return form;
   };
 
 

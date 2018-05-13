@@ -149,8 +149,8 @@ class Panel extends Component {
     this.evalScripts(this.responseObject.scripts);
 
     // Activate buttons
-    const tst = panel.querySelectorAll('.tst_button');
-    const tstZv = panel.querySelectorAll('.tst_zv');
+    const tst = panel.querySelectorAll('.tst__button');
+    const tstZv = panel.querySelectorAll('.tst__zv');
     const allBut = [...Array.from(tst), ...Array.from(tstZv)];
     allBut.forEach(el => {
       this.listen(el, 'click', e => {

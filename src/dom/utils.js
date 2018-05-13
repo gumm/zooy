@@ -138,7 +138,7 @@ export const replaceNode = (newNode, oldNode) => {
 
 /**
  * Removes a node from its parent.
- * @param {!Node} node The node to remove.
+ * @param {!Node|undefined} node The node to remove.
  * @return {Node} The node removed if removed; else, null.
  */
 export const removeNode = node => {
@@ -253,7 +253,7 @@ export const enableClass = (e, className, bool) => {
  *     been called).
  */
 export const toggleClass = (element, className) => {
-  const add = [...element.classList].includes(className);
+  const add = !Array.from(element.classList).includes(className);
   enableClass(element, className, add);
   return add;
 };

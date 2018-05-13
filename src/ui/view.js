@@ -19,11 +19,11 @@ const toggleTree = (eventData, panel) => {
   const fc = panel.getElement().querySelector('.children');
   const isOn = /**@type {boolean} */ (eventData.isOn);
   const children = panel.getElement().querySelectorAll('.children');
-  const revealIcons = panel.getElement().querySelectorAll('.tst_reveal_icon');
+  const revealIcons = panel.getElement().querySelectorAll('.tst__reveal_icon');
   [...children].forEach(e => enableClass(
-      e, 'tst_tree-children__hidden', e !== fc && !isOn));
+      e, 'tst__tree-children__hidden', e !== fc && !isOn));
   [...revealIcons].forEach(e => enableClass(
-      e, 'tst_icon_rotated', e !== fc && !isOn));
+      e, 'tst__icon_rotated', e !== fc && !isOn));
 };
 
 
@@ -35,12 +35,12 @@ const toggleTreeChildren = (panel, eventData) => {
   const revealIcon = eventData.trigger;
   const elId = revealIcon.getAttribute('data-child-id');
   let child = panel.getElement().querySelector(`#${elId}`);
-  toggleClass(child, 'tst_tree-children__hidden');
-  toggleClass(revealIcon, 'tst_icon_rotated');
+  toggleClass(child, 'tst__tree-children__hidden');
+  toggleClass(revealIcon, 'tst__icon_rotated');
 };
 
 
-const treeNodeSelect = panel => eventData => {
+export const treeNodeSelect = panel => eventData => {
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
   let href = eventData.trigger.getAttribute('data-href');
   [...allNodes].forEach(n =>
