@@ -5,6 +5,7 @@ import FormPanel from './src/ui/form.js';
 import Split from './src/ui/split.js';
 import UserManager from './src/user/usermanager.js';
 import View from './src/ui/view.js';
+import { UiEventType } from './src/events/uieventtype.js';
 import { treeNodeSelect} from "./src/ui/view.js";
 import Conductor from './src/ui/conductor.js';
 
@@ -17,6 +18,7 @@ const zooy = {
   UserManager,
   View,
   Conductor,
+  UiEventType,
   treeNodeSelect
 };
 

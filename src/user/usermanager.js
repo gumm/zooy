@@ -263,10 +263,10 @@ export default class UserManager {
      */
     this.jwt = '';
 
-    /**
-     * @type {Request}
-     */
-    this.JWTTokenRequest = new Request('/api/v3/tokens/login/');
+    // /**
+    //  * @type {Request}
+    //  */
+    // this.JWTTokenRequest = new Request('/api/v3/tokens/login/');
 
 
     // /**
@@ -283,10 +283,14 @@ export default class UserManager {
 
   /**
    * @param {Object} data
+   * @param {boolean=} opt_onlyIfNoneExists
    * @return {Promise}
    * @private
    */
-  updateProfileFromJwt(data) {
+  updateProfileFromJwt(data, opt_onlyIfNoneExists=false) {
+    if (opt_onlyIfNoneExists && this.jwt !== '') {
+      return Promise.resolve('User Profile Already exists');
+    }
     if (data['non_field_errors']) {
       return Promise.reject(new Error(`JWT ${data['non_field_errors']}`));
     } else {
@@ -404,7 +408,7 @@ export default class UserManager {
         .then(getText)
         .catch(err => {
           stopSpin('');
-          console.error('UMan Text Fetch:', err)
+          console.error('UMan Text GET Fetch:', err)
         });
   };
 
@@ -431,7 +435,7 @@ export default class UserManager {
         .then(getJson)
         .catch(err => {
           stopSpin('');
-          console.error('UMan Json Fetch:', err)
+          console.error('UMan JSON GET Fetch:', err)
         });
   };
 
@@ -442,10 +446,22 @@ export default class UserManager {
    */
   patchJson(uri, payload) {
     const req = new Request(uri.toString());
-    console.log('HERE IS THE JWT', this.jwt);
     return fetch(req, jsonPatchInit(this.jwt, payload))
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan Json Patch Fetch:', err));
+        .catch(err => console.error('UMan JSON PATCH Fetch:', err));
+  };
+
+  /**
+   * @param {string} uri
+   * @param {Object} payload
+   * @return {Promise}
+   */
+  postJson(uri, payload) {
+    const req = new Request(uri.toString());
+    return fetch(req, jsonPostInit(this.jwt, payload))
+        .then(checkStatus)
+        .then(getJson)
+        .catch(err => console.error('UMan JSON POST Fetch:', err));
   };
 }

@@ -21,6 +21,7 @@ export const UiEventType = {
   COMP_DRAG_END: privateRandom(),
   PANEL: privateRandom(),
   VIEW: privateRandom(),
+  SPLIT: privateRandom(),
   READY: privateRandom(),
   PANEL_MINIMIZE: privateRandom(),
   FORM_SUBMIT_SUCCESS: privateRandom(),

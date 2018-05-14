@@ -81,7 +81,7 @@ class Panel extends Component {
     if (usr) {
       return usr.fetch(this.uri_).then(s => {
         if (opt_callback) {
-          opt_callback();
+          opt_callback(this);
         }
         this.onRenderWithTemplateReply(s)
       });
@@ -193,6 +193,7 @@ class Panel extends Component {
     Array.from(togIcons).forEach(
         el => this.listen(el, 'click', e => e.stopPropagation()));
     Array.from(togIcons).forEach(el => {
+
       this.listen(el, 'MDCIconToggle:change', e => {
         e.stopPropagation();
         const trg = e.currentTarget;

@@ -1,4 +1,4 @@
-import { isString } from '../../node_modules/badu/src/badu.js'
+import { isString, } from '../../node_modules/badu/src/badu.js'
 
 /**
  * Gets the current value of a checkable input element.

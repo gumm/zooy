@@ -9,6 +9,8 @@ import {
 } from '../../node_modules/badu/src/badu.js';
 import {randomColour,} from '../dom/utils.js';
 import {EV,} from '../events/mouseandtouchevents.js';
+import EVT from "./evt.js";
+import ZooyEventData from "../events/zooyeventdata.js";
 
 
 
@@ -369,6 +371,10 @@ const resizeNest_ = (drgOffset, nestFlexBasis, dragger, isClose,
 //--------------------------------------------------------------[ Main Class ]--
 export default class Split extends Component {
 
+  static splitEventCode() {
+    return UiEventType.SPLIT;
+  }
+
   constructor(opt_thickness) {
     super();
 
@@ -491,8 +497,8 @@ export default class Split extends Component {
    * Open an closed and locked nest. Simply a convenience method to combine
    * the unlock and resize steps.
    * @param {string} s Nest name
-   * @param {number} size The required size of the resulting move.
-   * @param {Function|undefined} func A callback function to call once
+   * @param {number?} size The required size of the resulting move.
+   * @param {Function?} func A callback function to call once
    *    the resize completed.
    * @param {boolean?} opt_skipAni When true, the resize won't be animated, but
    *    simply affected directly.
@@ -524,7 +530,7 @@ export default class Split extends Component {
   /**
    * Close the nest and lock it. See <@code>lock</>
    * @param {string} s Nest name
-   * @param {Function|undefined} func A callback function to call once
+   * @param {Function?} func A callback function to call once
    *    the resize completed.
    * @param {boolean?} opt_skipAni When true, the resize won't be animated, but
    *    simply affected directly.
@@ -713,10 +719,18 @@ export default class Split extends Component {
       collision: () => AB.model.preCollisionOtherSize > BC.model.nestSize(),
       toggle: () => AB.model.mustOpen() ? AB.model.resize() : AB.model.close(),
       resize: (value = defSizeA, opt_aF = nullFunc, opt_skipTrans = false) => {
-        resizeNest_(value, value, AB, false, opt_aF, opt_skipTrans)
+        const doneFunc = () => {
+          this.dispatchSplitEvent('didResize', {name: refA});
+          maybeFunc(opt_aF)();
+        };
+        resizeNest_(value, value, AB, false, doneFunc, opt_skipTrans)
       },
       close: (opt_aF = nullFunc, opt_Trans = false) => {
-        resizeNest_(0, 0, AB, true, opt_aF, opt_Trans);
+        const doneFunc = () => {
+          this.dispatchSplitEvent('didClose', {name: refA});
+          maybeFunc(opt_aF)();
+        };
+        resizeNest_(0, 0, AB, true, doneFunc, opt_Trans);
       }
     };
 
@@ -748,10 +762,18 @@ export default class Split extends Component {
       collision: () => BC.model.preCollisionOtherSize > AB.model.nestSize(),
       toggle: () => BC.model.mustOpen() ? BC.model.resize() : BC.model.close(),
       resize: (value = defSizeC, opt_aF = nullFunc, opt_skipTrans = false) => {
-        resizeNest_(getW(root) - value, value, BC, false, opt_aF, opt_skipTrans);
+        const doneFunc = () => {
+          this.dispatchSplitEvent('didResize', {name: refC});
+          maybeFunc(opt_aF)();
+        };
+        resizeNest_(getW(root) - value, value, BC, false, doneFunc, opt_skipTrans);
       },
       close: (opt_aF = nullFunc, opt_skipTrans = false) => {
-        resizeNest_(getW(root), 0, BC, true, opt_aF, opt_skipTrans);
+        const doneFunc = () => {
+          this.dispatchSplitEvent('didClose', {name: refC});
+          maybeFunc(opt_aF)();
+        };
+        resizeNest_(getW(root), 0, BC, true, doneFunc, opt_skipTrans);
       }
     };
 
@@ -781,5 +803,28 @@ export default class Split extends Component {
         .set(refA, AB.model.close)
         .set(refC, BC.model.close);
   }
+
+  //-------------------------------------------------------[ Built in events ]--
+  /**
+   * Dispatches a {@code UiEventType.VIEW} event.
+   * A shorthand method to get panels to dispatch uniform events.
+   * Views may listen just to this event, and act on the supplied value or
+   * data payload.
+   * Example:
+   *    b.listen(a, Component.compEventCode(), e => {
+   *      console.log('B got', Component.compEventCode(), e);
+   *      console.log('Value is', e.detail.getValue());
+   *      console.log('Data is', e.detail.getData());
+   *    });
+   * @param {string|number} value
+   * @param {(string|number|?Object)=} opt_data
+   * @return {boolean} If anyone called preventDefault on the event object (or
+   *     if any of the handlers returns false this will also return false.
+   */
+  dispatchSplitEvent(value, opt_data) {
+    const dataObj = new ZooyEventData(value, opt_data);
+    const event = EVT.makeEvent(UiEventType.SPLIT, dataObj);
+    return this.dispatchEvent(event);
+  };
 
 }

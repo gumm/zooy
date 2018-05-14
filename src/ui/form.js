@@ -152,7 +152,7 @@ class FormPanel extends Panel {
     /**
      * @type {function(!FormPanel, string=):(?|null|Promise<?>)}
      */
-    this.onSubmitSucFunc = panel => null;
+    this.onSubmitSucFunc = (panel, opt_string) => null;
 
   }
 
