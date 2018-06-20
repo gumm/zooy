@@ -19,12 +19,6 @@ var listenerCount = 0;
 
  */
 
-/**
- * An internal registry of initiated components.
- * @type {Map<string, !EVT>}
- */
-const globalDisposableMap = new Map();
-
 export default class EVT extends EventTarget {
 
   //----------------------------------------------------------------[ Static ]--
@@ -53,20 +47,12 @@ export default class EVT extends EventTarget {
     this.isObservedBy_ = new Set();
 
     /**
-     * A key identifying this component in the global component map
-     * @type {string}
-     * @private
-     */
-    this.gdmKey_ = makeRandomString();
-
-    /**
      * True if this is disposed.
      * @type {boolean}
      * @private
      */
     this.disposed_ = false;
 
-    globalDisposableMap.set(this.gdmKey_, this);
   };
 
 
@@ -159,10 +145,6 @@ export default class EVT extends EventTarget {
     this.stopBeingListenedTo();
     this.removeAllListener();
     this.disposed_ = true;
-
-    const k = this.gdmKey_.slice(0);
-    delete globalDisposableMap.get(k);
-    globalDisposableMap.delete(k);
   };
 
   dispose() {

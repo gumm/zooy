@@ -140,7 +140,7 @@ const jsonInit = (jwt, obj, method = 'POST') => {
 /**
  * @param {string} jwt A JWT token
  * @param {Object} obj
- * @return {Object}
+ * @return {!RequestInit}
  */
 const jsonPostInit = (jwt, obj) => jsonInit(jwt, obj, 'POST');
 
