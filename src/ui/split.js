@@ -136,6 +136,7 @@ const onDraggerEvent = e => {
         // This is the same as match self to nest...
         model.otherDragger.model.matchOtherToNest();
       }
+      model.onDragEnd();
       break;
     default:
       // Do nothing.
@@ -685,7 +686,7 @@ export default class Split extends Component {
     const matchDraggersToNest = () => {
       const aW = getW(a);
       setO(ab, aW - hT);
-      setO(bc, aW + getW(b) - hT)
+      setO(bc, aW + getW(b) - hT);
     };
     matchDraggersToNest();
 
@@ -731,6 +732,9 @@ export default class Split extends Component {
           maybeFunc(opt_aF)();
         };
         resizeNest_(0, 0, AB, true, doneFunc, opt_Trans);
+      },
+      onDragEnd: () => {
+        this.dispatchSplitEvent('didChange', {names: [refA, refB]});
       }
     };
 
@@ -774,6 +778,9 @@ export default class Split extends Component {
           maybeFunc(opt_aF)();
         };
         resizeNest_(getW(root), 0, BC, true, doneFunc, opt_skipTrans);
+      },
+      onDragEnd: () => {
+        this.dispatchSplitEvent('didChange', {names: [refB, refC]});
       }
     };
 

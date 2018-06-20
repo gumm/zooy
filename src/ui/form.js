@@ -1,9 +1,16 @@
 import Panel from './panel.js';
 import {UiEventType} from '../events/uieventtype.js';
 import {replaceNode, splitScripts} from '../dom/utils.js'
-import {isDefAndNotNull} from '../../node_modules/badu/src/badu.js';
+import {isDefAndNotNull, whatType} from '../../node_modules/badu/src/badu.js';
 
-const tie = '|-<>-|';
+
+/** @typedef {{
+*     href: (string|undefined),
+*     success: (boolean|undefined),
+*     pk: (string|undefined),
+*     }}
+ */
+let ServerFormSuccessJsonType;
 
 /**
  * A class for managing the display of field level messages on a form.
@@ -150,9 +157,9 @@ class FormPanel extends Panel {
     this.fieldErr_ = new FieldErrs(this);
 
     /**
-     * @type {function(!FormPanel, string=):(?|null|Promise<?>)}
+     * @type {function(!FormPanel, (string|!ServerFormSuccessJsonType)=): (?|null|Promise<?>)}
      */
-    this.onSubmitSucFunc = (panel, opt_string) => null;
+    this.onSubmitSucFunc = (panel, opt_data) => null;
 
   }
 
@@ -227,7 +234,7 @@ class FormPanel extends Panel {
 
   //------------------------------------------------------------[ Round Trip ]--
   /**
-   * @param {function(!FormPanel, string=):(?|null|Promise<?>)} func
+   * @param {function(!FormPanel, (string|!ServerFormSuccessJsonType)=): (?|null|Promise<?>)} func
    */
   onSubmitSuccess(func) {
     this.onSubmitSucFunc = func;
@@ -287,8 +294,14 @@ class FormPanel extends Panel {
     this.fieldErr_.clearAll();
     let success = false;
 
-    if (reply === 'success') {
-         console.log(`1.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+    if (whatType(reply) === 'object' && reply['success']) {
+      return Promise.resolve(this).then(p => {
+        this.onSubmitSucFunc(this, reply);
+        this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
+      });
+    }
+    else if (reply === 'success') {
+      console.log(`1.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
       // We are done.
       // Nothing further to do here.
       success = true;
@@ -299,16 +312,6 @@ class FormPanel extends Panel {
       // and we will fall through to the correct response below.
       success = true;
       this.redirected = false;
-    } else if (reply.startsWith(tie)) {
-        console.log(`2.1.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
-        // Indicates a panel redirect. I bit of a wierd one.
-        // We are done with the form, and now need to go to some other
-        // panel. The calling code should understand what comes next.
-        const targetUrl = reply.split(tie)[1];
-        return Promise.resolve(this).then(p => {
-          this.onSubmitSucFunc(this, targetUrl);
-          this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
-        });
     } else {
          console.log(`3.REDIRECTED: ${this.redirected}\nREPLY: Some form HTML`);
       // We received something other than a simple "we are done".
@@ -320,7 +323,7 @@ class FormPanel extends Panel {
       // We may not actually have a form element left after a redirect.
       let hasErrors = [];
       if (isDefAndNotNull(this.form_)) {
-        hasErrors = this.form_.querySelectorAll('alert-error');
+        hasErrors = this.form_.querySelectorAll('.alert-error');
       }
       success = !hasErrors.length
     }

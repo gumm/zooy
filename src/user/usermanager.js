@@ -102,6 +102,22 @@ const getText = response => {
 
 
 /**
+ * @param {Response} response
+ * @return {Promise}
+ */
+const getTextOrJson = response => {
+  const contentType = response.headers.get('Content-Type');
+  if (contentType === 'application/json') {
+    return getJson(response)
+  } else {
+    return getText(response)
+  }
+};
+
+
+
+
+/**
  * @param {string} jwt A JWT token
  * @param {Object} obj
  * @param {string} method One of PATCH, PUT, POST etc.
@@ -365,7 +381,7 @@ export default class UserManager {
         .then(() => fetch(req, formPostInit(this.jwt, formPanel)))
         .then(checkStatusTwo(formPanel))
         .then(stopSpin)
-        .then(getText)
+        .then(getTextOrJson)
         .then(processSubmitReply)
         .catch(err => {
           stopSpin('');

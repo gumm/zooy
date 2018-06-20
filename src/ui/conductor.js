@@ -93,7 +93,10 @@ export default class Conductor extends EVT {
    */
   setActiveView(view) {
     if (this.activeView_) {
+      this.stopListeningTo(this.activeView_);
       this.activeView_.dispose();
+      this.activeView_ = null;
+      delete this.activeView_;
     }
     this.activeView_ = view;
     this.activeView_.render();

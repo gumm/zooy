@@ -1,5 +1,6 @@
 import Component from './component.js';
 import { evalScripts, splitScripts, getElDataMap, enableClass } from '../dom/utils.js';
+import { isDefAndNotNull } from '../../node_modules/badu/src/badu.js';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';
@@ -88,7 +89,6 @@ class Panel extends Component {
     } else {
       return Promise.reject('No user')
     }
-
   };
 
   /**
@@ -110,27 +110,34 @@ class Panel extends Component {
   /**
    * Equivalent to the @code{renderWithTemplate} method in that it is guaranteed
    * that a reply from the callback is received before @code{render} is called.
-   * @param {function(?Event)} callback The callback function
+   * @param {function(Object, !Panel)} opt_callback The callback function
    *      that will receive the reply event.
    */
-  renderWithJSON(callback) {
-    return this.user.fetchJson(this.uri_).then(
-        json => this.onRenderWithJSON(json, callback));
+  renderWithJSON(opt_callback) {
+    const usr = this.user;
+    if (usr) {
+      return this.user.fetchJson(this.uri_).then(json => {
+        if (opt_callback) {
+          opt_callback(json, this);
+        }
+        this.onRenderWithJSON(json)
+      });
+    } else {
+      return Promise.reject('No user')
+    }
+
   };
 
 
   /**
    * On reply from a GET call to the panel URI
-   * @param {function(?Event)} callback The callback function
+   * @param {Object} json The callback function
    *      that will receive the reply event.
-   * @param {?Event} e Event object.
    * @return {Promise}
    */
-  onRenderWithJSON(callback, e) {
-    return new Promise((res, rej) => {
-      callback(e);
-      this.render();
-      return res(this);
+  onRenderWithJSON(json) {
+    return new Promise(x => {
+      return x(this);
     })
   };
 
@@ -145,7 +152,14 @@ class Panel extends Component {
 
   //--------------------------------------------------------[ JSON Render ]-----
   enterDocument() {
+
     const panel = this.getElement();
+
+    // If we are in an environment where MDC is used.
+    if (isDefAndNotNull(mdc) && mdc.hasOwnProperty('autoInit')) {
+      mdc.autoInit(panel);
+    }
+
     this.evalScripts(this.responseObject.scripts);
 
     // Activate buttons

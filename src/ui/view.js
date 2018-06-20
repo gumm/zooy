@@ -78,6 +78,15 @@ export default class View extends EVT {
 
   set split(split) {
     this.split_ = split;
+    // this.listen(this.split_, UiEventType.SPLIT, e => {
+    //   const eventValue = e.detail.getValue();
+    //   const eventData = e.detail.getData();
+    //   console.log(eventValue, eventData, this.disposed_, this.constructor.name);
+    // });
+    // console.log('LISTENRS', this.split_.numListeners)
+    // this.split_.isObservedBy_.forEach(e => {
+    //   console.log('    ', e.constructor.name, e.disposed_)
+    // })
   }
 
   get split() {
@@ -150,7 +159,7 @@ export default class View extends EVT {
    */
   dispose() {
     [...this.panelMap.values()].forEach(panel => panel.dispose());
-    this.disposeInternal();
+    super.dispose();
   };
 
 

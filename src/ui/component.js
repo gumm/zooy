@@ -346,14 +346,15 @@ export default class Component extends EVT {
    * @protected
    */
   disposeInternal() {
-    super.disposeInternal();
 
     if (this.isInDocument) {
       this.exitDocument();
     }
 
     // Disposes of the component's children, if any.
-    [...this.children_.values()].forEach(child => child.disposeInternal());
+    if (this.children_) {
+      [...this.children_.values()].forEach(child => child.disposeInternal());
+    }
 
     // Detach the component's element from the DOM, unless it was decorated.
     if (this.element_) {
@@ -364,7 +365,25 @@ export default class Component extends EVT {
     this.element_ = void 0;
     this.model_ = null;
     this.parent_ = null;
+
+    super.disposeInternal();
   };
+
+  dispose() {
+    const me = this.getElement();
+    if (me) {
+      const els = this.getElement().querySelectorAll("[data-mdc-auto-init]");
+      [...els].forEach(e => {
+        try {
+          e[e.getAttribute('data-mdc-auto-init')].destroy();
+        } catch (e) {
+          // do nothing...
+        }
+
+      });
+    }
+    super.dispose();
+  }
 
 
   //-------------------------------------------------------[ Built in events ]--

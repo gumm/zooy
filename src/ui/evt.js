@@ -1,4 +1,4 @@
-import { isDef } from "../../node_modules/badu/src/badu.js";
+import { isDef, makeRandomString } from "../../node_modules/badu/src/badu.js";
 
 /*
 EVENT LISTENER LEAK DETECTOR
@@ -18,6 +18,12 @@ var listenerCount = 0;
 })();
 
  */
+
+/**
+ * An internal registry of initiated components.
+ * @type {Map<string, !EVT>}
+ */
+const globalDisposableMap = new Map();
 
 export default class EVT extends EventTarget {
 
@@ -46,6 +52,21 @@ export default class EVT extends EventTarget {
      */
     this.isObservedBy_ = new Set();
 
+    /**
+     * A key identifying this component in the global component map
+     * @type {string}
+     * @private
+     */
+    this.gdmKey_ = makeRandomString();
+
+    /**
+     * True if this is disposed.
+     * @type {boolean}
+     * @private
+     */
+    this.disposed_ = false;
+
+    globalDisposableMap.set(this.gdmKey_, this);
   };
 
 
@@ -92,6 +113,11 @@ export default class EVT extends EventTarget {
   stopListeningTo(target, opt_event) {
     if (!target) { return }
     if (this.listeningTo_.has(target)) {
+
+      if (isDef(target.isObservedBy_)) {
+        target.isObservedBy_.delete(this);
+      }
+
       if (isDef(opt_event)) {
         Object
             .entries(this.listeningTo_.get(target))
@@ -132,6 +158,11 @@ export default class EVT extends EventTarget {
   disposeInternal() {
     this.stopBeingListenedTo();
     this.removeAllListener();
+    this.disposed_ = true;
+
+    const k = this.gdmKey_.slice(0);
+    delete globalDisposableMap.get(k);
+    globalDisposableMap.delete(k);
   };
 
   dispose() {
