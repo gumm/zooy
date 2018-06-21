@@ -156,8 +156,8 @@ class Panel extends Component {
     const panel = this.getElement();
 
     // If we are in an environment where MDC is used.
-    if (isDefAndNotNull(mdc) && mdc.hasOwnProperty('autoInit')) {
-      mdc.autoInit(panel);
+    if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
+      window.mdc.autoInit(panel);
     }
 
     this.evalScripts(this.responseObject.scripts);

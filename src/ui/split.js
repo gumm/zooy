@@ -480,6 +480,14 @@ export default class Split extends Component {
   }
 
   /**
+   * @param s
+   * @return {!Element | undefined}
+   */
+  getNestModel(s) {
+    return this.draggerMap_.get(s)[1].model;
+  }
+
+  /**
    * Resize a nest.
    * @param {string} s Nest name
    * @param {number} size The required size of the resulting move.
@@ -783,7 +791,6 @@ export default class Split extends Component {
         this.dispatchSplitEvent('didChange', {names: [refB, refC]});
       }
     };
-
 
     this.listen(AB, Component.compEventCode(), onDraggerEvent);
     this.listen(BC, Component.compEventCode(), onDraggerEvent);
