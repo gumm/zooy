@@ -19,7 +19,8 @@ export default class Conductor extends EVT {
 
     this.viewEventMap_ = this.initViewEventsInternal_();
 
-    this.switchViewMap_ = new Map();
+    this.viewConstructorMap_ = new Map();
+
   };
 
   set split(split) {
@@ -73,8 +74,10 @@ export default class Conductor extends EVT {
   initViewEventsInternal_() {
     return new Map()
         .set('switch_view', (eventData, eView) => {
-          if (this.switchViewMap_.has(eventData.viewType)) {
-            this.switchViewMap_.get(eventData.viewType)(eventData, eView)
+          if (this.viewConstructorMap_.has(eventData.view)) {
+            const view = this.viewConstructorMap_.get(eventData.view)(
+                eventData.pk, eventData);
+            this.switchView(view);
           }
         })
   };
@@ -83,8 +86,8 @@ export default class Conductor extends EVT {
     this.viewEventMap_.set(s, func);
   }
 
-  mapSwitchView(s, func) {
-    this.switchViewMap_.set(s, func);
+  registerViewConstructor(s, f) {
+    this.viewConstructorMap_.set(s, f);
   }
 
   /**
@@ -105,8 +108,8 @@ export default class Conductor extends EVT {
   initView(view) {
     view.user = this.user;
     view.split = this.split;
-    view.switchView = this.switchView.bind(this);
-    view.mapSwitchView = this.mapSwitchView.bind(this);
+    // view.switchView = this.switchView.bind(this);
+    view.registerViewConstructor = this.registerViewConstructor.bind(this);
     this.listen(view, View.viewEventCode(), this.onViewEvent.bind(this));
     return view;
   }

@@ -34,7 +34,7 @@ const toggleTree = (eventData, panel) => {
 const toggleTreeChildren = (panel, eventData) => {
   const revealIcon = eventData.trigger;
   const elId = revealIcon.getAttribute('data-child-id');
-  let child = panel.getElement().querySelector(`#${elId}`);
+  const child = panel.getElement().querySelector(`#${elId}`);
   toggleClass(child, 'tst__tree-children__hidden');
   toggleClass(revealIcon, 'tst__icon_rotated');
 };
@@ -42,7 +42,12 @@ const toggleTreeChildren = (panel, eventData) => {
 
 export const treeNodeSelect = panel => eventData => {
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
-  let href = eventData.trigger.getAttribute('data-href');
+  let href;
+  if (eventData.trigger) {
+    href = eventData.trigger.getAttribute('data-href');
+  } else {
+    href = eventData.href;
+  }
   [...allNodes].forEach(n =>
       enableClass(n, 'selected', n.getAttribute('data-href') === href));
 };
@@ -73,6 +78,8 @@ export default class View extends EVT {
     this.split_ = void 0;
 
     this.panelEventMap_ = this.initPanelEventsInternal_();
+
+    this.switchViewMap_ = new Map();
 
   };
 
@@ -216,14 +223,30 @@ export default class View extends EVT {
           this.removePanel(ePanel);
         })
         .set('switch_view', (eventData, ePanel) => {
-          const viewType = eventData.trigger.getAttribute('data-view');
-          const pk = eventData.trigger.getAttribute('data-pk');
-          this.dispatchViewEvent('switch_view', {viewType, pk});
+          const href = eventData.href;
+          const pk = eventData.pk;
+          const view = eventData.trigger.getAttribute('data-view');
+          const landOn =  eventData.trigger.getAttribute('data-landon');
+
+          if (this.switchViewMap_.has(view)) {
+            this.switchViewMap_.get(view)({view, pk, landOn, href}, ePanel);
+          }
         });
   };
 
   mapPanEv(s, func) {
     this.panelEventMap_.set(s, func);
+  }
+
+  /**
+   * A map of string to function where the function receives an object and
+   * a panel.
+   * @param {string} s
+   * @param {function(
+   *  {view:string, pk:string, landOn:string, href:string}, Panel):?} func
+   */
+  mapSwitchView(s, func) {
+    this.switchViewMap_.set(s, func);
   }
 
 

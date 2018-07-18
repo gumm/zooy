@@ -157,7 +157,23 @@ class Panel extends Component {
 
     // If we are in an environment where MDC is used.
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
-      window.mdc.autoInit(panel);
+      [...panel.querySelectorAll('.mdc-button'),
+        ...panel.querySelectorAll('.mdc-ripple-surface'),
+          ...panel.querySelectorAll('.mdc-fab'),
+      ].forEach(mdc.ripple.MDCRipple.attachTo);
+      [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(
+        mdc.iconToggle.MDCIconToggle.attachTo
+      );
+      [...panel.querySelectorAll('.mdc-text-field')].forEach(
+          mdc.textField.MDCTextField.attachTo
+      );
+      [...panel.querySelectorAll('.mdc-select')].forEach(
+        mdc.select.MDCSelect.attachTo
+      );
+      [...panel.querySelectorAll('.mdc-form-field')].forEach(
+        mdc.formField.MDCFormField.attachTo
+      );
+
     }
 
     this.evalScripts(this.responseObject.scripts);
