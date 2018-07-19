@@ -40,16 +40,10 @@ const toggleTreeChildren = (panel, eventData) => {
 };
 
 
-export const treeNodeSelect = panel => eventData => {
+export const treeNodeSelect = panel => id => {
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
-  let href;
-  if (eventData.trigger) {
-    href = eventData.trigger.getAttribute('data-href');
-  } else {
-    href = eventData.href;
-  }
   [...allNodes].forEach(n =>
-      enableClass(n, 'selected', n.getAttribute('data-href') === href));
+      enableClass(n, 'selected', n.id === `tree-node_${id}`));
 };
 
 

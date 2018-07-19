@@ -157,21 +157,33 @@ class Panel extends Component {
 
     // If we are in an environment where MDC is used.
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
+      // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-button'),
         ...panel.querySelectorAll('.mdc-ripple-surface'),
-          ...panel.querySelectorAll('.mdc-fab'),
-      ].forEach(mdc.ripple.MDCRipple.attachTo);
+        ...panel.querySelectorAll('.mdc-fab')].forEach(
+            mdc.ripple.MDCRipple.attachTo);
+
+      // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(
-        mdc.iconToggle.MDCIconToggle.attachTo
+          mdc.iconToggle.MDCIconToggle.attachTo
       );
+
+      // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-text-field')].forEach(
           mdc.textField.MDCTextField.attachTo
       );
+
+      // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-select')].forEach(
-        mdc.select.MDCSelect.attachTo
+          mdc.select.MDCSelect.attachTo
       );
+
+      // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-form-field')].forEach(
-        mdc.formField.MDCFormField.attachTo
+          mdc.formField.MDCFormField.attachTo
+      );
+      [...panel.querySelectorAll('.mdc-tab-bar')].forEach(
+          mdc.tabs.MDCTabBar.attachTo
       );
 
     }
@@ -186,12 +198,12 @@ class Panel extends Component {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
-        this.dispatchPanelEvent(trg.getAttribute('data-zv'), {
+        this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
           orgEvt: e,
           trigger: trg,
           href: trg.href || trg.getAttribute('data-href'),
           pk: trg.getAttribute('data-pk'),
-        });
+        }, getElDataMap(trg)));
       });
     });
 
@@ -204,13 +216,13 @@ class Panel extends Component {
         Array.from(ul.querySelectorAll('li')).forEach(unActivate);
         const trg = e.target;
         enableClass(trg, 'mdc-list-item--activated', true);
-        this.dispatchPanelEvent(trg.getAttribute('data-zv'), {
+        this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
           orgEvt: e,
           ul: ul,
           trigger: trg,
           href: trg.href || trg.getAttribute('data-href'),
           pk: trg.getAttribute('data-pk'),
-        });
+        }, getElDataMap(trg)));
       });
     });
 
@@ -230,14 +242,14 @@ class Panel extends Component {
         const isOn = e.detail['isOn'];
         const hrefAt = isOn ? '__on' : '__off';
         const hrefTog = trg.getAttribute(`data-href${hrefAt}`);
-        this.dispatchPanelEvent(trg.getAttribute('data-zv'), {
+        this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
           orgEvt: e,
           trigger: trg,
           href: trg.href || trg.getAttribute('data-href'),
           hrefTog: hrefTog,
           pk: trg.getAttribute('data-pk'),
           isOn: isOn
-        });
+        }, getElDataMap(trg)));
       });
     });
 
@@ -248,11 +260,26 @@ class Panel extends Component {
         e.stopPropagation();
         const trg = e.currentTarget;
         let v = e.detail['item'].getAttribute('data-zv');
-        this.dispatchPanelEvent(v, {
+        this.dispatchPanelEvent(v, Object.assign({
           orgEvt: e,
           trigger: e.detail['item'],
           href: trg.href || trg.getAttribute('data-href')
-        });
+        }, getElDataMap(trg)));
+      });
+    });
+
+    // Activate Tabs
+    const tabs = panel.querySelectorAll('.mdc-tab');
+    Array.from(tabs).forEach(el => {
+      this.listen(el, 'click', e => {
+        e.stopPropagation();
+        const trg = e.currentTarget;
+        let v = trg.getAttribute('data-zv');
+        this.dispatchPanelEvent(v, Object.assign({
+          orgEvt: e,
+          trigger: trg,
+          href: trg.href || trg.getAttribute('data-href')
+        }, getElDataMap(trg)));
       });
     });
 
@@ -266,11 +293,11 @@ class Panel extends Component {
         e.preventDefault();
         e.stopPropagation();
         let v = trg.getAttribute('data-zv') || 'href';
-        this.dispatchPanelEvent(v, {
+        this.dispatchPanelEvent(v, Object.assign({
           orgEvt: e,
           trigger: e.target,
           href: trg.href || trg.getAttribute('data-href')
-        });
+        }, getElDataMap(trg)));
       });
     });
 
