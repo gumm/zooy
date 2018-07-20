@@ -1,6 +1,6 @@
 import Component from './component.js';
 import { evalScripts, splitScripts, getElDataMap, enableClass } from '../dom/utils.js';
-import { isDefAndNotNull } from '../../node_modules/badu/src/badu.js';
+import { isDefAndNotNull, toUpperCase } from '../../node_modules/badu/src/badu.js';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';
@@ -154,6 +154,7 @@ class Panel extends Component {
   enterDocument() {
 
     const panel = this.getElement();
+    this.evalScripts(this.responseObject.scripts);
 
     // If we are in an environment where MDC is used.
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
@@ -163,10 +164,44 @@ class Panel extends Component {
         ...panel.querySelectorAll('.mdc-fab')].forEach(
             mdc.ripple.MDCRipple.attachTo);
 
+      [...panel.querySelectorAll('.mdc-icon-button')].forEach(el => {
+        const b = new mdc.ripple.MDCRipple(el);
+        b.unbounded = true;
+        if (el.hasAttribute('data-toggle-on-content') &&
+            el.hasAttribute('data-toggle-off-content')) {
+          mdc.iconButton.MDCIconButtonToggle.attachTo(el);
+          this.listen(el, 'click', e => e.stopPropagation());
+          this.listen(el, 'MDCIconButtonToggle:change', e => {
+            e.stopPropagation();
+            const trg = e.currentTarget;
+            const isOn = e.detail['isOn'];
+            const hrefAt = isOn ? '__on' : '__off';
+            const hrefTog = trg.getAttribute(`data-href${hrefAt}`);
+            this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+              orgEvt: e,
+              trigger: trg,
+              href: trg.href || trg.getAttribute('data-href'),
+              hrefTog: hrefTog,
+              isOn: isOn
+            }, getElDataMap(trg)));
+          });
+        } else {
+          this.listen(el, 'click', e => {
+            e.stopPropagation();
+            const trg = e.currentTarget;
+            this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+              orgEvt: e,
+              trigger: trg,
+              href: trg.href || trg.getAttribute('data-href'),
+            }, getElDataMap(trg)));
+          });
+        }
+      });
+
       // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(
-          mdc.iconToggle.MDCIconToggle.attachTo
-      );
+      // [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(
+      //     mdc.iconButton.MDCIconToggle.attachTo
+      // );
 
       // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-text-field')].forEach(
@@ -186,15 +221,20 @@ class Panel extends Component {
           mdc.tabs.MDCTabBar.attachTo
       );
 
+      [...panel.querySelectorAll('.mdc-list')].forEach(el => {
+        mdc.list.MDCList.attachTo(el);
+        // Attach a ripple to the list items.
+        [...el.querySelectorAll('li')].forEach(li => {
+          mdc.ripple.MDCRipple.attachTo(li);
+        });
+        // this.listen(e, 'keydown', e => {console.log(e)})
+      });
     }
 
-    this.evalScripts(this.responseObject.scripts);
-
-    // Activate buttons
-    const tst = panel.querySelectorAll('.tst__button');
-    const tstZv = panel.querySelectorAll('.tst__zv');
-    const allBut = [...Array.from(tst), ...Array.from(tstZv)];
-    allBut.forEach(el => {
+    // Activate custom buttons
+    // const tstZv = panel.querySelectorAll('.tst__zv');
+    // const allBut = [...Array.from(tst), ...Array.from(tstZv)];
+    [...panel.querySelectorAll('.tst__button')].forEach(el => {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
@@ -202,40 +242,27 @@ class Panel extends Component {
           orgEvt: e,
           trigger: trg,
           href: trg.href || trg.getAttribute('data-href'),
-          pk: trg.getAttribute('data-pk'),
         }, getElDataMap(trg)));
       });
     });
 
-    const listItems = panel.querySelectorAll('.mdc-list');
-    const unActivate = e => enableClass(e, 'mdc-list-item--activated', false);
-    Array.from(listItems).forEach(el => {
-      this.listen(el, 'click', e => {
-        e.stopPropagation();
-        const ul = e.currentTarget;
-        Array.from(ul.querySelectorAll('li')).forEach(unActivate);
-        const trg = e.target;
-        enableClass(trg, 'mdc-list-item--activated', true);
-        this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
-          orgEvt: e,
-          ul: ul,
-          trigger: trg,
-          href: trg.href || trg.getAttribute('data-href'),
-          pk: trg.getAttribute('data-pk'),
-        }, getElDataMap(trg)));
-      });
-    });
-
-
+    // [...panel.querySelectorAll('.mdc-icon-button')].forEach(el => {
+      // this.listen(el, 'click', e => {
+      //   e.stopPropagation();
+      //   const trg = e.currentTarget;
+      //   this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+      //     orgEvt: e,
+      //     trigger: trg,
+      //     href: trg.href || trg.getAttribute('data-href'),
+      //   }, getElDataMap(trg)));
+      // });
+    // });
 
     // Activate toggle icons
     // We intercept the click on these as well, as we want to stop its
     // propagation.
-    const togIcons = panel.querySelectorAll('.mdc-icon-toggle');
-    Array.from(togIcons).forEach(
-        el => this.listen(el, 'click', e => e.stopPropagation()));
-    Array.from(togIcons).forEach(el => {
-
+    [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
+      this.listen(el, 'click', e => e.stopPropagation());
       this.listen(el, 'MDCIconToggle:change', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
@@ -247,15 +274,13 @@ class Panel extends Component {
           trigger: trg,
           href: trg.href || trg.getAttribute('data-href'),
           hrefTog: hrefTog,
-          pk: trg.getAttribute('data-pk'),
           isOn: isOn
         }, getElDataMap(trg)));
       });
     });
 
     // Activate Menu items
-    const ms = panel.querySelectorAll('.mdc-menu');
-    Array.from(ms).forEach(el => {
+    [...panel.querySelectorAll('.mdc-menu')].forEach(el => {
       this.listen(el, 'MDCMenu:selected', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
@@ -269,8 +294,7 @@ class Panel extends Component {
     });
 
     // Activate Tabs
-    const tabs = panel.querySelectorAll('.mdc-tab');
-    Array.from(tabs).forEach(el => {
+    [...panel.querySelectorAll('.mdc-tab')].forEach(el => {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
@@ -283,11 +307,26 @@ class Panel extends Component {
       });
     });
 
+    // Activate Lists
+    const unActivateLi = e => enableClass(e, 'mdc-list-item--activated', false);
+    const activateLi = e => enableClass(e, 'mdc-list-item--activated', true);
+    [...panel.querySelectorAll('.mdc-list')].forEach(el => {
+      this.listen(el, 'click', e => {
+        [...el.querySelectorAll('li')].forEach(unActivateLi);
+        const trg = e.path.find(e => toUpperCase(e.tagName) === 'LI');
+        activateLi(trg);
+        this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+          orgEvt: e,
+          trigger: trg,
+          href: trg.href || trg.getAttribute('data-href'),
+        }, getElDataMap(trg)));
+      });
+    });
+
     // Hijack elements with a straight-up 'href' attribute.
     // Make them emit a 'href' event with the original
     // href or a href data attribute.
-    const links = panel.querySelectorAll('[href]');
-    Array.from(links).forEach(el => {
+    [...panel.querySelectorAll('[href]')].forEach(el => {
       this.listen(el, 'click', e => {
         const trg = e.currentTarget;
         e.preventDefault();
