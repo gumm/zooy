@@ -21,7 +21,7 @@
     "badu": "^1.2.18"
   },
   "devDependencies": {
-    "esm": "^3.0.71",
+    "esm": "^3.0.72",
     "google-closure-compiler": "^20180716.0.1",
     "google-closure-library": "^20180716.0.0",
     "material-components-web": "^0.35.1",
