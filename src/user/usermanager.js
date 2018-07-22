@@ -480,4 +480,17 @@ export default class UserManager {
         .then(getJson)
         .catch(err => console.error('UMan JSON POST Fetch:', err));
   };
+
+  /**
+   * @param {string} uri
+   * @param {Object} payload
+   * @return {Promise}
+   */
+  putJson(uri, payload) {
+    const req = new Request(uri.toString());
+    return fetch(req, jsonPutInit(this.jwt, payload))
+        .then(checkStatus)
+        .then(getJson)
+        .catch(err => console.error('UMan JSON POST Fetch:', err));
+  };
 }

@@ -43,7 +43,7 @@ const toggleTreeChildren = (panel, eventData) => {
 export const treeNodeSelect = panel => id => {
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
   [...allNodes].forEach(n =>
-      enableClass(n, 'selected', n.id === `tree-node_${id}`));
+      enableClass(n, 'mdc-list-item--activated', n.id === `tree-node_${id}`));
 };
 
 
