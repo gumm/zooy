@@ -217,13 +217,15 @@ export default class View extends EVT {
           this.removePanel(ePanel);
         })
         .set('switch_view', (eventData, ePanel) => {
+
           const href = eventData.href;
           const pk = eventData.pk;
-          const view = eventData.trigger.getAttribute('data-view');
-          const landOn =  eventData.trigger.getAttribute('data-landon');
+          const view = eventData.view;
+          const landOn =  eventData.landon;
+          const landOnPk =  eventData.landonpk;
 
           if (this.switchViewMap_.has(view)) {
-            this.switchViewMap_.get(view)({view, pk, landOn, href}, ePanel);
+            this.switchViewMap_.get(view)({view, pk, landOn, landOnPk, href}, ePanel);
           }
         });
   };

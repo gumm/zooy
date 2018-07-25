@@ -311,6 +311,21 @@ class Panel extends Component {
       }
     });
 
+    // Activate Switches
+    [...panel.querySelectorAll('.mdc-switch')].forEach(el => {
+      const input = el.querySelector('input');
+      this.listen(input, 'change', e => {
+        e.stopPropagation();
+        let v = input.getAttribute('data-zv');
+        this.dispatchPanelEvent(v, Object.assign({
+          isOn: input.checked,
+          orgEvt: e,
+          trigger: input,
+          href: input.href || input.getAttribute('data-href')
+        }, getElDataMap(input)));
+      });
+    });
+
     // Hijack elements with a straight-up 'href' attribute.
     // Make them emit a 'href' event with the original
     // href or a href data attribute.

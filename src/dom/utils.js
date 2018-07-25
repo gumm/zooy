@@ -1,4 +1,4 @@
-import { isString, } from '../../node_modules/badu/src/badu.js'
+import { isString, isDefAndNotNull } from '../../node_modules/badu/src/badu.js'
 
 /**
  * Gets the current value of a checkable input element.
@@ -62,65 +62,6 @@ export const getValue = function(el) {
       return el.value != null ? el.value : null;
   }
 };
-
-// /**
-//  * Returns the form data as a map or an application/x-www-url-encoded
-//  * string. This doesn't support file inputs.
-//  * @param {HTMLFormElement} form The form.
-//  */
-// export const getFormDataMap = form => {
-//   const map = new Map();
-//   [...form.elements].forEach(el => {
-//     if (  // Make sure we don't include elements that are not part of the form.
-//     // Some browsers include non-form elements. Check for 'form' property.
-//     // See http://code.google.com/p/closure-library/issues/detail?id=227
-//     // and
-//     // http://www.whatwg.org/specs/web-apps/current-work/multipage/the-input-element.html#the-input-element
-//         (el.form !== form) || el.disabled ||
-//         // HTMLFieldSetElement has a form property but no value.
-//         el.tagName.toLowerCase() === 'fieldset') {
-//       return;
-//     }
-//
-//     let name = el.name;
-//     switch (el.type.toLowerCase()) {
-//       case 'file':
-//         // file inputs are not supported
-//       case 'submit':
-//       case 'reset':
-//       case 'button':
-//         // don't submit these
-//         break;
-//       case 'select-multiple':
-//         const values = getValue(el);
-//         if (values != null) {
-//           for (let value, j = 0; value = values[j]; j++) {
-//             map.set(name, value);
-//           }
-//         }
-//         break;
-//       default:
-//         const value = getValue(el);
-//         if (value != null) {
-//           map.set(name, value);
-//         }
-//     }
-//   });
-//
-//   // input[type=image] are not included in the elements collection
-//   const inputs = form.getElementsByTagName('input');
-//   [...inputs].forEach(input => {
-//     if (input.form === form && input.type.toLowerCase() === 'image') {
-//       let name = input.name;
-//       map.set(name, input.value);
-//       map.set(name + '.x', '0');
-//       map.set(name + '.y', '0');
-//     }
-//   });
-//
-//   return map;
-// };
-
 
 /**
  * Replaces a node in the DOM tree. Will do nothing if `oldNode` has no
@@ -260,5 +201,78 @@ export const toggleClass = (element, className) => {
 
 
 export const getElDataMap = el => Object.assign({}, el.dataset);
+
+
+const dtFormatter = {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+};
+
+const dFormatter = {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+};
+
+export const mapDataToEls = (rootEl, json) => {
+
+  if (!json) {
+    return;
+  }
+
+  [...rootEl.querySelectorAll('[data-lld]')].forEach(el => {
+    let lldRef = el.getAttribute('data-lld');
+    let parseAs = el.getAttribute('data-parse_as');
+    let units = el.getAttribute('data-units') || '';
+    let all = lldRef.split('.');
+
+    let v = all.reduce((p, c) => {
+      if (p && p.hasOwnProperty(c)) {
+        return p[c];
+      }
+      return undefined;
+    }, json);
+
+    if (isDefAndNotNull(v)) {
+      if (parseAs) {
+        switch (parseAs) {
+          case 'obfuscated':
+            /**
+             * @param {string} s
+             * @return {function(number): boolean}
+             */
+            const tst = s => i => i < s.length - 4;
+            const t = tst(v);
+            const ob = s => s.split('').map((c,i) => t(i) ? '*' : c).join('');
+            v = ob(v);
+            break;
+          case 'frac_100':
+            v = Math.round((v * 100) * 100) / 100;
+            break;
+          case 'date_and_time':
+            v = new Date(v).toLocaleString(undefined, dtFormatter);
+            break;
+          case 'date':
+            v = new Date(v).toLocaleString(undefined, dFormatter);
+            break;
+          default:
+            // Do nothing;
+        }
+      }
+    } else {
+      v = '--';
+      units = '';
+    }
+
+    if (v) {
+      el.innerHTML = v + units
+    }
+  });
+};
+
 
 

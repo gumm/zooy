@@ -158,6 +158,13 @@ const jsonPatchInit = (jwt, obj) => jsonInit(jwt, obj, 'PATCH');
  */
 const jsonPutInit = (jwt, obj) => jsonInit(jwt, obj, 'PUT');
 
+/**
+ * @param {string} jwt A JWT token
+ * @param {Object} obj
+ * @return {!RequestInit}
+ */
+const jsonDelInit = (jwt, obj) => jsonInit(jwt, obj, 'DELETE');
+
 
 /**
  * @param {string} method PUT, POST, PATCH
@@ -492,5 +499,18 @@ export default class UserManager {
         .then(checkStatus)
         .then(getJson)
         .catch(err => console.error('UMan JSON POST Fetch:', err));
+  };
+
+  /**
+   * @param {string} uri
+   * @param {Object} payload
+   * @return {Promise}
+   */
+  delJson(uri, payload) {
+    const req = new Request(uri.toString());
+    return fetch(req, jsonDelInit(this.jwt, payload))
+        .then(checkStatus)
+        .then(getJson)
+        .catch(err => console.error('UMan JSON DELETE Fetch:', err));
   };
 }
