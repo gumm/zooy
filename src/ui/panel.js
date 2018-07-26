@@ -1,6 +1,15 @@
 import Component from './component.js';
-import { evalScripts, splitScripts, getElDataMap, enableClass } from '../dom/utils.js';
-import { isDefAndNotNull, toUpperCase } from '../../node_modules/badu/src/badu.js';
+import {
+  evalScripts,
+  evalModules,
+  splitScripts,
+  getElDataMap,
+  enableClass
+} from '../dom/utils.js';
+import {
+  isDefAndNotNull,
+  toUpperCase
+} from '../../node_modules/badu/src/badu.js';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';
@@ -17,14 +26,16 @@ class Panel extends Component {
     return UiEventType.READY;
   }
 
-  
+
   constructor(uri) {
     super();
-    
+
     this.uri_ = uri;
 
     // Script are evaluated in the context of the panel.
     this.evalScripts = evalScripts(this);
+
+    this.evalModules = evalModules(this);
 
     /**
      * Set to true if we can detect that the response from the fetch was
@@ -84,7 +95,7 @@ class Panel extends Component {
         if (opt_callback) {
           opt_callback(this);
         }
-        this.onRenderWithTemplateReply(s)
+        this.onRenderWithTemplateReply(s);
       });
     } else {
       return Promise.reject('No user')
@@ -151,18 +162,14 @@ class Panel extends Component {
   };
 
   //--------------------------------------------------------[ JSON Render ]-----
-  enterDocument() {
-
-    const panel = this.getElement();
-    this.evalScripts(this.responseObject.scripts);
-
+  parseContent(panel) {
     // If we are in an environment where MDC is used.
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
       // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-button'),
         ...panel.querySelectorAll('.mdc-ripple-surface'),
         ...panel.querySelectorAll('.mdc-fab')].forEach(
-            mdc.ripple.MDCRipple.attachTo);
+          mdc.ripple.MDCRipple.attachTo);
 
       [...panel.querySelectorAll('.mdc-icon-button')].forEach(el => {
         const b = new mdc.ripple.MDCRipple(el);
@@ -300,7 +307,7 @@ class Panel extends Component {
       if (!el.classList.contains('no_init_2')) {
         this.listen(el, 'click', e => {
           [...el.querySelectorAll('li')].forEach(unActivateLi);
-          const trg = e.path.find(e => toUpperCase(e.tagName) === 'LI');
+          const trg = e.target.closest('li');
           activateLi(trg);
           this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
             orgEvt: e,
@@ -400,8 +407,7 @@ class Panel extends Component {
     //--------------------------------------------------------[ Async Populate ]--
     // Grab all elements with a 'zoo_async_json' class.
     // Call the given url, and then dispatch a panel event with the results.
-    const async_json_els = panel.querySelectorAll('.zoo_async_json');
-    Array.from(async_json_els).forEach(el => {
+    [...panel.querySelectorAll('.zoo_async_json')].forEach(el => {
       let href = el.getAttribute('data-href');
       let event_value = el.getAttribute('data-zv');
       let onReply = this.onAsyncJsonReply.bind(this, event_value);
@@ -409,18 +415,38 @@ class Panel extends Component {
     });
 
     // Grab all elements with a 'zoo_async_html' class.
-    // Call the given url, and then dispatch a panel event with the results.
-    const async_html_els = panel.querySelectorAll('.zoo_async_html');
-    Array.from(async_html_els).forEach(el => {
-      let href = el.getAttribute('data-href');
-      let event_value = el.getAttribute('data-zv');
-      this.dispatchPanelEvent(event_value, {trigger: el, href: href});
+    // Call the given url, and then populate the calling element with the
+    // results. Parse the content and scripts in the context of this panel.
+    [...panel.querySelectorAll('.zoo_async_html')].forEach(el => {
+      const href = el.getAttribute('data-href');
+      this.user.fetchAndSplit(href)
+          .then(data => {
+            el.appendChild(data.html);
+            this.parseContent(el);
+            this.evalScripts(data.scripts);
+            this.evalModules(data.modules);
+          });
+
+      // We used to issue an event, but it is just much easier to be a bit
+      // les flexible about this.
+      // const v = el.getAttribute('data-zv');
+      // this.dispatchPanelEvent(v, Object.assign({
+      //   trigger: el,
+      //   href: href
+      // }, getElDataMap(el)));
     });
+  };
+
+  enterDocument() {
+    const panel = this.getElement();
+    this.parseContent(panel);
+    this.evalScripts(this.responseObject.scripts);
+    this.evalModules(this.responseObject.modules);
 
     // Calling this last makes sure that the final PANEL-READY event really is
     // dispatched right at the end of all of the enterDocument calls.
     super.enterDocument();
-  }
+  };
 
   /**
    * @param {boolean} bool

@@ -161,13 +161,25 @@ export const evalScripts = comp => arr => {
   });
 };
 
+export const evalModules = comp => arr => {
+  arr && Array.from(arr).forEach(e => {
+    (function() {
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.textContent = e.textContent;
+      comp.getElement().appendChild(script);
+    }).bind(comp)();
+  });
+};
+
 
 export const splitScripts = data => {
   const DF = new DOMParser().parseFromString(data, 'text/html');
   const df = /** @type {Document} */ (DF);
   return {
     html: df.body.firstElementChild,
-    scripts: df.querySelectorAll('script')
+    scripts: df.querySelectorAll('script:not([type="module"])'),
+    modules: df.querySelectorAll('script[type="module"]')
   };
 };
 

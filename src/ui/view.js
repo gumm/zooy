@@ -256,7 +256,11 @@ export default class View extends EVT {
     if (this.panelEventMap_.has(eventValue)) {
       this.panelEventMap_.get(eventValue)(eventData, ePanel)
     } else {
-      console.log('oPe:', e, eventValue, eventData, ePanel);
+      console.log('NO EVENT MATCH' +
+          '\n oPe:', e,
+          '\n eventValue:', eventValue,
+          '\n eventData:', eventData,
+          '\n ePanel:', ePanel);
     }
   };
 
