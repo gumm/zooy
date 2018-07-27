@@ -35,6 +35,9 @@ class Panel extends Component {
     // Script are evaluated in the context of the panel.
     this.evalScripts = evalScripts(this);
 
+    // Modules are just appended to the DOM and does not share scope with
+    // the component. However they are appended to this panel's DOM, and will
+    // disappear when the panel is removed from the DOM.
     this.evalModules = evalModules(this);
 
     /**
@@ -108,7 +111,6 @@ class Panel extends Component {
    * @return {Promise}
    */
   onRenderWithTemplateReply(s) {
-
     return new Promise(x => {
       this.responseObject = splitScripts(s);
       this.domFunc = () => /** @type {!Element} */ (this.responseObject.html);
@@ -182,25 +184,25 @@ class Panel extends Component {
             e.stopPropagation();
             const trg = e.currentTarget;
             const isOn = e.detail['isOn'];
-            const hrefAt = isOn ? '__on' : '__off';
-            const hrefTog = trg.getAttribute(`data-href${hrefAt}`);
-            this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+            const elDataMap = getElDataMap(trg);
+            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
               orgEvt: e,
               trigger: trg,
-              href: trg.href || trg.getAttribute('data-href'),
-              hrefTog: hrefTog,
+              href: trg.href || elDataMap['href'],
+              // hrefTog: hrefTog,
               isOn: isOn
-            }, getElDataMap(trg)));
+            }, elDataMap));
           });
         } else {
           this.listen(el, 'click', e => {
             e.stopPropagation();
             const trg = e.currentTarget;
-            this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+            const elDataMap = getElDataMap(trg);
+            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
               orgEvt: e,
               trigger: trg,
-              href: trg.href || trg.getAttribute('data-href'),
-            }, getElDataMap(trg)));
+              href: trg.href || elDataMap['href'],
+            }, elDataMap));
           });
         }
       });
@@ -231,7 +233,18 @@ class Panel extends Component {
         [...el.querySelectorAll('li')].forEach(li => {
           mdc.ripple.MDCRipple.attachTo(li);
         });
-        // this.listen(e, 'keydown', e => {console.log(e)})
+      });
+
+      // Activate menu triggers
+      [...panel.querySelectorAll('.mdc-menu-anchor')].forEach(menuButtonEl => {
+        const menuEl = menuButtonEl.querySelector('.mdc-menu');
+        const menuData = getElDataMap(menuEl);
+        const menu = new mdc.menu.MDCMenu(menuEl);
+        // Toggle menu open
+        menuButtonEl.addEventListener('click', () => menu.open = !menu.open);
+        const corner = menuData['corner'] || 'BOTTOM_START';
+        menu.setAnchorCorner(mdc.menu.MDCMenuFoundation.Corner[corner]);
+        menu.quickOpen = false;
       });
     }
 
@@ -243,11 +256,12 @@ class Panel extends Component {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
-        this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+        const elDataMap = getElDataMap(trg);
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
           orgEvt: e,
           trigger: trg,
-          href: trg.href || trg.getAttribute('data-href'),
-        }, getElDataMap(trg)));
+          href: trg.href || elDataMap['href'],
+        }, elDataMap));
       });
     });
 
@@ -260,15 +274,13 @@ class Panel extends Component {
         e.stopPropagation();
         const trg = e.currentTarget;
         const isOn = e.detail['isOn'];
-        const hrefAt = isOn ? '__on' : '__off';
-        const hrefTog = trg.getAttribute(`data-href${hrefAt}`);
-        this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+        const elDataMap = getElDataMap(trg);
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
           orgEvt: e,
           trigger: trg,
-          href: trg.href || trg.getAttribute('data-href'),
-          hrefTog: hrefTog,
+          href: trg.href || elDataMap['href'],
           isOn: isOn
-        }, getElDataMap(trg)));
+        }, elDataMap));
       });
     });
 
@@ -277,12 +289,12 @@ class Panel extends Component {
       this.listen(el, 'MDCMenu:selected', e => {
         e.stopPropagation();
         const trg = e.detail['item'];
-        let v = trg.getAttribute('data-zv');
-        this.dispatchPanelEvent(v, Object.assign({
+        const elDataMap = getElDataMap(trg);
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
           orgEvt: e,
           trigger: trg,
-          href: trg.href || trg.getAttribute('data-href')
-        }, getElDataMap(trg)));
+          href: trg.href || elDataMap['href']
+        }, elDataMap));
       });
     });
 
@@ -291,12 +303,12 @@ class Panel extends Component {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
-        let v = trg.getAttribute('data-zv');
-        this.dispatchPanelEvent(v, Object.assign({
+        const elDataMap = getElDataMap(trg);
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
           orgEvt: e,
           trigger: trg,
-          href: trg.href || trg.getAttribute('data-href')
-        }, getElDataMap(trg)));
+          href: trg.href || elDataMap['href']
+        }, elDataMap));
       });
     });
 
@@ -308,28 +320,29 @@ class Panel extends Component {
         this.listen(el, 'click', e => {
           [...el.querySelectorAll('li')].forEach(unActivateLi);
           const trg = e.target.closest('li');
+          const elDataMap = getElDataMap(trg);
           activateLi(trg);
-          this.dispatchPanelEvent(trg.getAttribute('data-zv'), Object.assign({
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
             orgEvt: e,
             trigger: trg,
-            href: trg.href || trg.getAttribute('data-href'),
-          }, getElDataMap(trg)));
+            href: trg.href || elDataMap['href']
+          }, elDataMap));
         });
       }
     });
 
     // Activate Switches
     [...panel.querySelectorAll('.mdc-switch')].forEach(el => {
-      const input = el.querySelector('input');
-      this.listen(input, 'change', e => {
+      const trg = el.querySelector('input');
+      const elDataMap = getElDataMap(trg);
+      this.listen(trg, 'change', e => {
         e.stopPropagation();
-        let v = input.getAttribute('data-zv');
-        this.dispatchPanelEvent(v, Object.assign({
-          isOn: input.checked,
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+          isOn: trg.checked,
           orgEvt: e,
-          trigger: input,
-          href: input.href || input.getAttribute('data-href')
-        }, getElDataMap(input)));
+          trigger: trg,
+          href: trg.href || elDataMap['href']
+        }, elDataMap));
       });
     });
 
@@ -341,12 +354,13 @@ class Panel extends Component {
         const trg = e.currentTarget;
         e.preventDefault();
         e.stopPropagation();
-        let v = trg.getAttribute('data-zv') || 'href';
+        const elDataMap = getElDataMap(trg);
+        let v = elDataMap['zv'] || 'href';
         this.dispatchPanelEvent(v, Object.assign({
           orgEvt: e,
           trigger: e.target,
-          href: trg.href || trg.getAttribute('data-href')
-        }, getElDataMap(trg)));
+          href: trg.href || elDataMap['href']
+        }, elDataMap));
       });
     });
 
@@ -425,6 +439,7 @@ class Panel extends Component {
             this.parseContent(el);
             this.evalScripts(data.scripts);
             this.evalModules(data.modules);
+
           });
 
       // We used to issue an event, but it is just much easier to be a bit
@@ -445,6 +460,8 @@ class Panel extends Component {
 
     // Calling this last makes sure that the final PANEL-READY event really is
     // dispatched right at the end of all of the enterDocument calls.
+    // However, note that the async populate is async, and my thus not be
+    // completed by the time this fires.
     super.enterDocument();
   };
 

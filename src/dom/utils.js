@@ -149,7 +149,8 @@ export const totalHeight = el => {
 
 /**
  * Evaluates each of the scripts in the ajaxScriptsStrings_ map in turn.
- * The scripts are evaluated in the scope of this panel.
+ * The scripts are evaluated in the scope of this component. For these
+ * scripts, "this" is the evaluating component object.
  * @param {!Component} comp
  * @return {function(?NodeList)}
  */
@@ -161,18 +162,59 @@ export const evalScripts = comp => arr => {
   });
 };
 
+
+/**
+ * Module scripts can not be evaluated with a given scope. The only way we can
+ * get them to do their thing is to append them as DOM nodes and let the
+ * browser take things from there. To them, the global "this" is undefined, and
+ * the component object is not easily reachable. They are append as children of
+ * the root component element as supplied by component.getElement().
+ * @param comp
+ * @returns {Function}
+ */
 export const evalModules = comp => arr => {
   arr && Array.from(arr).forEach(e => {
     (function() {
       const script = document.createElement('script');
       script.type = 'module';
       script.textContent = e.textContent;
-      comp.getElement().appendChild(script);
+      const el = comp.getElement();
+
+      // Convoluted way to access to this component in the script
+      // If the original script tag contained a date-set declaration named
+      // "zv_comp_access", then we park component access inside the component
+      // root element under the key: zvComponent, and add a class to that
+      // element so a querySelector(`${zv_comp_access}`) will find the
+      // correct element from where we can then get to the panel.
+      const zvPanelAccess = getElDataMap(e)['zv_comp_access'];
+      if (zvPanelAccess) {
+        el.zvComponent = comp;
+        el.classList.add(zvPanelAccess);
+      }
+      el.appendChild(script);
     }).bind(comp)();
   });
 };
 
 
+/**
+ * This makes a distinction between normal script tags and module scripts.
+ * Normal scripts are evaluated in the scope of the component where the DOM
+ * arrived. The script is never added to the DOM, but rather evaluated on
+ * the fly. For these scripts "this" is the component object.
+ *
+ * Module scripts can not be evaluated with a given scope. The only way we can
+ * get them to do their thing is to append them as DOM nodes and let the
+ * browser take things from there. To them, the global "this" is undefined, and
+ * the component object is not easily reachable. They are append as children of
+ * the root component element as supplied by component.getElement().
+ * @param {string} data
+ * @returns {{
+ *    html: Element,
+ *    scripts: NodeListOf<HTMLElementTagNameMap[[string]]> | NodeListOf<Element>,
+ *    modules: NodeListOf<HTMLElementTagNameMap[[string]]> | NodeListOf<Element>
+ *      }}
+ */
 export const splitScripts = data => {
   const DF = new DOMParser().parseFromString(data, 'text/html');
   const df = /** @type {Document} */ (DF);
