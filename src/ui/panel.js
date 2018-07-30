@@ -156,10 +156,10 @@ class Panel extends Component {
 
 
   /**
-   * @param {string} zCode
+   * @param {Element} el
    * @param {Object} json
    */
-  onAsyncJsonReply(zCode, json) {
+  onAsyncJsonReply(el, json) {
     // Stub
   };
 
@@ -422,9 +422,9 @@ class Panel extends Component {
     // Grab all elements with a 'zoo_async_json' class.
     // Call the given url, and then dispatch a panel event with the results.
     [...panel.querySelectorAll('.zoo_async_json')].forEach(el => {
-      let href = el.getAttribute('data-href');
-      let event_value = el.getAttribute('data-zv');
-      let onReply = this.onAsyncJsonReply.bind(this, event_value);
+      const elDataMap = getElDataMap(el);
+      let href = elDataMap['href'];
+      let onReply = this.onAsyncJsonReply.bind(this, el);
       this.user.fetchJson(href).then(onReply);
     });
 
