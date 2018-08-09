@@ -217,6 +217,7 @@ export default class View extends EVT {
           this.removePanel(ePanel);
         })
         .set('switch_view', (eventData, ePanel) => {
+          console.log('switch_view received: eventData', eventData);
 
           const href = eventData.href;
           const pk = eventData.pk;
@@ -226,6 +227,8 @@ export default class View extends EVT {
 
           if (this.switchViewMap_.has(view)) {
             this.switchViewMap_.get(view)({view, pk, landOn, landOnPk, href}, ePanel);
+          } else {
+            console.log('NO VIEW FOUND FOR:', view, this.switchViewMap_)
           }
         });
   };

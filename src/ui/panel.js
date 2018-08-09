@@ -8,7 +8,8 @@ import {
 } from '../dom/utils.js';
 import {
   isDefAndNotNull,
-  toUpperCase
+  toUpperCase,
+  toNumber
 } from '../../node_modules/badu/src/badu.js';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
@@ -166,6 +167,7 @@ class Panel extends Component {
   //--------------------------------------------------------[ JSON Render ]-----
   parseContent(panel) {
     // If we are in an environment where MDC is used.
+
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
       // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-button'),
@@ -221,9 +223,18 @@ class Panel extends Component {
       [...panel.querySelectorAll('.mdc-form-field')].forEach(
           mdc.formField.MDCFormField.attachTo
       );
-      [...panel.querySelectorAll('.mdc-tab-bar')].forEach(
-          mdc.tabs.MDCTabBar.attachTo
-      );
+      [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
+        const tbar = mdc.tabBar.MDCTabBar.attachTo(el);
+        this.listen(el, 'MDCTabBar:activated', e => {
+          const trg = tbar.tabList_[e.detail.index].root_;
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href']
+          }, elDataMap));
+        })
+      });
 
       [...panel.querySelectorAll('.mdc-list')].forEach(el => {
         if (!el.classList.contains('no_init')) {
@@ -246,6 +257,23 @@ class Panel extends Component {
         menu.setAnchorCorner(mdc.menu.MDCMenuFoundation.Corner[corner]);
         menu.quickOpen = false;
       });
+
+      // Activate ChipSets
+      [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
+        mdc.chips.MDCChipSet.attachTo(el);
+        this.listen(el, 'MDCChip:interaction', e => {
+          e.stopPropagation();
+          const chip = e.detail.chip;
+          const trg = chip.root_;
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            isOn: chip.isSelected(),
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href'],
+          }, elDataMap));
+        });
+      })
     }
 
     // Activate custom buttons
@@ -289,20 +317,6 @@ class Panel extends Component {
       this.listen(el, 'MDCMenu:selected', e => {
         e.stopPropagation();
         const trg = e.detail['item'];
-        const elDataMap = getElDataMap(trg);
-        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-          orgEvt: e,
-          trigger: trg,
-          href: trg.href || elDataMap['href']
-        }, elDataMap));
-      });
-    });
-
-    // Activate Tabs
-    [...panel.querySelectorAll('.mdc-tab')].forEach(el => {
-      this.listen(el, 'click', e => {
-        e.stopPropagation();
-        const trg = e.currentTarget;
         const elDataMap = getElDataMap(trg);
         this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
           orgEvt: e,
@@ -450,6 +464,7 @@ class Panel extends Component {
       //   href: href
       // }, getElDataMap(el)));
     });
+
   };
 
   enterDocument() {

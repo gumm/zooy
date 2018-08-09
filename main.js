@@ -8,6 +8,7 @@ import View from './src/ui/view.js';
 import { UiEventType } from './src/events/uieventtype.js';
 import { treeNodeSelect} from "./src/ui/view.js";
 import Conductor from './src/ui/conductor.js';
+import * as domUtils from './src/dom/utils.js'
 
 const zooy = {
   Component,
@@ -19,7 +20,8 @@ const zooy = {
   View,
   Conductor,
   UiEventType,
-  treeNodeSelect
+  treeNodeSelect,
+  domUtils,
 };
 
 export default zooy;

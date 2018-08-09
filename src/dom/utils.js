@@ -1,4 +1,8 @@
-import { isString, isDefAndNotNull } from '../../node_modules/badu/src/badu.js'
+import {
+  isDefAndNotNull,
+  isString,
+  pathOr
+} from '../../node_modules/badu/src/badu.js'
 
 /**
  * Gets the current value of a checkable input element.
@@ -278,18 +282,12 @@ export const mapDataToEls = (rootEl, json) => {
     return;
   }
 
-  [...rootEl.querySelectorAll('[data-lld]')].forEach(el => {
-    let lldRef = el.getAttribute('data-lld');
-    let parseAs = el.getAttribute('data-parse_as');
-    let units = el.getAttribute('data-units') || '';
-    let all = lldRef.split('.');
-
-    let v = all.reduce((p, c) => {
-      if (p && p.hasOwnProperty(c)) {
-        return p[c];
-      }
-      return undefined;
-    }, json);
+  [...rootEl.querySelectorAll('[data-zdd]')].forEach(el => {
+    const dataMap = getElDataMap(el);
+    const lldRef = dataMap['zdd'];
+    const parseAs = dataMap['zdd_parse_as'];
+    let units = dataMap['zdd_units'] || '';
+    let v = pathOr(undefined, lldRef.split('.'))(json);
 
     if (isDefAndNotNull(v)) {
       if (parseAs) {
@@ -313,13 +311,16 @@ export const mapDataToEls = (rootEl, json) => {
           case 'date':
             v = new Date(v).toLocaleString(undefined, dFormatter);
             break;
+          case 'moment_ago':
+            const m = moment(new Date(v));
+            const ago = m.fromNow();
+            const time = m.format('D MMM YYYY, H:mm:ss');
+            v = `${ago} (${time})`;
+            break;
           default:
             // Do nothing;
         }
       }
-    } else {
-      v = '--';
-      units = '';
     }
 
     if (v) {
