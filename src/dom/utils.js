@@ -68,6 +68,22 @@ export const getValue = function(el) {
   }
 };
 
+
+/**
+ * Converts a set of form elements to a object with form names, as keys,
+ * and form values as values.
+ * Use like this:
+ *    const data = formToJSON(formElement.elements);
+ * @param elements
+ * @returns {*|(function(*, *): *)}
+ */
+export const formToJSON = elements => [...elements].reduce((data, element) => {
+  data[element.name] = element.value;
+  return data;
+}, {});
+
+
+
 /**
  * Replaces a node in the DOM tree. Will do nothing if `oldNode` has no
  * parent.

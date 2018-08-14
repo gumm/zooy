@@ -4,7 +4,8 @@ import {
   evalModules,
   splitScripts,
   getElDataMap,
-  enableClass
+  enableClass,
+  formToJSON,
 } from '../dom/utils.js';
 import {
   isDefAndNotNull,
@@ -133,17 +134,6 @@ class Panel extends Component {
     this.parseContent(replacementContent);
     this.evalScripts(content.scripts);
     this.evalModules(content.modules);
-
-    // this.responseObject = content;
-    // const replacementContent = content.html;
-    // const target = this.getElement();
-    // target.parentNode.replaceChild(replacementContent, target);
-    // this.element_ = target;
-    // this.domFunc = () => /** @type {!Element} */ (content.html);
-    //
-    // this.parseContent(this.element_);
-    // this.evalScripts(content.scripts);
-    // this.evalModules(content.modules);
   }
 
   //--------------------------------------------------------[ JSON Render ]-----
@@ -408,6 +398,24 @@ class Panel extends Component {
           href: trg.href || elDataMap['href']
         }, elDataMap));
       });
+    });
+
+    // Hijack forms submit events for forms with a 'intercept_submit' class
+    [...panel.querySelectorAll('form.intercept_submit')].forEach(el => {
+      el.noValidate = true;
+      this.listen(el, 'submit', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const elDataMap = getElDataMap(el);
+        const data = formToJSON(el.elements);
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+          orgEvt: e,
+          trigger: e.target,
+          formData: data,
+          href: elDataMap['href']
+        }, elDataMap));
+      });
+
     });
 
     //-----------------------------------------------------------[ Drag Drop ]--

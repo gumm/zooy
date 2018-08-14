@@ -217,11 +217,15 @@ export default class View extends EVT {
           this.removePanel(ePanel);
         })
         .set('paginate', (eventData, ePanel) => {
-          console.log(eventData);
           this.user.fetchAndSplit(eventData.href).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           )
-          // this.removePanel(ePanel);
+        })
+        .set('search', (eventData, ePanel) => {
+          const href = `${eventData.href}?q=${eventData.formData.q}`;
+          this.user.fetchAndSplit(href).then(
+              s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+          )
         })
         .set('switch_view', (eventData, ePanel) => {
           console.log('switch_view received: eventData', eventData);
