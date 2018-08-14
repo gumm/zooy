@@ -216,6 +216,13 @@ export default class View extends EVT {
         .set('destroy_me', (eventData, ePanel) => {
           this.removePanel(ePanel);
         })
+        .set('paginate', (eventData, ePanel) => {
+          console.log(eventData);
+          this.user.fetchAndSplit(eventData.href).then(
+              s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+          )
+          // this.removePanel(ePanel);
+        })
         .set('switch_view', (eventData, ePanel) => {
           console.log('switch_view received: eventData', eventData);
 

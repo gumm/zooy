@@ -120,6 +120,32 @@ class Panel extends Component {
     })
   };
 
+  /**
+   * Partially replace panel's content.
+   * @param content
+   * @param qs
+   */
+  onReplacePartialDom(content, qs) {
+    const replacementContent = content.html.querySelector(qs);
+    const target = this.getElement().querySelector(qs);
+    target.parentNode.replaceChild(replacementContent, target);
+
+    this.parseContent(replacementContent);
+    this.evalScripts(content.scripts);
+    this.evalModules(content.modules);
+
+    // this.responseObject = content;
+    // const replacementContent = content.html;
+    // const target = this.getElement();
+    // target.parentNode.replaceChild(replacementContent, target);
+    // this.element_ = target;
+    // this.domFunc = () => /** @type {!Element} */ (content.html);
+    //
+    // this.parseContent(this.element_);
+    // this.evalScripts(content.scripts);
+    // this.evalModules(content.modules);
+  }
+
   //--------------------------------------------------------[ JSON Render ]-----
   /**
    * Equivalent to the @code{renderWithTemplate} method in that it is guaranteed
@@ -273,7 +299,13 @@ class Panel extends Component {
             href: trg.href || elDataMap['href'],
           }, elDataMap));
         });
-      })
+      });
+
+      // noinspection JSCheckFunctionSignatures
+      [...panel.querySelectorAll('.mdc-linear-progress')].forEach(el => {
+        const linProg = mdc.linearProgress.MDCLinearProgress.attachTo(el);
+        el.linProg = linProg;
+      });
     }
 
     // Activate custom buttons

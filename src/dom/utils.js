@@ -1,6 +1,7 @@
 import {
   isDefAndNotNull,
   isString,
+  toNumber,
   pathOr
 } from '../../node_modules/badu/src/badu.js'
 
@@ -277,6 +278,7 @@ const dFormatter = {
 };
 
 export const mapDataToEls = (rootEl, json) => {
+  console.log('mapDataToEls', rootEl, json);
 
   if (!json) {
     return;
@@ -316,6 +318,14 @@ export const mapDataToEls = (rootEl, json) => {
             const ago = m.fromNow();
             const time = m.format('D MMM YYYY, H:mm:ss');
             v = `${ago} (${time})`;
+            break;
+          case 'linear-progress':
+            const max = toNumber(dataMap.zpmax);
+            const prog = el.linProg;
+            if (max && prog) {
+              prog.progress = v / max;
+              v = undefined;
+            }
             break;
           default:
             // Do nothing;
