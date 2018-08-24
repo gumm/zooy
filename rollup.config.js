@@ -7,7 +7,7 @@ export default [{
   output: {
     file: 'dist/_temp.js',
     format: 'iife',
-    name: 'jabui',
+    name: 'zooy',
   },
   plugins: [
     resolve(),

@@ -232,8 +232,8 @@ export const evalModules = comp => arr => {
  * @param {string} data
  * @returns {{
  *    html: Element,
- *    scripts: NodeListOf<HTMLElementTagNameMap[[string]]> | NodeListOf<Element>,
- *    modules: NodeListOf<HTMLElementTagNameMap[[string]]> | NodeListOf<Element>
+ *    scripts: (NodeListOf<HTMLElementTagNameMap> | NodeListOf<Element>),
+ *    modules: (NodeListOf<HTMLElementTagNameMap> | NodeListOf<Element>)
  *      }}
  */
 export const splitScripts = data => {
@@ -294,7 +294,7 @@ const dFormatter = {
 };
 
 export const mapDataToEls = (rootEl, json) => {
-  console.log('mapDataToEls', rootEl, json);
+  // console.log('mapDataToEls', rootEl, json);
 
   if (!json) {
     return;

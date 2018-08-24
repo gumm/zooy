@@ -8,6 +8,7 @@
     "email": "janhendrik.badenhorst@gmail.com"
   },
   "scripts": {
+    "compile_es6": "npm run rollup && build/compile.sh `pwd` es6",
     "compile_dev": "npm run rollup && build/compile.sh `pwd` dev",
     "build_css": "./node_modules/node-sass/bin/node-sass src/sass/main.scss > src/css/main.css --output-style compressed",
     "rollup": "npx rollup -c"
@@ -18,7 +19,8 @@
     "url": "git+https://github.com/gumm/jabui.git"
   },
   "dependencies": {
-    "badu": "^1.2.23"
+    "badu": "^1.2.23",
+    "moment": "*"
   },
   "devDependencies": {
     "esm": "^3.0.74",

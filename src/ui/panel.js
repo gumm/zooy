@@ -185,6 +185,7 @@ class Panel extends Component {
     // If we are in an environment where MDC is used.
 
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
+
       // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-button'),
         ...panel.querySelectorAll('.mdc-ripple-surface'),
@@ -231,14 +232,16 @@ class Panel extends Component {
       );
 
       // noinspection JSCheckFunctionSignatures
+      [...panel.querySelectorAll('.mdc-form-field')].forEach(
+          mdc.formField.MDCFormField.attachTo
+      );
+
+      // noinspection JSCheckFunctionSignatures
       [...panel.querySelectorAll('.mdc-select')].forEach(
           mdc.select.MDCSelect.attachTo
       );
 
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-form-field')].forEach(
-          mdc.formField.MDCFormField.attachTo
-      );
+
       [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
         const tbar = mdc.tabBar.MDCTabBar.attachTo(el);
         this.listen(el, 'MDCTabBar:activated', e => {
@@ -296,6 +299,22 @@ class Panel extends Component {
         const linProg = mdc.linearProgress.MDCLinearProgress.attachTo(el);
         el.linProg = linProg;
       });
+
+      // noinspection JSCheckFunctionSignatures
+      [...panel.querySelectorAll('.mdc-text-field-icon')].forEach(
+          mdc.textField.MDCTextFieldIcon.attachTo
+      );
+
+      // noinspection JSCheckFunctionSignatures
+      [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
+        const slider = new mdc.slider.MDCSlider(el);
+        const elDataMap = getElDataMap(el);
+        const inputEl = el.parentElement.querySelector(`#${elDataMap.inputid}`);
+        this.listen(el, 'MDCSlider:change', (e) => {
+          inputEl.value = slider.value;
+        });
+      });
+
     }
 
     // Activate custom buttons
