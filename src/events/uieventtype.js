@@ -3,7 +3,7 @@
  *
  */
 
-import { privateRandom } from '../../node_modules/badu/src/badu.js';
+import { privateRandom } from '../../node_modules/badu/badu.js';
 
 /**
  * Constants for panel event.

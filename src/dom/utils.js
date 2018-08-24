@@ -3,7 +3,7 @@ import {
   isString,
   toNumber,
   pathOr
-} from '../../node_modules/badu/src/badu.js'
+} from '../../node_modules/badu/badu.js'
 
 /**
  * Gets the current value of a checkable input element.

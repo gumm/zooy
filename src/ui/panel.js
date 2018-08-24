@@ -11,7 +11,7 @@ import {
   isDefAndNotNull,
   toUpperCase,
   toNumber
-} from '../../node_modules/badu/src/badu.js';
+} from '../../node_modules/badu/badu.js';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';

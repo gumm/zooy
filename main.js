@@ -25,6 +25,14 @@ class ZooyEventData {
 }
 
 /**
+ * A variadic compose that accepts any number of pure functions and composes
+ * them together.
+ * @param {...function(?): ?} fns
+ * @returns {function(?): ?}
+ */
+
+
+/**
  * @param {*} func
  * @return {function(): undefined}
  */
