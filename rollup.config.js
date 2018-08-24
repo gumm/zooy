@@ -5,8 +5,8 @@ import commonjs from 'rollup-plugin-commonjs';
 export default [{
   input: 'main.js',
   output: {
-    file: 'dist/_temp.js',
-    format: 'iife',
+    file: 'dist/zooy.js',
+    format: 'es',
     name: 'zooy',
   },
   plugins: [
