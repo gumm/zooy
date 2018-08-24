@@ -3,9 +3,9 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 
 export default [{
-  input: 'main.js',
+  input: 'src/main.js',
   output: {
-    file: 'dist/zooy.js',
+    file: 'main.js',
     format: 'es',
     name: 'zooy',
   },
