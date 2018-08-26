@@ -1,4 +1,4 @@
-import { isDef, makeRandomString } from "../../node_modules/badu/badu.js";
+import { isDef, makeRandomString, } from "../../node_modules/badu/badu.js";
 
 /*
 EVENT LISTENER LEAK DETECTOR
@@ -53,7 +53,31 @@ export default class EVT extends EventTarget {
      */
     this.disposed_ = false;
 
+    /**
+     * Set this to true to get some debug in the console.
+     * @type {boolean}
+     * @private
+     */
+    this.debugMode_ = false;
   };
+
+
+  set debugMode(bool) {
+    if ((typeof bool) !== 'boolean') {
+      throw ('This must be a boolean')
+    }
+    this.debugMode_ = bool;
+  }
+
+  get debugMode() {
+    return this.debugMode_;
+  }
+
+  debugMe(s) {
+    if (this.debugMode_) {
+      console.log(`${this.constructor.name} DEBUG: ${s}`);
+    }
+  }
 
 
   //-----------------------------------------------[ Listeners and Listening ]--

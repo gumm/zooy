@@ -129,7 +129,6 @@ export default class Component extends EVT {
 
   };
 
-
   //---------------------------------------------------[ Getters and Setters ]--
   /**
    * @param {Element|undefined} e

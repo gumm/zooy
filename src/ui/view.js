@@ -58,6 +58,13 @@ export default class View extends EVT {
     super();
 
     /**
+     * Set this to true to get some debug in the console.
+     * @type {boolean}
+     * @private
+     */
+    this.debugMode_ = false;
+
+    /**
      * @type {Map<string, !Panel>}
      */
     this.panelMap = new Map();
@@ -228,7 +235,7 @@ export default class View extends EVT {
           )
         })
         .set('switch_view', (eventData, ePanel) => {
-          // console.log('switch_view received: eventData', eventData);
+          this.debugMe('switch_view received: eventData', eventData);
 
           const href = eventData.href;
           const pk = eventData.pk;
@@ -239,7 +246,7 @@ export default class View extends EVT {
           if (this.switchViewMap_.has(view)) {
             this.switchViewMap_.get(view)({view, pk, landOn, landOnPk, href}, ePanel);
           } else {
-            console.log('NO VIEW FOUND FOR:', view, this.switchViewMap_);
+            this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
           }
         });
   };
@@ -270,7 +277,7 @@ export default class View extends EVT {
     if (this.panelEventMap_.has(eventValue)) {
       this.panelEventMap_.get(eventValue)(eventData, ePanel)
     } else {
-      console.log('NO EVENT MATCH' +
+      this.debugMe('NO EVENT MATCH' +
           '\n oPe:', e,
           '\n eventValue:', eventValue,
           '\n eventData:', eventData,

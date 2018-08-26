@@ -141,15 +141,8 @@ class FieldErrs {
 
 class FormPanel extends Panel {
 
-  constructor(uri, debugMode = false) {
+  constructor(uri) {
     super(uri);
-
-    /**
-     * Set this to true to get some form handling debug in the console.
-     * @type {boolean}
-     * @private
-     */
-    this.debugMode_ = debugMode;
 
     /**
      * @type {?HTMLFormElement}
@@ -290,13 +283,6 @@ class FormPanel extends Panel {
       return Promise.reject('No user')
     }
   };
-
-  debugMe(s) {
-    if (this.debugMode_) {
-      console.log(`FORM DEBUG: ${s}`);
-    }
-  }
-
 
   /**
    * @param {string} reply

@@ -222,7 +222,31 @@ class EVT extends EventTarget {
      */
     this.disposed_ = false;
 
+    /**
+     * Set this to true to get some debug in the console.
+     * @type {boolean}
+     * @private
+     */
+    this.debugMode_ = false;
   };
+
+
+  set debugMode(bool) {
+    if ((typeof bool) !== 'boolean') {
+      throw ('This must be a boolean')
+    }
+    this.debugMode_ = bool;
+  }
+
+  get debugMode() {
+    return this.debugMode_;
+  }
+
+  debugMe(s) {
+    if (this.debugMode_) {
+      console.log(`${this.constructor.name} DEBUG: ${s}`);
+    }
+  }
 
 
   //-----------------------------------------------[ Listeners and Listening ]--
@@ -844,7 +868,6 @@ class Component extends EVT {
     this.beforeReadyFunc_ = () => void 0;
 
   };
-
 
   //---------------------------------------------------[ Getters and Setters ]--
   /**
@@ -2705,15 +2728,8 @@ class FieldErrs {
 
 class FormPanel extends Panel {
 
-  constructor(uri, debugMode = false) {
+  constructor(uri) {
     super(uri);
-
-    /**
-     * Set this to true to get some form handling debug in the console.
-     * @type {boolean}
-     * @private
-     */
-    this.debugMode_ = debugMode;
 
     /**
      * @type {?HTMLFormElement}
@@ -2854,13 +2870,6 @@ class FormPanel extends Panel {
       return Promise.reject('No user')
     }
   };
-
-  debugMe(s) {
-    if (this.debugMode_) {
-      console.log(`FORM DEBUG: ${s}`);
-    }
-  }
-
 
   /**
    * @param {string} reply
@@ -3806,6 +3815,13 @@ class View extends EVT {
     super();
 
     /**
+     * Set this to true to get some debug in the console.
+     * @type {boolean}
+     * @private
+     */
+    this.debugMode_ = false;
+
+    /**
      * @type {Map<string, !Panel>}
      */
     this.panelMap = new Map();
@@ -3976,7 +3992,7 @@ class View extends EVT {
           );
         })
         .set('switch_view', (eventData, ePanel) => {
-          // console.log('switch_view received: eventData', eventData);
+          this.debugMe('switch_view received: eventData', eventData);
 
           const href = eventData.href;
           const pk = eventData.pk;
@@ -3987,7 +4003,7 @@ class View extends EVT {
           if (this.switchViewMap_.has(view)) {
             this.switchViewMap_.get(view)({view, pk, landOn, landOnPk, href}, ePanel);
           } else {
-            console.log('NO VIEW FOUND FOR:', view, this.switchViewMap_);
+            this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
           }
         });
   };
@@ -4018,7 +4034,7 @@ class View extends EVT {
     if (this.panelEventMap_.has(eventValue)) {
       this.panelEventMap_.get(eventValue)(eventData, ePanel);
     } else {
-      console.log('NO EVENT MATCH' +
+      this.debugMe('NO EVENT MATCH' +
           '\n oPe:', e,
           '\n eventValue:', eventValue,
           '\n eventData:', eventData,
