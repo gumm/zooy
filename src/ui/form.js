@@ -141,8 +141,15 @@ class FieldErrs {
 
 class FormPanel extends Panel {
 
-  constructor(uri) {
+  constructor(uri, debugMode = false) {
     super(uri);
+
+    /**
+     * Set this to true to get some form handling debug in the console.
+     * @type {boolean}
+     * @private
+     */
+    this.debugMode_ = debugMode;
 
     /**
      * @type {?HTMLFormElement}
@@ -284,6 +291,12 @@ class FormPanel extends Panel {
     }
   };
 
+  debugMe(s) {
+    if (this.debugMode_) {
+      console.log(`FORM DEBUG: ${s}`);
+    }
+  }
+
 
   /**
    * @param {string} reply
@@ -301,19 +314,19 @@ class FormPanel extends Panel {
       });
     }
     else if (reply === 'success') {
-      console.log(`1.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+      this.debugMe(`1.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
       // We are done.
       // Nothing further to do here.
       success = true;
     } else if (reply === 'redirected_success\n') {
-      console.log(`2.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+      this.debugMe(`2.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
       // Indicate that we were redirected, but are done.
       // Nothing further to do here. Set the 'redirected' flag to false,
       // and we will fall through to the correct response below.
       success = true;
       this.redirected = false;
     } else {
-         console.log(`3.REDIRECTED: ${this.redirected}\nREPLY: Some form HTML`);
+      this.debugMe(`3.REDIRECTED: ${this.redirected}\nREPLY: Some form HTML`);
       // We received something other than a simple "we are done".
       // Replace the form (there may be server side error messages in it)
       // and look for the error objects.
@@ -329,12 +342,12 @@ class FormPanel extends Panel {
     }
 
     if (success && this.redirected) {
-         console.log(`4.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+      this.debugMe(`4.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
       // Just return the promise - we are not done yet.
       this.redirected = false;
       return Promise.resolve(this);
     } else if (success) {
-         console.log(`5.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+      this.debugMe(`5.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
       // We are done. Execute any 'onSuccess' directives, and
       // then fire the 'FORM_SUBMIT_SUCCESS' event.
       return Promise.resolve(this).then(p => {
@@ -342,7 +355,7 @@ class FormPanel extends Panel {
         this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
       });
     } else {
-         console.log(`6.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+      this.debugMe(`6.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
       // 'success' flag is not set. The form probably has errors.
       // Reject the promise.
       return Promise.reject('Form has errors');

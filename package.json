@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
@@ -31,7 +31,7 @@
     "node-sass": "^4.9.3",
     "ramda": "*",
     "rollup": "^0.57.1",
-    "rollup-plugin-commonjs": "^9.1.5",
+    "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-node-resolve": "^3.3.0"
   }
 }
