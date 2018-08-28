@@ -177,6 +177,7 @@ export default class View extends EVT {
    * @param {!Panel} panel The panel itself.
    */
   addPanelToView(name, panel) {
+    panel.debugMode = this.debugMode;
     panel.user = this.user;
     this.removePanelByName(name);
     this.panelMap.set(name, panel);
@@ -277,11 +278,11 @@ export default class View extends EVT {
     if (this.panelEventMap_.has(eventValue)) {
       this.panelEventMap_.get(eventValue)(eventData, ePanel)
     } else {
-      this.debugMe('NO EVENT MATCH' +
-          '\n oPe:', e,
-          '\n eventValue:', eventValue,
-          '\n eventData:', eventData,
-          '\n ePanel:', ePanel);
+      this.debugMe(`NO EVENT MATCH
+          oPe: ${e}
+          eventValue: ${eventValue}
+          eventData: ${JSON.stringify(eventData, undefined, 2)}
+          ePanel: ${ePanel.constructor.name}`);
     }
   };
 
