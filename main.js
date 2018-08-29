@@ -2220,16 +2220,16 @@ class Panel extends Component {
         const b = new mdc.ripple.MDCRipple(el);
         b.unbounded = true;
 
-          this.listen(el, 'click', e => {
-            e.stopPropagation();
-            const trg = e.currentTarget;
-            const elDataMap = getElDataMap(trg);
-            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-              orgEvt: e,
-              trigger: trg,
-              href: trg.href || elDataMap['href'],
-            }, elDataMap));
-          });
+        this.listen(el, 'click', e => {
+          e.stopPropagation();
+          const trg = e.currentTarget;
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href'],
+          }, elDataMap));
+        });
       });
 
       // Activate toggle icons
@@ -2268,7 +2268,7 @@ class Panel extends Component {
       );
 
       [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
-        const tbar = mdc.tabBar.MDCTabBar.attachTo(el);
+        const tbar = new mdc.tabBar.MDCTabBar(el);
         this.listen(el, 'MDCTabBar:activated', e => {
           const trg = tbar.tabList_[e.detail.index].root_;
           const elDataMap = getElDataMap(trg);
@@ -2280,31 +2280,52 @@ class Panel extends Component {
         });
       });
 
-      [...panel.querySelectorAll('.mdc-list')].forEach(el => {
-        if (!el.classList.contains('no_init')) {
-          mdc.list.MDCList.attachTo(el);
-        }
-        // Attach a ripple to the list items.
-        [...el.querySelectorAll('li')].forEach(li => {
-          mdc.ripple.MDCRipple.attachTo(li);
-        });
+      [...panel.querySelectorAll('.mdc-menu-surface')].forEach(el => {
+        mdc.menuSurface.MDCMenuSurface.attachTo(el);
       });
+
 
       // Activate menu triggers
       [...panel.querySelectorAll('.mdc-menu-surface--anchor')].forEach(menuButtonEl => {
         const menuEl = menuButtonEl.querySelector('.mdc-menu');
-        const menuData = getElDataMap(menuEl);
+        const corner = getElDataMap(menuEl)['corner'] || 'BOTTOM_START';
+
+        // Make the menu
         const menu = new mdc.menu.MDCMenu(menuEl);
-        // Toggle menu open
-        menuButtonEl.addEventListener('click', () => menu.open = !menu.open);
-        const corner = menuData['corner'] || 'BOTTOM_START';
         menu.setAnchorCorner(mdc.menuSurface.Corner[corner]);
+        menu.items.forEach(mdc.ripple.MDCRipple.attachTo);
         menu.quickOpen = false;
+        menu.listen('click', e => e.stopPropagation());
+        menu.listen('MDCMenu:selected', e => {
+          e.stopPropagation();
+          const trg = e.detail['item'];
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href']
+          }, elDataMap));
+        });
+
+        // Toggle the menu open or closed from the anchor element.
+        menuButtonEl.addEventListener('click', e => menu.open = !menu.open);
       });
 
-      [...panel.querySelectorAll('.mdc-menu-surface')].forEach(el => {
-        mdc.menuSurface.MDCMenuSurface.attachTo(el);
+      // Activate Lists
+      [...panel.querySelectorAll('.mdc-list:not(.mdc-menu__items)')].forEach(el => {
+        const list = new mdc.list.MDCList(el);
+        list.listElements_.forEach(mdc.ripple.MDCRipple.attachTo);
+        this.listen(el, 'click', e => {
+          const trg = e.target.closest('li');
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href']
+          }, elDataMap));
+        });
       });
+
 
       // Activate ChipSets
       [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
@@ -2343,6 +2364,7 @@ class Panel extends Component {
         });
       });
 
+
     }
 
     // Activate custom buttons
@@ -2362,38 +2384,6 @@ class Panel extends Component {
       });
     });
 
-    // Activate Menu items
-    [...panel.querySelectorAll('.mdc-menu')].forEach(el => {
-      this.listen(el, 'MDCMenu:selected', e => {
-        e.stopPropagation();
-        const trg = e.detail['item'];
-        const elDataMap = getElDataMap(trg);
-        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-          orgEvt: e,
-          trigger: trg,
-          href: trg.href || elDataMap['href']
-        }, elDataMap));
-      });
-    });
-
-    // Activate Lists
-    const unActivateLi = e => enableClass(e, 'mdc-list-item--activated', false);
-    const activateLi = e => enableClass(e, 'mdc-list-item--activated', true);
-    [...panel.querySelectorAll('.mdc-list')].forEach(el => {
-      if (!el.classList.contains('no_init_2')) {
-        this.listen(el, 'click', e => {
-          [...el.querySelectorAll('li')].forEach(unActivateLi);
-          const trg = e.target.closest('li');
-          const elDataMap = getElDataMap(trg);
-          activateLi(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href']
-          }, elDataMap));
-        });
-      }
-    });
 
     // Activate Switches
     [...panel.querySelectorAll('.mdc-switch')].forEach(el => {
