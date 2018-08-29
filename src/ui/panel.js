@@ -195,24 +195,7 @@ class Panel extends Component {
       [...panel.querySelectorAll('.mdc-icon-button')].forEach(el => {
         const b = new mdc.ripple.MDCRipple(el);
         b.unbounded = true;
-        if (el.hasAttribute('data-toggle-on-content') &&
-            el.hasAttribute('data-toggle-off-content')) {
-          mdc.iconButton.MDCIconButtonToggle.attachTo(el);
-          this.listen(el, 'click', e => e.stopPropagation());
-          this.listen(el, 'MDCIconButtonToggle:change', e => {
-            e.stopPropagation();
-            const trg = e.currentTarget;
-            const isOn = e.detail['isOn'];
-            const elDataMap = getElDataMap(trg);
-            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-              orgEvt: e,
-              trigger: trg,
-              href: trg.href || elDataMap['href'],
-              // hrefTog: hrefTog,
-              isOn: isOn
-            }, elDataMap));
-          });
-        } else {
+
           this.listen(el, 'click', e => {
             e.stopPropagation();
             const trg = e.currentTarget;
@@ -223,7 +206,26 @@ class Panel extends Component {
               href: trg.href || elDataMap['href'],
             }, elDataMap));
           });
-        }
+      });
+
+      // Activate toggle icons
+      // We intercept the click on these as well, as we want to stop its
+      // propagation.
+      [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
+        mdc.iconToggle.MDCIconToggle.attachTo(el);
+        this.listen(el, 'click', e => e.stopPropagation());
+        this.listen(el, 'MDCIconToggle:change', e => {
+          e.stopPropagation();
+          const trg = e.currentTarget;
+          const isOn = e.detail.isOn;
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href'],
+            isOn: isOn
+          }, elDataMap));
+        });
       });
 
       // noinspection JSCheckFunctionSignatures
@@ -240,7 +242,6 @@ class Panel extends Component {
       [...panel.querySelectorAll('.mdc-select')].forEach(
           mdc.select.MDCSelect.attachTo
       );
-
 
       [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
         const tbar = mdc.tabBar.MDCTabBar.attachTo(el);
@@ -266,27 +267,30 @@ class Panel extends Component {
       });
 
       // Activate menu triggers
-      [...panel.querySelectorAll('.mdc-menu-anchor')].forEach(menuButtonEl => {
+      [...panel.querySelectorAll('.mdc-menu-surface--anchor')].forEach(menuButtonEl => {
         const menuEl = menuButtonEl.querySelector('.mdc-menu');
         const menuData = getElDataMap(menuEl);
         const menu = new mdc.menu.MDCMenu(menuEl);
         // Toggle menu open
         menuButtonEl.addEventListener('click', () => menu.open = !menu.open);
         const corner = menuData['corner'] || 'BOTTOM_START';
-        menu.setAnchorCorner(mdc.menu.MDCMenuFoundation.Corner[corner]);
+        menu.setAnchorCorner(mdc.menuSurface.Corner[corner]);
         menu.quickOpen = false;
+      });
+
+      [...panel.querySelectorAll('.mdc-menu-surface')].forEach(el => {
+        mdc.menuSurface.MDCMenuSurface.attachTo(el)
       });
 
       // Activate ChipSets
       [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
-        mdc.chips.MDCChipSet.attachTo(el);
-        this.listen(el, 'MDCChip:interaction', e => {
-          e.stopPropagation();
-          const chip = e.detail.chip;
+        const chipSet = mdc.chips.MDCChipSet.attachTo(el);
+        chipSet.listen('MDCChip:interaction', e => {
+          const chip = chipSet.chips.find(c => c.id === e.detail.chipId);
           const trg = chip.root_;
           const elDataMap = getElDataMap(trg);
           this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            isOn: chip.isSelected(),
+            isOn: chip.selected,
             orgEvt: e,
             trigger: trg,
             href: trg.href || elDataMap['href'],
@@ -330,25 +334,6 @@ class Panel extends Component {
           orgEvt: e,
           trigger: trg,
           href: trg.href || elDataMap['href'],
-        }, elDataMap));
-      });
-    });
-
-    // Activate toggle icons
-    // We intercept the click on these as well, as we want to stop its
-    // propagation.
-    [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
-      this.listen(el, 'click', e => e.stopPropagation());
-      this.listen(el, 'MDCIconToggle:change', e => {
-        e.stopPropagation();
-        const trg = e.currentTarget;
-        const isOn = e.detail['isOn'];
-        const elDataMap = getElDataMap(trg);
-        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-          orgEvt: e,
-          trigger: trg,
-          href: trg.href || elDataMap['href'],
-          isOn: isOn
         }, elDataMap));
       });
     });
