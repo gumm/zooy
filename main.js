@@ -2042,6 +2042,300 @@ class UserManager {
   };
 }
 
+/**
+ * {@link https://material.io/develop/web/components/ripples/}
+ * @param {Panel} panel
+ */
+const renderRipples = function(panel) {
+  [...panel.querySelectorAll('.mdc-ripple-surface')].forEach(
+      mdc.ripple.MDCRipple.attachTo);
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/buttons/}
+ * @param {Panel} panel
+ */
+const renderButtons = function(panel) {
+  [...panel.querySelectorAll('.mdc-button')].forEach(el => {
+    console.log('HERE THE BUTTON', el);
+    mdc.ripple.MDCRipple.attachTo(el);
+    this.listen(el, 'click', e => {
+      e.stopPropagation();
+      const trg = e.currentTarget;
+      const elDataMap = getElDataMap(trg);
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href'],
+      }, elDataMap));
+    });
+  });
+};
+
+/**
+ * {@link https://material.io/develop/web/components/buttons/floating-action-buttons/}
+ * @param {Panel} panel
+ */
+const renderFloatingActionButtons = function(panel) {
+  [...panel.querySelectorAll('.mdc-fab')].forEach(el => {
+    console.log('HERE IS A FAB!!', el);
+    mdc.ripple.MDCRipple.attachTo(el);
+    this.listen(el, 'click', e => {
+      e.stopPropagation();
+      const trg = e.currentTarget;
+      const elDataMap = getElDataMap(trg);
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href'],
+      }, elDataMap));
+    });
+  });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/buttons/icon-buttons/}
+ * @param {Panel} panel
+ */
+const renderIconButtons = function(panel) {
+  [...panel.querySelectorAll('.mdc-icon-button')].forEach(el => {
+    const b = new mdc.ripple.MDCRipple(el);
+    b.unbounded = true;
+    this.listen(el, 'click', e => {
+      e.stopPropagation();
+      const trg = e.currentTarget;
+      const elDataMap = getElDataMap(trg);
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href'],
+      }, elDataMap));
+    });
+  });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/buttons/icon-toggle-buttons/}
+ * @param {Panel} panel
+ */
+const renderIconToggleButtons = function(panel) {
+  [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
+    mdc.iconToggle.MDCIconToggle.attachTo(el);
+    this.listen(el, 'click', e => e.stopPropagation());
+    this.listen(el, 'MDCIconToggle:change', e => {
+      e.stopPropagation();
+      const trg = e.currentTarget;
+      const isOn = e.detail.isOn;
+      const elDataMap = getElDataMap(trg);
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href'],
+        isOn: isOn
+      }, elDataMap));
+    });
+  });
+};
+
+/**
+ * {@link https://material.io/develop/web/components/tabs/tab-bar/}
+ * @param {Panel} panel
+ */
+const renderTabBars = function(panel) {
+  [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
+    const tbar = new mdc.tabBar.MDCTabBar(el);
+    this.listen(el, 'MDCTabBar:activated', e => {
+      const trg = tbar.tabList_[e.detail.index].root_;
+      const elDataMap = getElDataMap(trg);
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href']
+      }, elDataMap));
+    });
+  });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/switches/}
+ * @param {Panel} panel
+ */
+const renderSwitches = function(panel) {
+  [...panel.querySelectorAll('.mdc-switch')].forEach(el => {
+    const trg = el.querySelector('input');
+    const elDataMap = getElDataMap(trg);
+    this.listen(trg, 'change', e => {
+      e.stopPropagation();
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href'],
+        isOn: trg.checked,
+      }, elDataMap));
+    });
+  });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/chips/}
+ * @param {Panel} panel
+ */
+const renderChips = function(panel) {
+  [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
+    const chipSet = mdc.chips.MDCChipSet.attachTo(el);
+    chipSet.listen('MDCChip:interaction', e => {
+      const chip = chipSet.chips.find(c => c.id === e.detail.chipId);
+      const trg = chip.root_;
+      const elDataMap = getElDataMap(trg);
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href'],
+        isOn: chip.selected,
+      }, elDataMap));
+    });
+  });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/menu-surface/}
+ * @param {Panel} panel
+ */
+const renderMenuSurfaces = function(panel) {
+  [...panel.querySelectorAll('.mdc-menu-surface')].forEach(
+      mdc.menuSurface.MDCMenuSurface.attachTo
+  );
+};
+
+/**
+ * {@link https://material.io/develop/web/components/menus/}
+ * @param {Panel} panel
+ */
+const renderMenus = function(panel) {
+  [...panel.querySelectorAll('.mdc-menu-surface--anchor')].forEach(
+      menuButtonEl => {
+        const menuEl = menuButtonEl.querySelector('.mdc-menu');
+        const corner = getElDataMap(menuEl)['corner'] || 'BOTTOM_START';
+
+        // Make the menu
+        const menu = new mdc.menu.MDCMenu(menuEl);
+        menu.setAnchorCorner(mdc.menuSurface.Corner[corner]);
+        menu.items.forEach(mdc.ripple.MDCRipple.attachTo);
+        menu.quickOpen = false;
+        menu.listen('click', e => e.stopPropagation());
+        menu.listen('MDCMenu:selected', e => {
+          e.stopPropagation();
+          const trg = e.detail['item'];
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href']
+          }, elDataMap));
+        });
+
+        // Toggle the menu open or closed from the anchor element.
+        menuButtonEl.addEventListener('click', e => menu.open = !menu.open);
+      });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/lists/}
+ * @param {Panel} panel
+ */
+const renderLists = function(panel) {
+  [...panel.querySelectorAll('.mdc-list:not(.mdc-menu__items)')].forEach(el => {
+    const list = new mdc.list.MDCList(el);
+    list.listElements_.forEach(mdc.ripple.MDCRipple.attachTo);
+    this.listen(el, 'click', e => {
+      const trg = e.target.closest('li');
+      const elDataMap = getElDataMap(trg);
+      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        orgEvt: e,
+        trigger: trg,
+        href: trg.href || elDataMap['href']
+      }, elDataMap));
+    });
+  });
+};
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/sliders/}
+ * @param {Panel} panel
+ */
+const renderSliders = function(panel) {
+  [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
+    const slider = new mdc.slider.MDCSlider(el);
+    const elDataMap = getElDataMap(el);
+    const inputEl = el.parentElement.querySelector(`#${elDataMap.inputid}`);
+    this.listen(el, 'MDCSlider:change', (e) => {
+      inputEl.value = slider.value;
+    });
+  });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/linear-progress/}
+ * @param {Panel} panel
+ */
+const renderLinearProgress = function(panel) {
+  [...panel.querySelectorAll('.mdc-linear-progress')].forEach(el => {
+    el.linProg = mdc.linearProgress.MDCLinearProgress.attachTo(el);
+  });
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/form-fields/}
+ * @param {Panel} panel
+ */
+const renderFormFields = function(panel) {
+  [...panel.querySelectorAll('.mdc-form-field')].forEach(
+      mdc.formField.MDCFormField.attachTo
+  );
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/text-field/}
+ * @param {Panel} panel
+ */
+const renderTextFields = function(panel) {
+  [...panel.querySelectorAll('.mdc-text-field')].forEach(
+      mdc.textField.MDCTextField.attachTo
+  );
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/text-field/icon/}
+ * @param {Panel} panel
+ */
+const renderTextFieldIcons = function(panel) {
+  [...panel.querySelectorAll('.mdc-text-field-icon')].forEach(
+      mdc.textField.MDCTextFieldIcon.attachTo
+  );
+};
+
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/select-menus/}
+ * @param {Panel} panel
+ */
+const renderSelectMenus = function(panel) {
+  [...panel.querySelectorAll('.mdc-select')].forEach(
+      mdc.select.MDCSelect.attachTo
+  );
+};
+
 class Panel extends Component {
 
   static panelEventCode() {
@@ -2209,169 +2503,26 @@ class Panel extends Component {
     // If we are in an environment where MDC is used.
 
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
-
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-button'),
-        ...panel.querySelectorAll('.mdc-ripple-surface'),
-        ...panel.querySelectorAll('.mdc-fab')].forEach(
-          mdc.ripple.MDCRipple.attachTo);
-
-      [...panel.querySelectorAll('.mdc-icon-button')].forEach(el => {
-        const b = new mdc.ripple.MDCRipple(el);
-        b.unbounded = true;
-
-        this.listen(el, 'click', e => {
-          e.stopPropagation();
-          const trg = e.currentTarget;
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href'],
-          }, elDataMap));
-        });
-      });
-
-      // Activate toggle icons
-      // We intercept the click on these as well, as we want to stop its
-      // propagation.
-      [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
-        mdc.iconToggle.MDCIconToggle.attachTo(el);
-        this.listen(el, 'click', e => e.stopPropagation());
-        this.listen(el, 'MDCIconToggle:change', e => {
-          e.stopPropagation();
-          const trg = e.currentTarget;
-          const isOn = e.detail.isOn;
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href'],
-            isOn: isOn
-          }, elDataMap));
-        });
-      });
-
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-text-field')].forEach(
-          mdc.textField.MDCTextField.attachTo
-      );
-
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-form-field')].forEach(
-          mdc.formField.MDCFormField.attachTo
-      );
-
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-select')].forEach(
-          mdc.select.MDCSelect.attachTo
-      );
-
-      [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
-        const tbar = new mdc.tabBar.MDCTabBar(el);
-        this.listen(el, 'MDCTabBar:activated', e => {
-          const trg = tbar.tabList_[e.detail.index].root_;
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href']
-          }, elDataMap));
-        });
-      });
-
-      [...panel.querySelectorAll('.mdc-menu-surface')].forEach(el => {
-        mdc.menuSurface.MDCMenuSurface.attachTo(el);
-      });
-
-
-      // Activate menu triggers
-      [...panel.querySelectorAll('.mdc-menu-surface--anchor')].forEach(menuButtonEl => {
-        const menuEl = menuButtonEl.querySelector('.mdc-menu');
-        const corner = getElDataMap(menuEl)['corner'] || 'BOTTOM_START';
-
-        // Make the menu
-        const menu = new mdc.menu.MDCMenu(menuEl);
-        menu.setAnchorCorner(mdc.menuSurface.Corner[corner]);
-        menu.items.forEach(mdc.ripple.MDCRipple.attachTo);
-        menu.quickOpen = false;
-        menu.listen('click', e => e.stopPropagation());
-        menu.listen('MDCMenu:selected', e => {
-          e.stopPropagation();
-          const trg = e.detail['item'];
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href']
-          }, elDataMap));
-        });
-
-        // Toggle the menu open or closed from the anchor element.
-        menuButtonEl.addEventListener('click', e => menu.open = !menu.open);
-      });
-
-      // Activate Lists
-      [...panel.querySelectorAll('.mdc-list:not(.mdc-menu__items)')].forEach(el => {
-        const list = new mdc.list.MDCList(el);
-        list.listElements_.forEach(mdc.ripple.MDCRipple.attachTo);
-        this.listen(el, 'click', e => {
-          const trg = e.target.closest('li');
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href']
-          }, elDataMap));
-        });
-      });
-
-
-      // Activate ChipSets
-      [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
-        const chipSet = mdc.chips.MDCChipSet.attachTo(el);
-        chipSet.listen('MDCChip:interaction', e => {
-          const chip = chipSet.chips.find(c => c.id === e.detail.chipId);
-          const trg = chip.root_;
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            isOn: chip.selected,
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href'],
-          }, elDataMap));
-        });
-      });
-
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-linear-progress')].forEach(el => {
-        const linProg = mdc.linearProgress.MDCLinearProgress.attachTo(el);
-        el.linProg = linProg;
-      });
-
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-text-field-icon')].forEach(
-          mdc.textField.MDCTextFieldIcon.attachTo
-      );
-
-      // noinspection JSCheckFunctionSignatures
-      [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
-        const slider = new mdc.slider.MDCSlider(el);
-        const elDataMap = getElDataMap(el);
-        const inputEl = el.parentElement.querySelector(`#${elDataMap.inputid}`);
-        this.listen(el, 'MDCSlider:change', (e) => {
-          inputEl.value = slider.value;
-        });
-      });
-
-
+      renderRipples.call(this, panel);
+      renderButtons.call(this, panel);
+      renderFloatingActionButtons.call(this, panel);
+      renderIconButtons.call(this, panel);
+      renderIconToggleButtons.call(this, panel);
+      renderTabBars.call(this, panel);
+      renderSwitches.call(this, panel);
+      renderChips.call(this, panel);
+      renderMenuSurfaces.call(this, panel);
+      renderMenus.call(this, panel);
+      renderLists.call(this, panel);
+      renderSliders.call(this, panel);
+      renderLinearProgress.call(this, panel);
+      renderFormFields.call(this, panel);
+      renderSelectMenus.call(this, panel);
+      renderTextFieldIcons.call(this, panel);
+      renderTextFields.call(this, panel);
     }
 
-    // Activate custom buttons
-    // const tstZv = panel.querySelectorAll('.tst__zv');
-    // const allBut = [...Array.from(tst), ...Array.from(tstZv)];
-    [...panel.querySelectorAll('.mdc-fab'),
-      ...panel.querySelectorAll('.tst__button')].forEach(el => {
+    [...panel.querySelectorAll('.tst__button')].forEach(el => {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
@@ -2380,22 +2531,6 @@ class Panel extends Component {
           orgEvt: e,
           trigger: trg,
           href: trg.href || elDataMap['href'],
-        }, elDataMap));
-      });
-    });
-
-
-    // Activate Switches
-    [...panel.querySelectorAll('.mdc-switch')].forEach(el => {
-      const trg = el.querySelector('input');
-      const elDataMap = getElDataMap(trg);
-      this.listen(trg, 'change', e => {
-        e.stopPropagation();
-        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-          isOn: trg.checked,
-          orgEvt: e,
-          trigger: trg,
-          href: trg.href || elDataMap['href']
         }, elDataMap));
       });
     });
@@ -2514,13 +2649,6 @@ class Panel extends Component {
 
           });
 
-      // We used to issue an event, but it is just much easier to be a bit
-      // les flexible about this.
-      // const v = el.getAttribute('data-zv');
-      // this.dispatchPanelEvent(v, Object.assign({
-      //   trigger: el,
-      //   href: href
-      // }, getElDataMap(el)));
     });
 
   };
