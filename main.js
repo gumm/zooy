@@ -2058,7 +2058,6 @@ const renderRipples = function(panel) {
  */
 const renderButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-button')].forEach(el => {
-    console.log('HERE THE BUTTON', el);
     mdc.ripple.MDCRipple.attachTo(el);
     this.listen(el, 'click', e => {
       e.stopPropagation();
@@ -2079,7 +2078,6 @@ const renderButtons = function(panel) {
  */
 const renderFloatingActionButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-fab')].forEach(el => {
-    console.log('HERE IS A FAB!!', el);
     mdc.ripple.MDCRipple.attachTo(el);
     this.listen(el, 'click', e => {
       e.stopPropagation();
