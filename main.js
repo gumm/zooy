@@ -2251,7 +2251,7 @@ const renderMenus = function(panel) {
 const renderLists = function(panel) {
   [...panel.querySelectorAll('.mdc-list:not(.mdc-menu__items)')].forEach(el => {
     const list = new mdc.list.MDCList(el);
-    list.listElements_.forEach(mdc.ripple.MDCRipple.attachTo);
+    list.listElements.forEach(mdc.ripple.MDCRipple.attachTo);
     this.listen(el, 'click', e => {
       const trg = e.target.closest('li');
       const elDataMap = getElDataMap(trg);
