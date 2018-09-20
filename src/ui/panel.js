@@ -340,7 +340,7 @@ class Panel extends Component {
         this.doOnBeat(() => {
           console.log(`Getting data from ${href}`);
           this.user.fetchJson(href).then(onReply);
-        }, Math.max(repeat, 60) * 1000);
+        }, repeat * 60 * 1000);
       }
     });
 
