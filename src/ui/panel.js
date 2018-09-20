@@ -9,6 +9,7 @@ import {
 } from '../dom/utils.js';
 import {
   isDefAndNotNull,
+  isNumber,
   toUpperCase,
   toNumber
 } from '../../node_modules/badu/badu.js';
@@ -334,6 +335,15 @@ class Panel extends Component {
       let href = elDataMap['href'];
       let onReply = this.onAsyncJsonReply.bind(this, el);
       this.user.fetchJson(href).then(onReply);
+      const repeat = toNumber(elDataMap['z_interval']);
+      if (isNumber(repeat)) {
+        const interval = Math.max(repeat, 60) * 1000;
+        setInterval(() => {
+          this.user.fetchJson(href).then(onReply);
+        }, interval);
+      }
+
+
     });
 
     // Grab all elements with a 'zoo_async_html' class.
