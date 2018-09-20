@@ -458,7 +458,8 @@ export default class UserManager {
         .then(getJson)
         .catch(err => {
           stopSpin('');
-          console.error('UMan JSON GET Fetch:', err)
+          console.log('UMan JSON GET Fetch:', err);
+          return {};
         });
   };
 
