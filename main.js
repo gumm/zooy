@@ -2660,7 +2660,7 @@ class Panel extends Component {
         this.doOnBeat(() => {
           console.log(`Getting data from ${href}`);
           this.user.fetchJson(href).then(onReply);
-        }, Math.max(repeat$$1, 60) * 1000);
+        }, repeat$$1 * 60 * 1000);
       }
     });
 
