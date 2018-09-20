@@ -337,13 +337,11 @@ class Panel extends Component {
       this.user.fetchJson(href).then(onReply);
       const repeat = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat)) {
-        const interval = Math.max(repeat, 60) * 1000;
-        setInterval(() => {
+        this.doOnBeat(() => {
+          console.log(`Getting data from ${href}`);
           this.user.fetchJson(href).then(onReply);
-        }, interval);
+        }, Math.max(repeat, 60) * 1000);
       }
-
-
     });
 
     // Grab all elements with a 'zoo_async_html' class.

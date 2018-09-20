@@ -215,6 +215,16 @@ class EVT extends EventTarget {
      */
     this.isObservedBy_ = new Set();
 
+
+    /**
+     * A set of interval timers as defined by setInterval.
+     * Use this to store the timers created particular to this component.
+     * On destruction, these timers will be cleared.
+     * @type {Set<any>}
+     * @private
+     */
+    this.activeIntervals_ = new Set();
+
     /**
      * True if this is disposed.
      * @type {boolean}
@@ -327,6 +337,19 @@ class EVT extends EventTarget {
   }
 
 
+  clearAllIntervals() {
+    for (const interval of this.activeIntervals_) {
+      clearInterval(interval);
+      this.activeIntervals_.delete(interval);
+    }
+  }
+
+  doOnBeat(f, interval) {
+    const clearInt = setInterval(f, interval);
+    this.activeIntervals_.add(clearInt);
+  }
+
+
   /**
    * Disposes of the component.  Calls `exitDocument`, which is expected to
    * remove event handlers and clean up the component.  Propagates the call to
@@ -337,6 +360,7 @@ class EVT extends EventTarget {
   disposeInternal() {
     this.stopBeingListenedTo();
     this.removeAllListener();
+    this.clearAllIntervals();
     this.disposed_ = true;
   };
 
@@ -2633,13 +2657,11 @@ class Panel extends Component {
       this.user.fetchJson(href).then(onReply);
       const repeat$$1 = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat$$1)) {
-        const interval = Math.max(repeat$$1, 60) * 1000;
-        setInterval(() => {
+        this.doOnBeat(() => {
+          console.log(`Getting data from ${href}`);
           this.user.fetchJson(href).then(onReply);
-        }, interval);
+        }, Math.max(repeat$$1, 60) * 1000);
       }
-
-
     });
 
     // Grab all elements with a 'zoo_async_html' class.
