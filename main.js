@@ -2652,8 +2652,8 @@ class Panel extends Component {
     // Call the given url, and then dispatch a panel event with the results.
     [...panel.querySelectorAll('.zoo_async_json')].forEach(el => {
       const elDataMap = getElDataMap(el);
-      let href = elDataMap['href'];
-      let onReply = this.onAsyncJsonReply.bind(this, el);
+      const href = elDataMap['href'];
+      const onReply = this.onAsyncJsonReply.bind(this, el);
       this.user.fetchJson(href).then(onReply);
       const repeat$$1 = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat$$1)) {
@@ -2674,11 +2674,8 @@ class Panel extends Component {
             this.parseContent(el);
             this.evalScripts(data.scripts);
             this.evalModules(data.modules);
-
           });
-
     });
-
   };
 
   enterDocument() {
