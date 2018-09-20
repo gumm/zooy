@@ -2658,7 +2658,6 @@ class Panel extends Component {
       const repeat$$1 = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat$$1)) {
         this.doOnBeat(() => {
-          console.log(`Getting data from ${href}`);
           this.user.fetchJson(href).then(onReply);
         }, repeat$$1 * 60 * 1000);
       }
