@@ -667,7 +667,7 @@ const toggleClass = (element, className) => {
 };
 
 
-const getElDataMap = el => Object.assign({}, el.dataset);
+const getElDataMap = el => Object.assign({}, el.dataset || {});
 
 
 const dtFormatter = {
