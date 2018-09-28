@@ -19,7 +19,7 @@ export const renderButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-button')].forEach(el => {
     mdc.ripple.MDCRipple.attachTo(el);
     this.listen(el, 'click', e => {
-      e.stopPropagation();
+      // e.stopPropagation();
       const trg = e.currentTarget;
       const elDataMap = getElDataMap(trg);
       this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
@@ -198,7 +198,9 @@ export const renderMenus = function(panel) {
         });
 
         // Toggle the menu open or closed from the anchor element.
-        menuButtonEl.addEventListener('click', e => menu.open = !menu.open);
+        menuButtonEl.addEventListener('click', e => {
+          console.log('We clicked!!!');
+          return menu.open = !menu.open});
       });
 };
 
