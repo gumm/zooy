@@ -2370,8 +2370,7 @@ const renderRadioButtons = function(panel) {
     const radContainerEl = ff.querySelector('.mdc-radio');
     radContainerEl.querySelector(
         'input[type="radio"]').classList.add('mdc-radio__native-control');
-    const radio = new mdc.radio.MDCRadio(radContainerEl);
-    formField.input = radio;
+    formField.input = new mdc.radio.MDCRadio(radContainerEl);
   });
 };
 
