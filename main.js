@@ -2265,7 +2265,6 @@ const renderMenus = function(panel) {
 
         // Toggle the menu open or closed from the anchor element.
         menuButtonEl.addEventListener('click', e => {
-          console.log('We clicked!!!');
           return menu.open = !menu.open});
       });
 };
@@ -2319,17 +2318,6 @@ const renderLinearProgress = function(panel) {
 
 
 /**
- * {@link https://material.io/develop/web/components/input-controls/form-fields/}
- * @param {Panel} panel
- */
-const renderFormFields = function(panel) {
-  [...panel.querySelectorAll('.mdc-form-field')].forEach(
-      mdc.formField.MDCFormField.attachTo
-  );
-};
-
-
-/**
  * {@link https://material.io/develop/web/components/input-controls/text-field/}
  * @param {Panel} panel
  */
@@ -2359,6 +2347,44 @@ const renderSelectMenus = function(panel) {
   [...panel.querySelectorAll('.mdc-select')].forEach(
       mdc.select.MDCSelect.attachTo
   );
+};
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/form-fields/}
+ * @param {Panel} panel
+ */
+const renderFormFields = function(panel) {
+  [...panel.querySelectorAll(
+      '.mdc-form-field:not(.for-radio):not(.for-checkbox)')].forEach(
+      mdc.formField.MDCFormField.attachTo
+  );
+};
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/radio-buttons/}
+ * @param {Panel} panel
+ */
+const renderRadioButtons = function(panel) {
+  [...panel.querySelectorAll('.mdc-form-field.for-radio')].forEach(ff => {
+    const formField = new mdc.formField.MDCFormField(ff);
+    const radContainerEl = ff.querySelector('.mdc-radio');
+    radContainerEl.querySelector(
+        'input[type="radio"]').classList.add('mdc-radio__native-control');
+    const radio = new mdc.radio.MDCRadio(radContainerEl);
+    formField.input = radio;
+  });
+};
+
+/**
+ * {@link https://material.io/develop/web/components/input-controls/checkboxes/}
+ * @param {Panel} panel
+ */
+const renderCheckBoxes = function(panel) {
+  [...panel.querySelectorAll('.mdc-checkbox.for-checkbox')].forEach(ff => {
+    const formField = new mdc.formField.MDCFormField(ff);
+    const cbEl = ff.querySelector('.mdc-checkbox');
+    formField.input = new mdc.checkbox.MDCCheckbox(cbEl);
+  });
 };
 
 class Panel extends Component {
@@ -2545,6 +2571,8 @@ class Panel extends Component {
       renderSelectMenus.call(this, panel);
       renderTextFieldIcons.call(this, panel);
       renderTextFields.call(this, panel);
+      renderRadioButtons.call(this, panel);
+      renderCheckBoxes.call(this, panel);
     }
 
     [...panel.querySelectorAll('.tst__button')].forEach(el => {

@@ -35,6 +35,8 @@ import {
   renderSelectMenus,
   renderTextFieldIcons,
   renderTextFields,
+  renderRadioButtons,
+  renderCheckBoxes,
 } from './mdc/mdc.js'
 
 
@@ -222,6 +224,8 @@ class Panel extends Component {
       renderSelectMenus.call(this, panel);
       renderTextFieldIcons.call(this, panel);
       renderTextFields.call(this, panel);
+      renderRadioButtons.call(this, panel);
+      renderCheckBoxes.call(this, panel);
     }
 
     [...panel.querySelectorAll('.tst__button')].forEach(el => {
