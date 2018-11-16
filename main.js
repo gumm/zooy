@@ -273,7 +273,7 @@ class EVT extends EventTarget {
    * @param {!Function} action
    * @param {boolean|!Object} options
    */
-  listen(target, event, action, options=false) {
+  listen(target, event, action, options={passive: true}) {
     target.addEventListener(event, action, options);
     const currVal = this.listeningTo_.get(target) || {};
     currVal[event] = () => target.removeEventListener(event, action, options);
