@@ -83,9 +83,9 @@ export default class EVT extends EventTarget {
     return this.debugMode_;
   }
 
-  debugMe(s) {
-    if (this.debugMode_) {
-      console.log(`${this.constructor.name} DEBUG: ${s}`);
+  debugMe(...s) {
+    if (this.debugMode) {
+      console.log.apply(null, [this.constructor.name, 'DEBUG:', ...s]);
     }
   }
 

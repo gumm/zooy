@@ -206,6 +206,8 @@ class Panel extends Component {
   parseContent(panel) {
     // If we are in an environment where MDC is used.
 
+    this.debugMe('Enable interactions. Panel:', panel);
+
     if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
       renderRipples.call(this, panel);
       renderButtons.call(this, panel);
@@ -406,6 +408,7 @@ class Panel extends Component {
   dispatchPanelEvent(value, opt_data) {
     const dataObj = new ZooyEventData(value, opt_data);
     const event = EVT.makeEvent(UiEventType.PANEL, dataObj);
+    this.debugMe('PANEL EVENT FIRED. Value:', value, 'Opt DATA:', opt_data);
     return this.dispatchEvent(event);
   };
 

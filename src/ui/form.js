@@ -223,6 +223,7 @@ class FormPanel extends Panel {
       const user = this.user;
       this.listen(form, 'submit', e => {
         e.preventDefault();
+        this.debugMe('Intercepted from SUBMIT');
         if (this.fieldErr_.checkAll()) {
           user && user.formSubmit(this);
         }
@@ -259,11 +260,23 @@ class FormPanel extends Panel {
         parent.replaceChild(this.getElement(), el);
       } else {
         // Just replace the form component.
-        let newForm = /** @type {!Element} */ (this.responseObject.html)
+        const newForm = /** @type {!Element} */ (this.responseObject.html)
             .querySelector('form');
         if (newForm) {
           replaceNode(newForm, this.form_);
         }
+
+        // Forms have randomIDs so the submit button must come along...
+        // Sadly :(
+        const newSubmit = /** @type {!Element} */ (this.responseObject.html)
+            .querySelector('button[type="submit"]');
+        const oldSubmit = /** @type {!Element} */ (this.getElement())
+            .querySelector('button[type="submit"]');
+        if (newSubmit && oldSubmit) {
+          replaceNode(newSubmit, oldSubmit);
+        }
+
+
       }
       this.enterDocument();
     }
@@ -300,19 +313,25 @@ class FormPanel extends Panel {
       });
     }
     else if (reply === 'success') {
-      this.debugMe(`1.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+      this.debugMe(`
+      1.REDIRECTED: ${this.redirected}
+      REPLY: ${reply}`);
       // We are done.
       // Nothing further to do here.
       success = true;
     } else if (reply === 'redirected_success\n') {
-      this.debugMe(`2.REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+      this.debugMe(`
+      2.REDIRECTED: ${this.redirected}
+      REPLY: ${reply}`);
       // Indicate that we were redirected, but are done.
       // Nothing further to do here. Set the 'redirected' flag to false,
       // and we will fall through to the correct response below.
       success = true;
       this.redirected = false;
     } else {
-      this.debugMe(`3.REDIRECTED: ${this.redirected}\nREPLY: Some form HTML`);
+      this.debugMe(`
+      3.REDIRECTED: ${this.redirected}
+      REPLY: Some form HTML`);
       // We received something other than a simple "we are done".
       // Replace the form (there may be server side error messages in it)
       // and look for the error objects.
@@ -328,12 +347,16 @@ class FormPanel extends Panel {
     }
 
     if (success && this.redirected) {
-      this.debugMe(`4.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+      this.debugMe(`
+      4.REDIRECTED: ${this.redirected}
+      SUCCESS: ${success}`);
       // Just return the promise - we are not done yet.
       this.redirected = false;
       return Promise.resolve(this);
     } else if (success) {
-      this.debugMe(`5.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+      this.debugMe(`
+      5.REDIRECTED: ${this.redirected}
+      SUCCESS: ${success}`);
       // We are done. Execute any 'onSuccess' directives, and
       // then fire the 'FORM_SUBMIT_SUCCESS' event.
       return Promise.resolve(this).then(p => {
@@ -341,7 +364,9 @@ class FormPanel extends Panel {
         this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
       });
     } else {
-      this.debugMe(`6.REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+      this.debugMe(`
+      6.REDIRECTED: ${this.redirected}
+      SUCCESS: ${success}`);
       // 'success' flag is not set. The form probably has errors.
       // Reject the promise.
       return Promise.reject('Form has errors');

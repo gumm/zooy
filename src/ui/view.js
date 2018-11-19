@@ -177,7 +177,6 @@ export default class View extends EVT {
    * @param {!Panel} panel The panel itself.
    */
   addPanelToView(name, panel) {
-    panel.debugMode = this.debugMode;
     panel.user = this.user;
     this.removePanelByName(name);
     this.panelMap.set(name, panel);
