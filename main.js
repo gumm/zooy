@@ -268,6 +268,10 @@ class EVT extends EventTarget {
   }
 
   /**
+   * WARNING! DO not use options={passive: true} here. It disallows us to
+   * use preventDefault when we intercept the form, and that leads to a
+   * general inability to POST forms.
+   *
    * @param {!EventTarget|!EVT|!Node} target
    * @param {string} event
    * @param {!Function} action
