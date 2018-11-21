@@ -2473,6 +2473,7 @@ class Panel extends Component {
           opt_callback(this);
         }
         this.onRenderWithTemplateReply(s);
+        return this;
       });
     } else {
       return Promise.reject('No user')
@@ -2578,6 +2579,17 @@ class Panel extends Component {
       renderTextFields.call(this, panel);
       renderRadioButtons.call(this, panel);
       renderCheckBoxes.call(this, panel);
+    }
+
+    // If my parent is a modal cover (.tst__modal-base), and has the
+    // .close_on_click class, then close myself on click.
+    if (panel.classList.contains('tst__modal-base') &&
+        panel.classList.contains('close_on_click')) {
+      this.listen(panel, 'click', e => {
+        if (e.target === panel) {
+          this.dispatchPanelEvent('destroy_me');
+        }
+      });
     }
 
     [...panel.querySelectorAll('.tst__button')].forEach(el => {
