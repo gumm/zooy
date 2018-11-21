@@ -231,7 +231,7 @@ class Panel extends Component {
       renderCheckBoxes.call(this, panel);
     }
 
-    // If my parent is a modal cover (.tst__modal-base), and has the
+    // If I am a modal cover (.tst__modal-base), and have the
     // .close_on_click class, then close myself on click.
     if (panel.classList.contains('tst__modal-base') &&
         panel.classList.contains('close_on_click')) {
