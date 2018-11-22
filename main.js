@@ -726,7 +726,12 @@ const mapDataToEls = (rootEl, json) => {
             v = new Date(v).toLocaleString(undefined, dFormatter);
             break;
           case 'moment_ago':
-            const m = moment(Date(v));
+            let ts = v;
+            if (isNumber(ts) && ts < 946684800000) {
+              ts = ts * 1000;
+            }
+            const d = new Date(ts);
+            const m = moment(d);
             const ago = m.fromNow();
             const time = m.format('D MMM YYYY, H:mm:ss');
             v = `${ago} (${time})`;
