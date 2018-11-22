@@ -4193,6 +4193,13 @@ class View extends EVT {
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           );
         })
+        .set('reset_search', (eventData, ePanel) => {
+          // Grab the closest form up the DOM, reset its 'q' field and make
+          // it use the normal submit logic.
+          const form = eventData.trigger.closest('form');
+          form.elements['q'].value = '';
+          form.dispatchEvent(new Event('submit'));
+        })
         .set('switch_view', (eventData, ePanel) => {
           this.debugMe('switch_view received: eventData', eventData);
 
