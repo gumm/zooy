@@ -224,12 +224,28 @@ export default class View extends EVT {
           this.removePanel(ePanel);
         })
         .set('paginate', (eventData, ePanel) => {
-          this.user.fetchAndSplit(eventData.href).then(
+          const href = `${eventData.href}?${eventData.targetval}`;
+          this.user.fetchAndSplit(href).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           )
         })
         .set('search', (eventData, ePanel) => {
-          const href = `${eventData.href}?q=${eventData.formData.q}`;
+          let href = `${eventData.href}`;
+          const qString = eventData.formData.q;
+          const qDict = eventData.targetval;
+          if (qString !== '') {
+            href = `${href}?q=${qString}`
+          }
+          if (qDict !== '') {
+            href = qString !== '' ? `${href}&${qDict}` : `${href}?${qDict}`;
+            console.log('We came here', href, qDict, qString);
+          }
+          this.user.fetchAndSplit(href).then(
+              s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+          )
+        })
+        .set('list_filter', (eventData, ePanel) => {
+          const href = `${eventData.href}?${eventData.targetval}`;
           this.user.fetchAndSplit(href).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           )
