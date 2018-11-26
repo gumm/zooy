@@ -203,6 +203,11 @@ class Panel extends Component {
     // Stub
   };
 
+
+  onViewDataBroadcast(data) {
+    // Stub
+  };
+
   //--------------------------------------------------------[ JSON Render ]-----
   parseContent(panel) {
     // If we are in an environment where MDC is used.

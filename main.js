@@ -2558,6 +2558,11 @@ class Panel extends Component {
     // Stub
   };
 
+
+  onViewDataBroadcast(data) {
+    // Stub
+  };
+
   //--------------------------------------------------------[ JSON Render ]-----
   parseContent(panel) {
     // If we are in an environment where MDC is used.
@@ -4172,6 +4177,11 @@ class View extends EVT {
   getPanelByName(name) {
     return this.panelMap.get(name);
   };
+
+
+  broadcastToPanels(data) {
+    [...this.panelMap.values()].forEach(p => p.onViewDataBroadcast(data));
+  }
 
 
   initPanelEventsInternal_() {

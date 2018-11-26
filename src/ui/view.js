@@ -210,6 +210,11 @@ export default class View extends EVT {
   };
 
 
+  broadcastToPanels(data) {
+    [...this.panelMap.values()].forEach(p => p.onViewDataBroadcast(data));
+  }
+
+
   initPanelEventsInternal_() {
     return new Map()
         .set('toggle_tree', (eventData, ePanel) => {
