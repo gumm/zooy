@@ -1585,6 +1585,14 @@ const decodeOrEmpty_ = (val, opt_preserveReserved) => {
 
 const getPath = uri => decodeOrEmpty_(split$1(uri)[ComponentIndex.PATH], true);
 
+const objectToUrlParms = obj => [...Object.entries(obj)].map(
+    e => `${e[0]}=${e[1]}`).join('&');
+
+var uriUtils = /*#__PURE__*/Object.freeze({
+  objectToUrlParms: objectToUrlParms,
+  getPath: getPath
+});
+
 const stripLeadingSpace = stripLeadingChar(' ');
 const stripLeadingSlash = stripLeadingChar('/');
 const getCookieByName = name => document.cookie.split(';')
@@ -4443,6 +4451,7 @@ const zooy = {
   UiEventType,
   treeNodeSelect,
   domUtils,
+  uriUtils,
 };
 
 export default zooy;

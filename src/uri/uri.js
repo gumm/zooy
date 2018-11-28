@@ -141,6 +141,10 @@ const decodeOrEmpty_ = (val, opt_preserveReserved) => {
 
 const getPath = uri => decodeOrEmpty_(split(uri)[ComponentIndex.PATH], true);
 
+const objectToUrlParms = obj => [...Object.entries(obj)].map(
+    e => `${e[0]}=${e[1]}`).join('&');
+
 export {
+  objectToUrlParms,
   getPath
 }
