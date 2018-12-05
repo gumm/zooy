@@ -197,9 +197,10 @@ class Panel extends Component {
 
   /**
    * @param {Element} el
+   * @param {Object} elDataMap
    * @param {Object} json
    */
-  onAsyncJsonReply(el, json) {
+  onAsyncJsonReply(el, elDataMap, json) {
     // Stub
   };
 
@@ -356,7 +357,7 @@ class Panel extends Component {
     [...panel.querySelectorAll('.zoo_async_json')].forEach(el => {
       const elDataMap = getElDataMap(el);
       const href = elDataMap['href'];
-      const onReply = this.onAsyncJsonReply.bind(this, el);
+      const onReply = this.onAsyncJsonReply.bind(this, el, elDataMap);
       this.user.fetchJson(href).then(onReply);
       const repeat = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat)) {
