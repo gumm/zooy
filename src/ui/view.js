@@ -69,7 +69,7 @@ const needsToScroll = parent => {
 
 
 export const treeNodeSelect = panel => id => {
-  const treeContainer = panel.getElement().querySelector('.zv_tree_continer');
+  const treeContainer = panel.getElement().querySelector('.zv_tree_container');
   const isHidden = needsToScroll(treeContainer);
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
   let targetNode = undefined;
