@@ -40,10 +40,49 @@ const toggleTreeChildren = (panel, eventData) => {
 };
 
 
+/**
+ * Open all the tree nodes from the given element up.
+ * @param {!Panel} panel
+ * @param {!HTMLElement} n
+ */
+const openTreeFromNodeUp = (panel, n) => {
+  const parentNode = n.parentElement;
+  if (parentNode.classList.contains('children')) {
+    enableClass(parentNode, 'tst__tree-children__hidden', false);
+    openTreeFromNodeUp(panel, parentNode);
+  }
+};
+
+/**
+ * Determine if an element is in the viewport
+ * @param  {Node} parent The element
+ * @return {function} Returns true if element is in the viewport
+ */
+const needsToScroll = parent => {
+  const parentRect = parent.getBoundingClientRect();
+  const bottomMustBeLessThan = parentRect.bottom;
+  return elem => {
+    const distance = elem.getBoundingClientRect();
+    return distance.bottom > bottomMustBeLessThan
+  };
+};
+
+
 export const treeNodeSelect = panel => id => {
+  const treeContainer = panel.getElement().querySelector('.zv_tree_continer');
+  const isHidden = needsToScroll(treeContainer);
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
-  [...allNodes].forEach(n =>
-      enableClass(n, 'mdc-list-item--activated', n.id === `tree-node_${id}`));
+  let targetNode = undefined;
+  [...allNodes].forEach(n => {
+    enableClass(n, 'mdc-list-item--activated', n.id === `tree-node_${id}`);
+    if (n.id === `tree-node_${id}`) {
+      targetNode = n;
+    }
+  });
+
+  if (targetNode && isHidden(targetNode)) {
+    targetNode.scrollIntoView(false);
+  }
 };
 
 
@@ -138,28 +177,33 @@ export default class View extends EVT {
   /**
    * Placeholder for subclasses to add panel event functions.
    */
-  initPanelEvents() {};
+  initPanelEvents() {
+  };
 
 
   /**
    * Run before the render.
    */
-  preRender() {};
+  preRender() {
+  };
 
   /**
    * Placeholder for panel configuration functionality;
    */
-  configurePanels() {}
+  configurePanels() {
+  }
 
   /**
    * Placeholder for panel display functionality;
    */
-  displayPanels() {}
+  displayPanels() {
+  }
 
   /**
    * Placeholder for post render functionality.
    */
-  postRender() {}
+  postRender() {
+  }
 
 
   /**
@@ -268,11 +312,17 @@ export default class View extends EVT {
           const href = eventData.href;
           const pk = eventData.pk;
           const view = eventData.view;
-          const landOn =  eventData.landon;
-          const landOnPk =  eventData.landonpk;
+          const landOn = eventData.landon;
+          const landOnPk = eventData.landonpk;
 
           if (this.switchViewMap_.has(view)) {
-            this.switchViewMap_.get(view)({view, pk, landOn, landOnPk, href}, ePanel);
+            this.switchViewMap_.get(view)({
+              view,
+              pk,
+              landOn,
+              landOnPk,
+              href
+            }, ePanel);
           } else {
             this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
           }
