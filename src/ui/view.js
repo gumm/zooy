@@ -314,6 +314,7 @@ export default class View extends EVT {
           const view = eventData.view;
           const landOn = eventData.landon;
           const landOnPk = eventData.landonpk;
+          const displayAs = eventData.displayas;
 
           if (this.switchViewMap_.has(view)) {
             this.switchViewMap_.get(view)({
@@ -321,6 +322,7 @@ export default class View extends EVT {
               pk,
               landOn,
               landOnPk,
+              displayAs,
               href
             }, ePanel);
           } else {
