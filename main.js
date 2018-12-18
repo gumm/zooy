@@ -1999,7 +1999,7 @@ class UserManager {
         .then(getText)
         .catch(err => {
           stopSpin('');
-          console.error('UMan Text GET Fetch:', err);
+          console.error('UMan Text GET Fetch:', uri, err);
         });
   };
 
@@ -2026,7 +2026,7 @@ class UserManager {
         .then(getJson)
         .catch(err => {
           stopSpin('');
-          console.log('UMan JSON GET Fetch:', err);
+          console.log('UMan JSON GET Fetch:', uri,  err);
           return {};
         });
   };
@@ -2041,7 +2041,7 @@ class UserManager {
     return fetch(req, jsonPatchInit(this.jwt, payload))
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON PATCH Fetch:', err));
+        .catch(err => console.error('UMan JSON PATCH Fetch:', uri, err));
   };
 
   /**
@@ -2054,7 +2054,7 @@ class UserManager {
     return fetch(req, jsonPostInit(this.jwt, payload))
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON POST Fetch:', err));
+        .catch(err => console.error('UMan JSON POST Fetch:', uri, err));
   };
 
   /**
@@ -2067,7 +2067,7 @@ class UserManager {
     return fetch(req, jsonPutInit(this.jwt, payload))
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON POST Fetch:', err));
+        .catch(err => console.error('UMan JSON PUT Fetch:', uri, err));
   };
 
   /**
@@ -2080,7 +2080,7 @@ class UserManager {
     return fetch(req, jsonDelInit(this.jwt, payload))
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON DELETE Fetch:', err));
+        .catch(err => console.error('UMan JSON DELETE Fetch:', uri, err));
   };
 }
 
