@@ -24,12 +24,7 @@ class ZooyEventData {
   }
 }
 
-/**
- * A variadic compose that accepts any number of pure functions and composes
- * them together.
- * @param {...function(?): ?} fns
- * @returns {function(?): ?}
- */
+// noinspection JSUnusedLocalSymbols
 
 
 /**
@@ -37,7 +32,9 @@ class ZooyEventData {
  * @return {function(): undefined}
  */
 const maybeFunc = func => () => {
-  if (whatType(func) === 'function') { /** @type {!Function} */(func)(); }
+  if (whatType(func) === 'function') {
+    /** @type {!Function} */(func)();
+  }
 };
 
 
@@ -164,7 +161,9 @@ const randomId = opt_length => {
  * @returns {number|*}
  */
 const maybeNumber = s => {
-  if (s === null) { return s; }
+  if (s === null) {
+    return s;
+  }
   const p = 1 * s;
   return Number.isNaN(p) ? s : p;
 };

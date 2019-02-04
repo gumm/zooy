@@ -24,13 +24,13 @@
   },
   "devDependencies": {
     "esm": "*",
-    "google-closure-compiler": "^20180910.0.0",
-    "google-closure-library": "^20180910.0.0",
-    "material-components-web": "^0.39.3",
+    "google-closure-compiler": "*",
+    "google-closure-library": "*",
+    "material-components-web": "*",
     "mocha": "*",
     "node-sass": "*",
     "ramda": "*",
-    "rollup": "^0.66.2",
+    "rollup": "*",
     "rollup-plugin-commonjs": "*",
     "rollup-plugin-node-resolve": "*"
   }

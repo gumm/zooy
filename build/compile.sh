@@ -56,7 +56,7 @@ fi
 
 shopt -s extglob globstar
 set -ex
-java -jar node_modules/google-closure-compiler/compiler.jar $(echo ${BLD[*]})
+java -jar node_modules/google-closure-compiler-java/compiler.jar $(echo ${BLD[*]})
 
 #rm dist/_temp.js
 echo "Done"
