@@ -134,17 +134,6 @@ const pathOr = (f, arr) => e => {
 
 
 /**
- * Private function that will always return the same random string each time
- * it is called.
- * @return {string}
- */
-const privateRandom = () => {
-  const c = randomId();
-  return (() => c)();
-};
-
-
-/**
  * Returns a pseudo random string. Good for ids.
  * @param {?number=} opt_length An optional length for the string. Note this
  *    clearly reduces the randomness, and increases the chances of a collision.
@@ -388,16 +377,16 @@ const UiEventType = {
    * Dispatched after the content from the template is in the DOM
    * and the in-line scripts from the AJAX call has been eval'd.
    */
-  COMP: privateRandom(),
-  COMP_DRAG_START: privateRandom(),
-  COMP_DRAG_MOVE: privateRandom(),
-  COMP_DRAG_END: privateRandom(),
-  PANEL: privateRandom(),
-  VIEW: privateRandom(),
-  SPLIT: privateRandom(),
-  READY: privateRandom(),
-  PANEL_MINIMIZE: privateRandom(),
-  FORM_SUBMIT_SUCCESS: privateRandom(),
+  COMP: randomId(),
+  COMP_DRAG_START: randomId(),
+  COMP_DRAG_MOVE: randomId(),
+  COMP_DRAG_END: randomId(),
+  PANEL: randomId(),
+  VIEW: randomId(),
+  SPLIT: randomId(),
+  READY: randomId(),
+  PANEL_MINIMIZE: randomId(),
+  FORM_SUBMIT_SUCCESS: randomId(),
 };
 
 /**
@@ -1552,7 +1541,7 @@ const ComponentIndex = {
  *     on the browser's regular expression implementation.  Never null, since
  *     arbitrary strings may still look like path names.
  */
-const split$1 = uri => {
+const split = uri => {
   // See @return comment -- never null.
   return /** @type {!Array<string|undefined>} */ (
       uri.match(splitRe_));
@@ -1582,7 +1571,7 @@ const decodeOrEmpty_ = (val, opt_preserveReserved) => {
 };
 
 
-const getPath = uri => decodeOrEmpty_(split$1(uri)[ComponentIndex.PATH], true);
+const getPath = uri => decodeOrEmpty_(split(uri)[ComponentIndex.PATH], true);
 
 const objectToUrlParms = obj => [...Object.entries(obj)].map(
     e => `${e[0]}=${e[1]}`).join('&');
@@ -2721,11 +2710,11 @@ class Panel extends Component {
       const href = elDataMap['href'];
       const onReply = this.onAsyncJsonReply.bind(this, el, elDataMap);
       this.user.fetchJson(href).then(onReply);
-      const repeat$$1 = toNumber(elDataMap['z_interval']);
-      if (isNumber(repeat$$1)) {
+      const repeat = toNumber(elDataMap['z_interval']);
+      if (isNumber(repeat)) {
         this.doOnBeat(() => {
           this.user.fetchJson(href).then(onReply);
-        }, repeat$$1 * 60 * 1000);
+        }, repeat * 60 * 1000);
       }
     });
 
