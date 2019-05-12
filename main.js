@@ -2168,7 +2168,7 @@ const renderFloatingActionButtons = function(panel) {
  * @param {Panel} panel
  */
 const renderIconButtons = function(panel) {
-  [...panel.querySelectorAll('.mdc-icon-button')].forEach(el => {
+  [...panel.querySelectorAll('.mdc-icon-button:not(.mdc-icon-toggle)')].forEach(el => {
     const b = new mdc.ripple.MDCRipple(el);
     b.unbounded = true;
     this.listen(el, 'click', e => {
@@ -2191,9 +2191,9 @@ const renderIconButtons = function(panel) {
  */
 const renderIconToggleButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
-    mdc.iconButton.MDCIconButtonToggle.attachTo(el);
+    const _ = new mdc.iconButton.MDCIconButtonToggle(el);
     this.listen(el, 'click', e => e.stopPropagation());
-    this.listen(el, 'MDCIconToggle:change', e => {
+    this.listen(el, 'MDCIconButtonToggle:change', e => {
       e.stopPropagation();
       const trg = e.currentTarget;
       const isOn = e.detail.isOn;
