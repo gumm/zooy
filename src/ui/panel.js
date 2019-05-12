@@ -81,6 +81,15 @@ class Panel extends Component {
      * @private
      */
     this.user_ = void 0;
+
+    try {
+      this.abortController = new AbortController();
+    } catch (e) {
+      this.abortController = {
+        signal: void 0,
+        abort: () => void 0
+      }
+    }
   };
 
   //---------------------------------------------------[ Getters and Setters ]--
@@ -118,11 +127,15 @@ class Panel extends Component {
   renderWithTemplate(opt_callback) {
     const usr = this.user;
     if (usr) {
-      return usr.fetch(this.uri_).then(s => {
+      return usr.fetch(this.uri_, this.abortController.signal).then(s => {
         if (opt_callback) {
           opt_callback(this);
         }
-        this.onRenderWithTemplateReply(s);
+        this.onRenderWithTemplateReply(s).catch(err => {
+          if (err.message !== Component.compErrors().ALREADY_DISPOSED) {
+            console.error('RenderWithTemplate Err:', err);
+          }
+        });
         return this;
       });
     } else {
@@ -169,12 +182,13 @@ class Panel extends Component {
   renderWithJSON(opt_callback) {
     const usr = this.user;
     if (usr) {
-      return this.user.fetchJson(this.uri_).then(json => {
-        if (opt_callback) {
-          opt_callback(json, this);
-        }
-        this.onRenderWithJSON(json)
-      });
+      return this.user.fetchJson(this.uri_, this.abortController.signal)
+          .then(json => {
+            if (opt_callback) {
+              opt_callback(json, this);
+            }
+            this.onRenderWithJSON(json)
+          });
     } else {
       return Promise.reject('No user')
     }

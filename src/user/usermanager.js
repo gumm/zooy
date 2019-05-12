@@ -236,17 +236,22 @@ const formPostInit = (jwt, formPanel) => {
 
 /**
  * @param {string} jwt A JWT token
+ * @param {?Object} signal
  * @return {!RequestInit}
  */
-const basicGetInit = jwt => {
+const basicGetInit = (jwt, signal = void 0) => {
   const h = new Headers();
   h.append('Authorization', `bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
-  return {
+  const options = {
     cache: 'no-cache',
     headers: h,
     credentials: 'include'
   };
+  if (signal) {
+    options.signal = signal;
+  }
+  return options
 };
 
 
@@ -420,18 +425,21 @@ export default class UserManager {
 
   /**
    * @param {string} uri
+   * @param {?Object} signal
    * @return {Promise}
    */
-  fetch(uri) {
+  fetch(uri, signal = void 0) {
     const req = new Request(uri.toString());
     return startSpin()
-        .then(() => fetch(req, basicGetInit(this.jwt)))
+        .then(() => fetch(req, basicGetInit(this.jwt, signal)))
         .then(checkStatus)
         .then(stopSpin)
         .then(getText)
         .catch(err => {
           stopSpin('');
-          console.error('UMan Text GET Fetch:', uri, err)
+          if (err.name !== 'AbortError') {
+            console.error('UMan Text GET Fetch:', uri, err)
+          }
         });
   };
 
@@ -447,18 +455,21 @@ export default class UserManager {
 
   /**
    * @param {string} uri
+   * @param signal
    * @return {Promise}
    */
-  fetchJson(uri) {
+  fetchJson(uri, signal = void 0) {
     const req = new Request(uri.toString());
     return startSpin()
-        .then(() => fetch(req, basicGetInit(this.jwt)))
+        .then(() => fetch(req, basicGetInit(this.jwt, signal)))
         .then(checkStatus)
         .then(stopSpin)
         .then(getJson)
         .catch(err => {
           stopSpin('');
-          console.log('UMan JSON GET Fetch:', uri,  err);
+          if (err.name !== 'AbortError') {
+            console.log('UMan JSON GET Fetch:', uri,  err);
+          }
           return {};
         });
   };

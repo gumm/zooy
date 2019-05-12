@@ -26,6 +26,11 @@ const ComponentError = {
   ALREADY_RENDERED: 'Component already rendered',
 
   /**
+   * Error when an already disposed component is attempted to be rendered.
+   */
+  ALREADY_DISPOSED: 'Component already disposed',
+
+  /**
    * Error when an attempt is made to set the parent of a component in a way
    * that would result in an inconsistent object graph.
    */
@@ -65,6 +70,10 @@ export default class Component extends EVT {
 
   static compReadyCode() {
     return UiEventType.READY;
+  }
+
+  static compErrors() {
+    return ComponentError
   }
 
   constructor() {
@@ -246,6 +255,10 @@ export default class Component extends EVT {
    * @private
    */
   render_(opt_target) {
+    if (this.disposed) {
+      throw new Error(ComponentError.ALREADY_DISPOSED);
+    }
+
     if (this.isInDocument) {
       throw new Error(ComponentError.ALREADY_RENDERED);
     }
@@ -293,20 +306,29 @@ export default class Component extends EVT {
    * children.
    */
   enterDocument() {
-    this.isInDocument = true;
 
-    // Propagate enterDocument to child components that have a DOM, if any.
-    // If a child was decorated before entering the document (permitted when
-    // goog.ui.Component.ALLOW_DETACHED_DECORATION is true), its enterDocument
-    // will be called here.
-    [...this.children_.values()].forEach(child => {
-      if (!child.isInDocument && child.getElement()) {
-        child.enterDocument();
-      }
-    });
+    // First check if I am disposed. If so, dont enter the document.
+    // This may happen on slow networks where the user clicks multiple times
+    // and multiple queries are in flight...
+    if (this.disposed) {
+      removeNode(this.getElement());
+    } else {
 
-    this.executeBeforeReady();
-    this.dispatchCompEvent(UiEventType.READY);
+      this.isInDocument = true;
+
+      // Propagate enterDocument to child components that have a DOM, if any.
+      // If a child was decorated before entering the document (permitted when
+      // goog.ui.Component.ALLOW_DETACHED_DECORATION is true), its enterDocument
+      // will be called here.
+      [...this.children_.values()].forEach(child => {
+        if (!child.isInDocument && child.getElement()) {
+          child.enterDocument();
+        }
+      });
+
+      this.executeBeforeReady();
+      this.dispatchCompEvent(UiEventType.READY);
+    }
 
   };
 
@@ -369,6 +391,9 @@ export default class Component extends EVT {
   };
 
   dispose() {
+    if (this.abortController) {
+      this.abortController.abort();
+    }
     const me = this.getElement();
     if (me) {
       const els = this.getElement().querySelectorAll("[data-mdc-auto-init]");
