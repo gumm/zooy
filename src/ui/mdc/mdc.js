@@ -75,12 +75,12 @@ export const renderIconButtons = function(panel) {
 
 
 /**
- * {@link https://material.io/develop/web/components/buttons/icon-toggle-buttons/}
+ * {@link https://material.io/develop/web/components/buttons/icon-buttons/}
  * @param {Panel} panel
  */
 export const renderIconToggleButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
-    mdc.iconToggle.MDCIconToggle.attachTo(el);
+    mdc.iconButton.MDCIconButtonToggle.attachTo(el);
     this.listen(el, 'click', e => e.stopPropagation());
     this.listen(el, 'MDCIconToggle:change', e => {
       e.stopPropagation();
