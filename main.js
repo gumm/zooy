@@ -1835,7 +1835,7 @@ const formPostInit = (jwt, formPanel) => {
 
 /**
  * @param {string} jwt A JWT token
- * @param {?Object} signal
+ * @param {AbortSignal|undefined} signal
  * @return {!RequestInit}
  */
 const basicGetInit = (jwt, signal = void 0) => {
@@ -2010,7 +2010,7 @@ class UserManager {
 
   /**
    * @param {string} uri
-   * @param {?Object} signal
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
   fetch(uri, signal = void 0) {
@@ -2040,7 +2040,7 @@ class UserManager {
 
   /**
    * @param {string} uri
-   * @param signal
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
   fetchJson(uri, signal = void 0) {
