@@ -2473,14 +2473,16 @@ class Panel extends Component {
      */
     this.user_ = void 0;
 
-    try {
-      this.abortController = new AbortController();
-    } catch (e) {
+    // Feature detect
+    if ("AbortController" in window) {
+      this.abortController = new AbortController;
+    } else {
       this.abortController = {
         signal: void 0,
         abort: () => void 0
       };
     }
+
   };
 
   //---------------------------------------------------[ Getters and Setters ]--
