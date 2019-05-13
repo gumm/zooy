@@ -313,10 +313,11 @@ export const renderRadioButtons = function(panel) {
  * @param {Panel} panel
  */
 export const renderCheckBoxes = function(panel) {
-  [...panel.querySelectorAll('.mdc-checkbox.for-checkbox')].forEach(ff => {
-    const formField = new mdc.formField.MDCFormField(ff);
+  [...panel.querySelectorAll('.mdc-form-field.for-checkbox')].forEach(ff => {
     const cbEl = ff.querySelector('.mdc-checkbox');
-    formField.input = new mdc.checkbox.MDCCheckbox(cbEl)
+    const checkBox = new mdc.checkbox.MDCCheckbox(cbEl);
+    const formField = new mdc.formField.MDCFormField(ff);
+    formField.input = checkBox;
   });
 };
 
