@@ -286,8 +286,11 @@ export default class View extends EVT {
             href = `${href}?q=${qString}`
           }
           if (qDict !== '') {
-            href = qString !== '' ? `${href}&${qDict}` : `${href}?${qDict}`;
-            console.log('We came here', href, qDict, qString);
+            let newQDict = qDict;
+            if (qDict.includes('page=')) {
+              newQDict = qDict.split('&').filter(e => !e.includes('page=')).join('&');
+            }
+            href = qString !== '' ? `${href}&${newQDict}` : `${href}?${newQDict}`;
           }
           this.user.fetchAndSplit(href).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)

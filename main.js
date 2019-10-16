@@ -4298,13 +4298,11 @@ class View extends EVT {
                 }
 
                 if (qDict !== '') {
-                    // EXPERIMENTAL CODE TO REMOVE '&page=' parameter from qDict
+                    let newQDict = qDict;
                     if (qDict.includes('page=')) {
-                        let qDictArray = qDict.split('&');
-                        qDictArray.splice(2);
-                        qDict = qDictArray.join('&');
+                        newQDict = qDict.split('&').filter(e => !e.includes('page=')).join('&');
                     }
-                    href = qString !== '' ? `${href}&${qDict}` : `${href}?${qDict}`;
+                    href = qString !== '' ? `${href}&${newQDict}` : `${href}?${newQDict}`;
                 }
                 this.user.fetchAndSplit(href).then(
                     s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
