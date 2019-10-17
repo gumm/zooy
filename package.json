@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "0.19.5141427",
+  "version": "0.1910.0856",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
@@ -16,10 +16,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gumm/jabui.git"
+    "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "badu": "^2.0.2",
+    "badu": "^2.2.0",
     "moment": "*"
   },
   "devDependencies": {
@@ -30,7 +30,7 @@
     "mocha": "^6.1.4",
     "node-sass": "^4.12.0",
     "ramda": "*",
-    "rollup": "^1.11.3",
+    "rollup": "^1.24.0",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-node-resolve": "^4.2.4"
   }
