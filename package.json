@@ -8,7 +8,7 @@
     "email": "janhendrik.badenhorst@gmail.com"
   },
   "contributors": [
-    "Andries Niemandt <andries.niemandt91@gmail.com> (https://github.com/andriesniemandt)",
+    "Andries Niemandt <andries.niemandt91@gmail.com> (https://github.com/andriesniemandt)"
   ],
   "scripts": {
     "compile_es6": "npm run rollup && build/compile.sh `pwd` es6",
