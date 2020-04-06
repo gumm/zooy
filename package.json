@@ -27,14 +27,14 @@
   },
   "devDependencies": {
     "esm": "^3.2.22",
-    "google-closure-compiler": "^20190215.0.2",
-    "google-closure-library": "^20190215.0.0",
-    "material-components-web": "^0.44.1",
-    "mocha": "^6.1.4",
+    "google-closure-compiler": "^20200315.0.0",
+    "google-closure-library": "^20200315.0.0",
+    "material-components-web": "^5.1.0",
+    "mocha": "^7.1.1",
     "node-sass": "^4.12.0",
     "ramda": "*",
-    "rollup": "^1.24.0",
-    "rollup-plugin-commonjs": "^9.3.4",
-    "rollup-plugin-node-resolve": "^4.2.4"
+    "rollup": "^2.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
   }
 }
