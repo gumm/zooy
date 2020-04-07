@@ -2664,7 +2664,7 @@ class Panel extends Component {
       });
     }
 
-    [...panel.querySelectorAll('.tst__button')].forEach(el => {
+    [...panel.querySelectorAll('.tst__button:not(.external)')].forEach(el => {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;
@@ -2680,7 +2680,7 @@ class Panel extends Component {
     // Hijack elements with a straight-up 'href' attribute.
     // Make them emit a 'href' event with the original
     // href or a href data attribute.
-    [...panel.querySelectorAll('[href]')].forEach(el => {
+    [...panel.querySelectorAll('[href]:not(.external)')].forEach(el => {
       this.listen(el, 'click', e => {
         const trg = e.currentTarget;
         e.preventDefault();
