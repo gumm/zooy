@@ -278,9 +278,17 @@ export const renderTextFieldIcons = function(panel) {
  * @param {Panel} panel
  */
 export const renderSelectMenus = function(panel) {
-  [...panel.querySelectorAll('.mdc-select')].forEach(
-      mdc.select.MDCSelect.attachTo
-  );
+  [...panel.querySelectorAll('.mdc-select')].forEach(e => {
+    const select = new mdc.select.MDCSelect(e);
+    const actualSelectField = e.querySelector('select');
+
+    select.selectedIndex = actualSelectField.options.selectedIndex;
+
+    select.listen('MDCSelect:change', () => {
+      actualSelectField.options[select.selectedIndex].selected = true;
+    });
+  });
+
 };
 
 /**
