@@ -161,7 +161,7 @@ const maybeNumber = s => {
   if (p > Number.MAX_SAFE_INTEGER) {
     return s
   }
-  return Number.isNaN(p)  ? s : p;
+  return Number.isNaN(p) ? s : p;
 };
 
 /*
