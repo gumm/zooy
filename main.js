@@ -2294,7 +2294,7 @@ const renderMenuSurfaces = function(panel) {
  * @param {Panel} panel
  */
 const renderMenus = function(panel) {
-  [...panel.querySelectorAll('.mdc-menu-surface--anchor')].forEach(
+  [...panel.querySelectorAll('.mdc-menu-surface--anchor:not(.mdc-select__menu)')].forEach(
       menuButtonEl => {
         const menuEl = menuButtonEl.querySelector('.mdc-menu');
         const corner = getElDataMap(menuEl)['corner'] || 'BOTTOM_START';
@@ -2394,18 +2394,58 @@ const renderTextFieldIcons = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/select-menus/}
- * @param {Panel} panel
+ * @param {HTMLElement} panel
  */
 const renderSelectMenus = function(panel) {
   [...panel.querySelectorAll('.mdc-select')].forEach(e => {
-    const select = new mdc.select.MDCSelect(e);
-    const actualSelectField = e.querySelector('select');
+    const menuUl = e.querySelector('ul.mdc-list');
+    const menuSurfaceEl = e.querySelector('.mdc-select__menu');
+    const anchorEl = e.querySelector('.mdc-select__anchor');
+    const toolbarEl = panel.querySelector('.tst__toolbar');
+    const htmSelectField = e.querySelector('select');
 
-    select.selectedIndex = actualSelectField.options.selectedIndex;
-
-    select.listen('MDCSelect:change', () => {
-      actualSelectField.options[select.selectedIndex].selected = true;
+    // Build the select menu items from the actual select options.
+    // This just builds the DOM.
+    [...htmSelectField.options].forEach(e => {
+      const li = document.createElement('li');
+      li.classList.add('mdc-list-item');
+      li.textContent = e.textContent;
+      li.dataset.value = e.value;
+      menuUl.appendChild(li);
     });
+
+    // Instantiate the MDCSelect component.
+    // This adds the elements to the DOM
+    const mdcSelect = new mdc.select.MDCSelect(e);
+
+    // Get a handle on the menu component, as we want
+    // to listen for when it opens.
+    const menu = mdcSelect.menu_;
+
+    // Calculate the fixed position and maxHeight of the menu surface.
+    const calculatePosition = e => {
+      const el = e.target;
+      const rect = anchorEl.getBoundingClientRect();
+      const rect2 = toolbarEl.getBoundingClientRect();
+      const vh = Math.max(
+          document.documentElement.clientHeight,
+          window.innerHeight || 0);
+      const max = vh - rect.bottom - 20;  // Give some space at
+                                          // the bottom of the page
+      const top = rect.bottom - rect2.top;
+      const left = rect.left - rect2.left;
+      el.style.cssText = `max-height:${max}px;position:fixed;top:${top}px;left:${left}px;`;
+    };
+
+    // Match the selected indexes, and listen for changes on the MDC component
+    // so we can update the real form component.
+    mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
+    mdcSelect.listen('MDCSelect:change', () => {
+      htmSelectField.options[mdcSelect.selectedIndex].selected = true;
+    });
+
+    // Wholly override all css on the menu surface each time it opens.
+    menu.listen('MDCMenuSurface:opened', calculatePosition);
   });
 
 };
