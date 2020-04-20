@@ -151,7 +151,16 @@ const maybeNumber = s => {
   if (s === null) {
     return s;
   }
+  if (whatType(s) === 'string' &&
+      s.length > 1 &&
+      s.startsWith('0') &&
+      !s.startsWith('0.')) {
+    return s;
+  }
   const p = 1 * s;
+  if (p > Number.MAX_SAFE_INTEGER) {
+    return s
+  }
   return Number.isNaN(p) ? s : p;
 };
 
@@ -734,7 +743,6 @@ const mapDataToEls = (rootEl, json) => {
               v = undefined;
             }
             break;
-          default:
             // Do nothing;
         }
       }
@@ -3325,7 +3333,6 @@ const onDraggerEvent = e => {
       }
       model.onDragEnd();
       break;
-    default:
       // Do nothing.
   }
 };
