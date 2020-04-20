@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "0.200415.1149",
+  "version": "1.0.1",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
@@ -22,7 +22,7 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "badu": "^2.2.0",
+    "badu": "^2.5.0",
     "moment": "^2.24.0"
   },
   "devDependencies": {
