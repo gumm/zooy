@@ -26,7 +26,7 @@ ES6=(
   "--language_out=ES6_Strict"
   "--compilation_level=ADVANCED"
   "--js_output_file=dist/z2_es6.min.js"
-  "--dependency_mode=STRICT"
+#  "--dependency_mode=STRICT"
   "--entry_point=dist/_temp.js"
   "dist/_temp.js"
 )
@@ -37,7 +37,7 @@ DEV=(
   "--compilation_level=ADVANCED"
 #  "--js_output_file=dist/dag-solve.min.js"
   "--hide_warnings_for=node_modules"
-  "--dependency_mode=STRICT"
+#  "--dependency_mode=STRICT"
   "--entry_point=main.js"
 #  "node_modules/!(test)**/!(test).js"
   "node_modules/badu/badu.js"

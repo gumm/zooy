@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "0.191017.1406",
+  "version": "1.0.1",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
@@ -13,7 +13,7 @@
   "scripts": {
     "compile_es6": "npm run rollup && build/compile.sh `pwd` es6",
     "compile_dev": "npm run rollup && build/compile.sh `pwd` dev",
-    "build_css": "./node_modules/node-sass/bin/node-sass src/sass/main.scss > src/css/main.css --output-style compressed",
+    "build_css": "sass --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css",
     "rollup": "npx rollup -c"
   },
   "license": "Apache-2.0",
@@ -22,19 +22,19 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "badu": "^2.2.0",
-    "moment": "*"
+    "badu": "^2.5.0",
+    "moment": "^2.24.0"
   },
   "devDependencies": {
+    "rollup": "^2.3.3",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "esm": "^3.2.22",
-    "google-closure-compiler": "^20190215.0.2",
-    "google-closure-library": "^20190215.0.0",
-    "material-components-web": "^0.44.1",
-    "mocha": "^6.1.4",
-    "node-sass": "^4.12.0",
-    "ramda": "*",
-    "rollup": "^1.24.0",
-    "rollup-plugin-commonjs": "^9.3.4",
-    "rollup-plugin-node-resolve": "^4.2.4"
+    "google-closure-compiler": "^20200315.0.0",
+    "google-closure-library": "^20200315.0.0",
+    "material-components-web": "^5.1.0",
+    "mocha": "^7.1.1",
+    "sass": "^1.26.3",
+    "ramda": "^0.27.0"
   }
 }
