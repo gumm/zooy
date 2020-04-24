@@ -1,3 +1,4 @@
+import { format } from "timeago.js"
 import {
   isDefAndNotNull,
   isString,
@@ -370,7 +371,7 @@ export const mapDataToEls = (rootEl, json) => {
             }
             const d = new Date(ts);
 
-            const ago = timeago.format(d);
+            const ago = format(d);
             const time = dateToZooyStdTimeString(d);
 
             v = `${ago} (${time})`;

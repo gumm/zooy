@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "badu": "^2.5.0",
-    "timeago": "^1.6.7"
+    "timeago.js": "^4.0.2"
   },
   "devDependencies": {
     "rollup": "^2.3.3",
