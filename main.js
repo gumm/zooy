@@ -478,7 +478,6 @@ const formToJSON = elements => [...elements].reduce((data, element) => {
 }, {});
 
 
-
 /**
  * Replaces a node in the DOM tree. Will do nothing if `oldNode` has no
  * parent.
@@ -688,6 +687,40 @@ const dFormatter = {
   day: 'numeric',
 };
 
+const dtf = new Intl.DateTimeFormat(
+    "en", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+
+const dateToZooyStdTimeString = d => {
+  // [ { type: 'month', value: 'Aug' },
+  //   { type: 'literal', value: ' ' },
+  //   { type: 'day', value: '05' },
+  //   { type: 'literal', value: ', ' },
+  //   { type: 'year', value: '2020' },
+  //   { type: 'literal', value: ', ' },
+  //   { type: 'hour', value: '15' },
+  //   { type: 'literal', value: ':' },
+  //   { type: 'minute', value: '16' },
+  //   { type: 'literal', value: ':' },
+  //   { type: 'second', value: '17' } ]
+  const [
+    {value: mo}, ,
+    {value: da}, ,
+    {value: ye}, ,
+    {value: hr}, ,
+    {value: mn}, ,
+    {value: sc}, ,
+  ] = dtf.formatToParts(d);
+  return `${da} ${mo} ${ye}, ${hr}:${mn}:${sc}`;
+};
+
 const mapDataToEls = (rootEl, json) => {
   // console.log('mapDataToEls', rootEl, json);
 
@@ -712,7 +745,7 @@ const mapDataToEls = (rootEl, json) => {
              */
             const tst = s => i => i < s.length - 4;
             const t = tst(v);
-            const ob = s => s.split('').map((c,i) => t(i) ? '*' : c).join('');
+            const ob = s => s.split('').map((c, i) => t(i) ? '*' : c).join('');
             v = ob(v);
             break;
           case 'frac_100':
@@ -730,9 +763,10 @@ const mapDataToEls = (rootEl, json) => {
               ts = ts * 1000;
             }
             const d = new Date(ts);
-            const m = moment(d);
-            const ago = m.fromNow();
-            const time = m.format('D MMM YYYY, H:mm:ss');
+
+            const ago = timeago.format(d);
+            const time = dateToZooyStdTimeString(d);
+
             v = `${ago} (${time})`;
             break;
           case 'linear-progress':

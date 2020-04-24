@@ -41,7 +41,7 @@ DEV=(
   "--entry_point=main.js"
 #  "node_modules/!(test)**/!(test).js"
   "node_modules/badu/badu.js"
-  "node_modules/moment/src/moment.js"
+#  "node_modules/moment/src/moment.js"
   "src/**.js"
   "main.js"
 )
