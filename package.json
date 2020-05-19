@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
@@ -32,7 +32,7 @@
     "esm": "^3.2.22",
     "google-closure-compiler": "^20200315.0.0",
     "google-closure-library": "^20200315.0.0",
-    "material-components-web": "^5.1.0",
+    "material-components-web": "^6.0.0",
     "mocha": "^7.1.1",
     "sass": "^1.26.3",
     "ramda": "^0.27.0"
