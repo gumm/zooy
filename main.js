@@ -2592,7 +2592,7 @@ const renderTextFieldIcons = function(panel) {
 const renderSelectMenus = function(panel) {
   // Build the select menu items from the actual select options.
   // This just builds the DOM.
-  const menuBuilder = (menuUl, mdcSelect, htmSelectField) => () => {
+  const menuBuilder = (menuUl, htmSelectField) => () => {
     while (menuUl.firstChild) {
       menuUl.removeChild(menuUl.lastChild);
     }
@@ -2605,12 +2605,11 @@ const renderSelectMenus = function(panel) {
       }
       const span = document.createElement('span');
       span.classList.add('mdc-list-item__text');
+      span.classList.add('z2-list-item-text');
       span.textContent = e.textContent;
       li.appendChild(span);
       menuUl.appendChild(li);
     });
-    mdcSelect.menu_.initialize();
-    mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
   };
 
   // Calculate the fixed position and maxHeight of the menu surface.
@@ -2645,13 +2644,26 @@ const renderSelectMenus = function(panel) {
     // Get a handle on the menu component, as we want
     // to listen for when it opens.
     const menu = mdcSelect.menu_;
+    menu.setFixedPosition(true);
 
     // We park some accessors on the select field itself
     // This is so that we can manipulate the dropdowns from the outside i.e
     // if you would like the dropdown to dynamically update depending
     // on some other event.
-    htmSelectField.buildMenu = menuBuilder(menuUl, mdcSelect, htmSelectField);
+    const mb = menuBuilder(menuUl, htmSelectField);
+    htmSelectField.buildMenu = () => {
+      mb();
+      try {
+        mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
+      } catch (e) {
+        //  No op.
+      }
+    };
     htmSelectField.buildMenu();
+
+    // Match the selected indexes, and listen for changes on the MDC component
+    // so we can update the real form component.
+    mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
 
     // This fires twice for some reason :(
     mdcSelect.listen('MDCSelect:change', () => {
