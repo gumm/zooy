@@ -37,6 +37,7 @@ import {
     renderTextFields,
     renderRadioButtons,
     renderCheckBoxes,
+    renderDataTables,
 } from './mdc/mdc.js'
 
 
@@ -251,6 +252,7 @@ class Panel extends Component {
             renderTextFields.call(this, panel);
             renderRadioButtons.call(this, panel);
             renderCheckBoxes.call(this, panel);
+            renderDataTables.call(this, panel);
         }
 
         // If I am a modal cover (.tst__modal-base), and have the
@@ -311,6 +313,10 @@ class Panel extends Component {
                 }, elDataMap));
             });
 
+        });
+
+        [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
+            console.log('Here', el);
         });
 
         // Get all accordion elements in the panel and add required functionality.

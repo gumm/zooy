@@ -2408,6 +2408,13 @@ const renderIconToggleButtons = function(panel) {
   });
 };
 
+const renderDataTables = function(panel) {
+  [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
+    const dataTable = new mdc.dataTable.MDCDataTable(el);
+    console.log(dataTable);
+  });
+};
+
 /**
  * {@link https://material.io/develop/web/components/tabs/tab-bar/}
  * @param {Panel} panel
@@ -2926,6 +2933,7 @@ class Panel extends Component {
             renderTextFields.call(this, panel);
             renderRadioButtons.call(this, panel);
             renderCheckBoxes.call(this, panel);
+            renderDataTables.call(this, panel);
         }
 
         // If I am a modal cover (.tst__modal-base), and have the
@@ -2986,6 +2994,10 @@ class Panel extends Component {
                 }, elDataMap));
             });
 
+        });
+
+        [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
+            console.log('Here', el);
         });
 
         // Get all accordion elements in the panel and add required functionality.

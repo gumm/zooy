@@ -97,6 +97,12 @@ export const renderIconToggleButtons = function(panel) {
   });
 };
 
+export const renderDataTables = function(panel) {
+  [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
+    const dataTable = new mdc.dataTable.MDCDataTable(el);
+  })
+}
+
 /**
  * {@link https://material.io/develop/web/components/tabs/tab-bar/}
  * @param {Panel} panel
