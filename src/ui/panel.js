@@ -316,7 +316,7 @@ class Panel extends Component {
         });
 
         [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
-            console.log('Here', el);
+            console.log('Temporary: MDC Data Table rendered ', el);
         });
 
         // Get all accordion elements in the panel and add required functionality.
