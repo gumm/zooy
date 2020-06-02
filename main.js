@@ -2411,7 +2411,6 @@ const renderIconToggleButtons = function(panel) {
 const renderDataTables = function(panel) {
   [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
     const dataTable = new mdc.dataTable.MDCDataTable(el);
-    console.log(dataTable);
   });
 };
 
@@ -2997,7 +2996,7 @@ class Panel extends Component {
         });
 
         [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
-            console.log('Here', el);
+            console.log('Temporary: MDC Data Table rendered ', el);
         });
 
         // Get all accordion elements in the panel and add required functionality.
