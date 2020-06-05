@@ -276,7 +276,7 @@ export const toggleClass = (element, className) => {
 };
 
 
-export const getElDataMap = el => Object.assign({}, el.dataset || {});
+export const getElDataMap = el => el ? Object.assign({}, el.dataset || {}) : {};
 
 
 const dtFormatter = {
