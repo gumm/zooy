@@ -276,7 +276,7 @@ export const toggleClass = (element, className) => {
 };
 
 
-export const getElDataMap = el => Object.assign({}, el.dataset || {});
+export const getElDataMap = el => el ? Object.assign({}, el.dataset || {}) : {};
 
 
 const dtFormatter = {
@@ -302,7 +302,8 @@ const dtf = new Intl.DateTimeFormat(
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-      hour12: false
+      // hour12: false
+      hourCycle: "h23",
     });
 
 const dateToZooyStdTimeString = d => {
@@ -339,6 +340,7 @@ export const mapDataToEls = (rootEl, json) => {
     const dataMap = getElDataMap(el);
     const lldRef = dataMap['zdd'];
     const parseAs = dataMap['zdd_parse_as'];
+    const classUpdate = dataMap['zdd_class_update'];
     let units = dataMap['zdd_units'] || '';
     let v = pathOr(undefined, lldRef.split('.'))(json);
 
@@ -370,10 +372,8 @@ export const mapDataToEls = (rootEl, json) => {
               ts = ts * 1000;
             }
             const d = new Date(ts);
-
             const ago = format(d);
             const time = dateToZooyStdTimeString(d);
-
             v = `${ago} (${time})`;
             break;
           case 'linear-progress':
@@ -387,6 +387,23 @@ export const mapDataToEls = (rootEl, json) => {
           default:
             // Do nothing;
         }
+      }
+    }
+
+    if (classUpdate) {
+      const [valueAccess, action, name] = classUpdate.split(":");
+      let v = pathOr(undefined, valueAccess.split('.'))(json);
+      if (isDefAndNotNull(v)) {
+        switch (action) {
+          case 'swap':
+            const regex = /\{}/gi;
+            const oldClassName = name.replace(regex, '');
+            const newClass = name.replace(regex, v);
+            el.classList.remove(...[...el.classList].filter(
+                e => e.includes(oldClassName)))
+            el.classList.add(newClass);
+        }
+
       }
     }
 
