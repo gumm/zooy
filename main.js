@@ -2978,20 +2978,6 @@ class Panel extends Component {
             });
         }
 
-        // [...panel.querySelectorAll('.bulk-update-trigger')].forEach(el => {
-        //     this.listen(el, 'click', e => {
-        //         e.stopPropagation();
-        //         const trg = e.currentTarget;
-        //         const callingPanel = panel;
-        //         const elDataMap = getElDataMap(trg);
-        //         this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-        //             trigger: trg,
-        //             href: trg.href || elDataMap['href'],
-        //             panel: callingPanel
-        //         }, elDataMap));
-        //     })
-        // });
-
         [...panel.querySelectorAll('.tst__button:not(.external)')].forEach(el => {
             this.listen(el, 'click', e => {
                 e.stopPropagation();
