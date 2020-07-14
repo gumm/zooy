@@ -2428,15 +2428,19 @@ const renderIconToggleButtons = function (panel) {
 const renderDataTables = function (panel) {
     [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
         const dataTable = new mdc.dataTable.MDCDataTable(el);
+        const trigger = panel.querySelector('.bulk-update-trigger');
 
-        this.listen(el, 'MDCDataTable:rowSelectionChanged', e => {
-            console.log(dataTable.getSelectedRowIds());
-        });
-        this.listen(el, 'MDCDataTable:selectedAll', e => {
-            console.log(dataTable.getSelectedRowIds());
-        });
-        this.listen(el, 'MDCDataTable:unselectedAll', e => {
-            console.log(dataTable.getSelectedRowIds());
+        this.listen(trigger, 'click', e => {
+            e.stopPropagation();
+            const selectedRows = dataTable.getSelectedRowIds();
+            const trg = e.currentTarget;
+            const elDataMap = getElDataMap(trg);
+            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+                orgEvt: e,
+                trigger: trg,
+                href: trg.href || elDataMap['href'],
+                selectedRows: selectedRows
+            }, elDataMap));
         });
     });
 };
@@ -2537,7 +2541,7 @@ const renderMenus = function (panel) {
                 this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
                     orgEvt: e,
                     trigger: trg,
-                    href: trg.href || elDataMap['href']
+                    href: trg.href || elDataMap['href'],
                 }, elDataMap));
             });
 
@@ -2973,6 +2977,20 @@ class Panel extends Component {
                 }
             });
         }
+
+        // [...panel.querySelectorAll('.bulk-update-trigger')].forEach(el => {
+        //     this.listen(el, 'click', e => {
+        //         e.stopPropagation();
+        //         const trg = e.currentTarget;
+        //         const callingPanel = panel;
+        //         const elDataMap = getElDataMap(trg);
+        //         this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        //             trigger: trg,
+        //             href: trg.href || elDataMap['href'],
+        //             panel: callingPanel
+        //         }, elDataMap));
+        //     })
+        // });
 
         [...panel.querySelectorAll('.tst__button:not(.external)')].forEach(el => {
             this.listen(el, 'click', e => {
