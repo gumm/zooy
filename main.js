@@ -2428,20 +2428,21 @@ const renderIconToggleButtons = function (panel) {
 const renderDataTables = function (panel) {
     [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
         const dataTable = new mdc.dataTable.MDCDataTable(el);
-        const trigger = panel.querySelector('.bulk-update-trigger');
-
-        this.listen(trigger, 'click', e => {
-            e.stopPropagation();
-            const selectedRows = dataTable.getSelectedRowIds();
-            const trg = e.currentTarget;
-            const elDataMap = getElDataMap(trg);
-            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-                orgEvt: e,
-                trigger: trg,
-                href: trg.href || elDataMap['href'],
-                selectedRows: selectedRows
-            }, elDataMap));
-        });
+        el.dataTable = dataTable;
+        // const trigger = panel.querySelector('.bulk-update-trigger');
+        //
+        // this.listen(trigger, 'click', e => {
+        //     e.stopPropagation();
+        //     const selectedRows = dataTable.getSelectedRowIds();
+        //     const trg = e.currentTarget;
+        //     const elDataMap = getElDataMap(trg);
+        //     this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        //         orgEvt: e,
+        //         trigger: trg,
+        //         href: trg.href || elDataMap['href'],
+        //         selectedRows: selectedRows
+        //     }, elDataMap));
+        // });
     });
 };
 
