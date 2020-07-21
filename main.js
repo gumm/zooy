@@ -2428,6 +2428,36 @@ const renderIconToggleButtons = function (panel) {
 const renderDataTables = function (panel) {
     [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
         el.dataTable = new mdc.dataTable.MDCDataTable(el);
+
+        // [...el.querySelectorAll('.mdc-data-table__row')].forEach(r => {
+        //     this.listen(r, 'dblclick', e => {
+        //         e.stopPropagation();
+        //         const trg = e.currentTarget;
+        //         const elDataMap = getElDataMap(trg);
+        //         this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+        //             orgEvt: e,
+        //             trigger: trg,
+        //             href: trg.href || elDataMap['href']
+        //         }, elDataMap));
+        //     });
+        // });
+
+        [...el.querySelectorAll('.mdc-data-table__row')].forEach(r => {
+            this.listen(r, 'click', e => {
+                const triggeredElement = e.target;
+                const checkboxController = "mdc-checkbox__native-control";
+                if (!triggeredElement.classList.contains(checkboxController)) {
+                    e.stopPropagation();
+                    const trg = e.currentTarget;
+                    const elDataMap = getElDataMap(trg);
+                    this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+                        orgEvt: e,
+                        trigger: trg,
+                        href: trg.href || elDataMap['href']
+                    }, elDataMap));
+                }
+            });
+        });
     });
 };
 
@@ -2967,7 +2997,6 @@ class Panel extends Component {
         [...panel.querySelectorAll('.tst__button:not(.external)')].forEach(el => {
             this.listen(el, 'click', e => {
                 e.stopPropagation();
-                console.log(e);
                 const trg = e.currentTarget;
                 const elDataMap = getElDataMap(trg);
                 this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
@@ -3012,20 +3041,6 @@ class Panel extends Component {
                 }, elDataMap));
             });
 
-        });
-
-        [...panel.querySelectorAll('.mdc-data-table__row')].forEach(row => {
-            this.listen(row, 'click', e => {
-                console.log(e);
-                e.stopPropagation();
-                const trg = row.currentTarget;
-                const elDataMap = getElDataMap(trg);
-                this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-                    orgEvt: row,
-                    trigger: trg,
-                    href: trg.href || elDataMap['href'],
-                }, elDataMap));
-            });
         });
 
         // Get all accordion elements in the panel and add required functionality.
@@ -3136,8 +3151,7 @@ class Panel extends Component {
         // However, note that the async populate is async, and my thus not be
         // completed by the time this fires.
         super.enterDocument();
-    }
-    ;
+    };
 
     /**
      * @param {boolean} bool
@@ -3148,8 +3162,7 @@ class Panel extends Component {
         if (this.redirected && url) {
             this.uri_ = url;
         }
-    }
-    ;
+    };
 
     //-------------------------------------------------------[ Built in events ]--
     /**
@@ -3173,8 +3186,7 @@ class Panel extends Component {
         const event = EVT.makeEvent(UiEventType.PANEL, dataObj);
         this.debugMe('PANEL EVENT FIRED. Value:', value, 'Opt DATA:', opt_data);
         return this.dispatchEvent(event);
-    }
-    ;
+    };
 
 }
 
