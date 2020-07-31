@@ -2669,6 +2669,7 @@ const renderSelectMenus = function (panel) {
     };
 
     [...panel.querySelectorAll('.mdc-select')].forEach(e => {
+
         const menuUl = e.querySelector('ul.mdc-list');
         const menuSurfaceEl = e.querySelector('.mdc-select__menu');
         const htmSelectField = e.querySelector('select');
@@ -2684,7 +2685,7 @@ const renderSelectMenus = function (panel) {
 
         // Get a handle on the menu component, as we want
         // to listen for when it opens.
-        const menu = mdcSelect.menu_;
+        const menu = mdcSelect.menu;
         menu.setFixedPosition(true);
 
         // We park some accessors on the select field itself
