@@ -100,7 +100,6 @@ export const renderIconToggleButtons = function (panel) {
 
 export const renderDataTables = function (panel) {
     const checkboxController = "mdc-checkbox__native-control";
-
     [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
         el.dataTable = new mdc.dataTable.MDCDataTable(el);
 
