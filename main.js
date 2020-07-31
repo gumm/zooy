@@ -3048,6 +3048,44 @@ class Panel extends Component {
             });
         });
 
+        // Get all MDC Data Table components on the panel,
+        // determine if the row selectors are active, and conditionally show/hide the
+        // Bulk Update / Bulk Create buttons based on the current row selections.
+        [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
+            const bulkControllers = panel.querySelectorAll('.bulk_controller');
+            // Do not show the control buttons on render. No rows are selected on component initialisation.
+            if (bulkControllers) {
+                bulkControllers.forEach(el => {
+                    el.style.display = "none";
+                });
+            }
+
+            this.listen(el, 'MDCDataTable:rowSelectionChanged', e => {
+                let selectedRows = el.dataTable.getSelectedRowIds().length;
+                if (selectedRows === 0) {
+                    bulkControllers.forEach(el => {
+                        el.style.display = "none";
+                    });
+                } else {
+                    bulkControllers.forEach(el => {
+                        el.style.display = "block";
+                    });
+                }
+            });
+
+            this.listen(el, 'MDCDataTable:selectedAll', e => {
+                bulkControllers.forEach(el => {
+                    el.style.display = "block";
+                });
+            });
+
+            this.listen(el, 'MDCDataTable:unselectedAll', e => {
+                bulkControllers.forEach(el => {
+                    el.style.display = "none";
+                });
+            });
+        });
+
         //-----------------------------------------------------------[ Drag Drop ]--
         const dropEls = Array.from(panel.querySelectorAll('.folder_drop_zone'));
         const dragEls = Array.from(panel.querySelectorAll('[draggable]'));
