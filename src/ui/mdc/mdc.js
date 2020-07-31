@@ -99,26 +99,14 @@ export const renderIconToggleButtons = function (panel) {
 };
 
 export const renderDataTables = function (panel) {
+    const checkboxController = "mdc-checkbox__native-control";
+
     [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
         el.dataTable = new mdc.dataTable.MDCDataTable(el);
-
-        // [...el.querySelectorAll('.mdc-data-table__row')].forEach(r => {
-        //     this.listen(r, 'dblclick', e => {
-        //         e.stopPropagation();
-        //         const trg = e.currentTarget;
-        //         const elDataMap = getElDataMap(trg);
-        //         this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-        //             orgEvt: e,
-        //             trigger: trg,
-        //             href: trg.href || elDataMap['href']
-        //         }, elDataMap));
-        //     });
-        // });
 
         [...el.querySelectorAll('.mdc-data-table__row')].forEach(r => {
             this.listen(r, 'click', e => {
                 const triggeredElement = e.target;
-                const checkboxController = "mdc-checkbox__native-control";
                 if (!triggeredElement.classList.contains(checkboxController)) {
                     e.stopPropagation();
                     const trg = e.currentTarget;
