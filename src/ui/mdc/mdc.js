@@ -101,7 +101,26 @@ export const renderIconToggleButtons = function (panel) {
 export const renderDataTables = function (panel) {
     const checkboxController = "mdc-checkbox__native-control";
     [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
-        el.dataTable = new mdc.dataTable.MDCDataTable(el);
+        const dataTable = new mdc.dataTable.MDCDataTable(el);
+        dataTable.onSomeSelected = () => {};
+        dataTable.onNoneSelected = () => {};
+        el.dataTable = dataTable;
+
+        const onSelections = () => {
+            const selectedRowCount = dataTable.getSelectedRowIds().length
+            if (selectedRowCount === 0) {
+                dataTable.onNoneSelected();
+            } else {
+                dataTable.onSomeSelected();
+            }
+        }
+
+        ['MDCDataTable:rowSelectionChanged',
+            'MDCDataTable:selectedAll',
+            'MDCDataTable:unselectedAll'
+        ].forEach(eventString => {
+            this.listen(el, eventString, onSelections);
+        });
 
         [...el.querySelectorAll('.mdc-data-table__row')].forEach(r => {
             this.listen(r, 'click', e => {
