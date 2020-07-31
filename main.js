@@ -2456,7 +2456,12 @@ const renderTabBars = function (panel) {
     [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
         const tbar = new mdc.tabBar.MDCTabBar(el);
         this.listen(el, 'MDCTabBar:activated', e => {
-            const trg = tbar.tabList_[e.detail.index].root_;
+
+            // console.log(tbar.tabList_)
+            // console.log(e.detail.index)
+            // console.log(tbar.tabList_[e.detail.index])
+
+            const trg = tbar.tabList_[e.detail.index].root;
             const elDataMap = getElDataMap(trg);
             this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
                 orgEvt: e,
@@ -2498,7 +2503,7 @@ const renderChips = function (panel) {
         const chipSet = mdc.chips.MDCChipSet.attachTo(el);
         chipSet.listen('MDCChip:interaction', e => {
             const chip = chipSet.chips.find(c => c.id === e.detail.chipId);
-            const trg = chip.root_;
+            const trg = chip.root;
             const elDataMap = getElDataMap(trg);
             this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
                 orgEvt: e,
