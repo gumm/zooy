@@ -34,6 +34,13 @@ const boolMap = new Map()
     .set('false', false);
 
 
+/**
+ * @param {*} e
+ * @returns {*}
+ */
+const identity = e => e;
+
+
 //---------------------------------------------------------------[ Questions ]--
 /**
  * @param {*} x
@@ -935,7 +942,14 @@ const mapDataToEls = (rootEl, json) => {
               v = undefined;
             }
             break;
+          case 'pretty-json':
+            v = JSON.stringify(v, null, 4);
+            break;
+          default:
             // Do nothing;
+            // We add this identity func else rollup strips the default
+            // clause
+            v = identity(v);
         }
       }
     }
@@ -957,7 +971,7 @@ const mapDataToEls = (rootEl, json) => {
       }
     }
 
-    if (v) {
+    if (isDefAndNotNull(v)) {
       el.innerHTML = v + units;
     }
   });
