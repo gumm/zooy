@@ -3085,14 +3085,13 @@ class Panel extends Component {
     });
 
     // Get all accordion elements in the panel and add required functionality.
-    [...panel.querySelectorAll('.accordion_toggle')].forEach(el => {
+    [...panel.querySelectorAll('.tst__toggle_class_driver')].forEach(
+        el => {
       el.addEventListener("click", () => {
-        const accordionPanel = el.nextElementSibling;
-        if (accordionPanel.style.maxHeight) {
-          accordionPanel.style.maxHeight = null;
-        } else {
-          accordionPanel.style.maxHeight = accordionPanel.scrollHeight + "px";
-        }
+        const p = el.parentElement;
+        const accordionPanel = p.querySelector('.accordion_toggle_panel');
+        console.log(p, accordionPanel);
+        accordionPanel.classList.toggle('closed');
       });
     });
 
