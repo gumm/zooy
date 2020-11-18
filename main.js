@@ -3090,7 +3090,6 @@ class Panel extends Component {
       el.addEventListener("click", () => {
         const p = el.parentElement;
         const accordionPanel = p.querySelector('.accordion_toggle_panel');
-        console.log(p, accordionPanel);
         accordionPanel.classList.toggle('closed');
       });
     });
