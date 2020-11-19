@@ -315,15 +315,20 @@ class Panel extends Component {
 
     });
 
-    // Get all accordion elements in the panel and add required functionality.
+    // Get all elements with class swapping functionality.
     [...panel.querySelectorAll('.tst__toggle_class_driver')].forEach(
         el => {
-      el.addEventListener("click", () => {
-        const p = el.parentElement;
-        const accordionPanel = p.querySelector('.accordion_toggle_panel');
-        accordionPanel.classList.toggle('closed')
-      });
-    });
+          const elDataMap = getElDataMap(el);
+          const toggleTarget = elDataMap['toggle_class_target_id'];
+          const toggleClass = elDataMap['toggle_class'];
+          const targetEl = panel.querySelector(`#${toggleTarget}`)
+          if (targetEl && toggleClass) {
+            el.addEventListener('click', e => {
+              e.stopPropagation();
+              targetEl.classList.toggle(toggleClass);
+            });
+          }
+        });
 
     //-----------------------------------------------------------[ Drag Drop ]--
     const dropEls = Array.from(panel.querySelectorAll('.folder_drop_zone'));
