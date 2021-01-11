@@ -348,6 +348,8 @@ export const mapDataToEls = (rootEl, json) => {
     if (isDefAndNotNull(v)) {
       if (parseAs) {
         switch (parseAs) {
+          case 'class_update_only':
+            break;
           case 'obfuscated':
             /**
              * @param {string} s
@@ -414,7 +416,7 @@ export const mapDataToEls = (rootEl, json) => {
       }
     }
 
-    if (isDefAndNotNull(v)) {
+    if (isDefAndNotNull(v) && parseAs !== 'class_update_only') {
       el.innerHTML = v + units
     }
   });

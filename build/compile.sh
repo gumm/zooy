@@ -33,17 +33,18 @@ ES6=(
 
 DEV=(
   "--language_in=ES6_Strict"
-  "--language_out=ES5_Strict"
+  "--language_out=ES6_Strict"
   "--compilation_level=ADVANCED"
 #  "--js_output_file=dist/dag-solve.min.js"
-  "--hide_warnings_for=node_modules"
+#  "--hide_warnings_for=node_modules"
 #  "--dependency_mode=STRICT"
-  "--entry_point=main.js"
+  "--entry_point=src/ui/split.js"
 #  "node_modules/!(test)**/!(test).js"
   "node_modules/badu/badu.js"
+  "node_modules/material-components-web/dist/material-components-web.js"
 #  "node_modules/moment/src/moment.js"
-  "src/**.js"
-  "main.js"
+  "'src/**.js'"
+#  "ui/split.js"
 )
 
 if [[ "${BUILD}" == "es5" ]]; then
@@ -54,9 +55,9 @@ else
     BLD=${DEV[*]}
 fi
 
-shopt -s extglob globstar
-set -ex
-java -jar node_modules/google-closure-compiler-java/compiler.jar $(echo ${BLD[*]})
+#shopt -s extglob globstar
+#set -ex
+node_modules/google-closure-compiler-linux/compiler $(echo ${BLD[*]})
 
 #rm dist/_temp.js
 echo "Done"
