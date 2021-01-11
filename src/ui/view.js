@@ -56,7 +56,7 @@ const openTreeFromNodeUp = (panel, n) => {
 /**
  * Determine if an element is in the viewport
  * @param  {Node} parent The element
- * @return {function} Returns true if element is in the viewport
+ * @return {Function} Returns true if element is in the viewport
  */
 const needsToScroll = parent => {
   const parentRect = parent.getBoundingClientRect();
