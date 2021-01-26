@@ -968,8 +968,11 @@ const mapDataToEls = (rootEl, json) => {
             el.classList.remove(...[...el.classList].filter(
                 e => e.includes(oldClassName)));
             el.classList.add(newClass);
+            break;
+          case 'remove_on_data':
+            el.classList.remove(name);
+            break;
         }
-
       }
     }
 
