@@ -61,10 +61,17 @@ export const renderIconButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-button:not(.mdc-icon-toggle)')].forEach(el => {
     const b = new mdc.ripple.MDCRipple(el);
     b.unbounded = true;
+
     this.listen(el, 'click', e => {
-      e.stopPropagation();
       const trg = e.currentTarget;
       const elDataMap = getElDataMap(trg);
+      const propageEvent = elDataMap['evpropagate'] || ''
+
+      if (propageEvent.toLowerCase() === "allow") {
+        // Allow propagation
+      } else {
+        e.stopPropagation();
+      }
       this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
         orgEvt: e,
         trigger: trg,
