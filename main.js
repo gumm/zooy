@@ -3045,7 +3045,7 @@ class Panel extends Component {
       });
     }
 
-    [...panel.querySelectorAll('.tst__button:not(.external)')].forEach(el => {
+    [...panel.querySelectorAll('.tst__button:not(.external):not(.mdc-data-table__row)')].forEach(el => {
       this.listen(el, 'click', e => {
         e.stopPropagation();
         const trg = e.currentTarget;

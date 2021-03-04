@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "2.9.3",
+  "version": "2.10.0",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
