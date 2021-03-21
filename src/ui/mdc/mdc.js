@@ -1,5 +1,6 @@
 import {getElDataMap} from "../../dom/utils.js";
 import {select, tabBar} from "material-components-web/index";
+import {toLowerCase} from "badu/badu";
 
 
 /**
@@ -114,9 +115,12 @@ export const renderDataTables = function(panel) {
     // all across all pages.
     dataTable.selectedAllAcrossPages = false;
 
-    dataTable.onSomeSelected = () => {};
-    dataTable.onNoneSelected = () => {};
-    dataTable.onAllSelected = () => {};
+    dataTable.onSomeSelected = () => {
+    };
+    dataTable.onNoneSelected = () => {
+    };
+    dataTable.onAllSelected = () => {
+    };
     dataTable.toggleSelectAcrossPages = () => {
       dataTable.selectedAllAcrossPages = !dataTable.selectedAllAcrossPages;
       return dataTable.selectedAllAcrossPages;
@@ -266,6 +270,49 @@ export const renderMenus = function(panel) {
             href: trg.href || elDataMap['href'],
           }, elDataMap));
         });
+
+        if (menuEl.classList.contains('z2-filter-on-keydown')) {
+          const reset = () => {
+            filterWord = '';
+            menu.items.forEach(e => e.classList.remove('hidden_list_item'));
+          }
+          const nameTargets = [...menu.items].map(e => toLowerCase(
+              e.querySelector('.mdc-list-item__text').textContent));
+          let filterWord = '';
+          const wordCodes = 'abcdefghijklmnopqrstuvwxyz0123456789 -_';
+          const filterMenuOnTyping = e => {
+            const key = toLowerCase(e.key);
+            if (e.defaultPrevented) {
+              return; // Do nothing if the event was already processed
+            }
+            if (wordCodes.includes(key)) {
+              filterWord = `${filterWord}${key}`;
+            } else if (key === "escape") {
+              reset();
+            } else if (key === "backspace") {
+              filterWord = filterWord.slice(0, -1);
+            }
+            if (filterWord !== "") {
+              nameTargets.forEach((target, i) => {
+                if (target.includes(filterWord)) {
+                  menu.items[i].classList.remove('hidden_list_item');
+                } else {
+                  menu.items[i].classList.add('hidden_list_item');
+                }
+              });
+            }
+          }
+          menu.listen('MDCMenuSurface:closed', e => {
+            reset();
+            document.removeEventListener(
+                'keydown', filterMenuOnTyping, true);
+          })
+          menu.listen('MDCMenuSurface:opened', e => {
+            reset();
+            document.addEventListener(
+                'keydown', filterMenuOnTyping, true);
+          })
+        }
 
         // Toggle the menu open or closed from the anchor element.
         menuButtonEl.addEventListener('click', e => {
