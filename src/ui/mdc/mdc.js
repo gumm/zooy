@@ -400,7 +400,8 @@ export const renderTextFieldIcons = function(panel) {
 export const renderSelectMenus = function(panel) {
   // Build the select menu items from the actual select options.
   // This just builds the DOM.
-  const menuBuilder = (menuUl, htmSelectField) => () => {
+  const menuBuilder = (menuUl, htmSelectField, mdcSelect) => () => {
+
     while (menuUl.firstChild) {
       menuUl.removeChild(menuUl.lastChild);
     }
@@ -418,6 +419,19 @@ export const renderSelectMenus = function(panel) {
       li.appendChild(span);
       menuUl.appendChild(li)
     })
+
+    mdcSelect.layoutOptions();
+
+    // Match the selected indexes, and listen for changes on the MDC component
+    // so we can update the real form component.
+    try {
+      mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
+    } catch (e) {
+      console.log("Error:",
+          htmSelectField.options.selectedIndex,
+          htmSelectField, mdcSelect,
+          mdcSelect.selectedIndex, e);
+    }
   };
 
   // Calculate the fixed position and maxHeight of the menu surface.
@@ -450,38 +464,23 @@ export const renderSelectMenus = function(panel) {
     // This adds the elements to the DOM
     const mdcSelect = new mdc.select.MDCSelect(e);
 
-    // Get a handle on the menu component, as we want
-    // to listen for when it opens.
-    const menu = mdcSelect.menu;
-    menu.setFixedPosition(true);
-
     // We park some accessors on the select field itself
     // This is so that we can manipulate the dropdowns from the outside i.e
     // if you would like the dropdown to dynamically update depending
     // on some other event.
-    const mb = menuBuilder(menuUl, htmSelectField);
-    htmSelectField.buildMenu = () => {
-      mb();
-      try {
-        mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
-      } catch (e) {
-        console.log("Error:",
-            htmSelectField, mdcSelect,
-            mdcSelect.selectedIndex,
-            htmSelectField.options.selectedIndex, e);
-      }
-    }
+    htmSelectField.buildMenu = menuBuilder(menuUl, htmSelectField, mdcSelect);
     htmSelectField.buildMenu();
-
-    // Match the selected indexes, and listen for changes on the MDC component
-    // so we can update the real form component.
-    mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
 
     // This fires twice for some reason :(
     mdcSelect.listen('MDCSelect:change', () => {
       htmSelectField.options[mdcSelect.selectedIndex].selected = true;
       htmSelectField.dispatchEvent(new Event('custom:select:change'));
     });
+
+    // Get a handle on the menu component, as we want
+    // to listen for when it opens.
+    const menu = mdcSelect.menu;
+    menu.setFixedPosition(true);
 
     // Wholly override all css on the menu surface each time it opens.
     menu.listen('MDCMenuSurface:opened', calcPos);
