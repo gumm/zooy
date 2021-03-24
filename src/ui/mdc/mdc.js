@@ -466,7 +466,10 @@ export const renderSelectMenus = function(panel) {
       try {
         mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
       } catch (e) {
-        console.log("Error:", e);
+        console.log("Error:",
+            htmSelectField, mdcSelect,
+            mdcSelect.selectedIndex,
+            htmSelectField.options.selectedIndex, e);
       }
     }
     htmSelectField.buildMenu();
