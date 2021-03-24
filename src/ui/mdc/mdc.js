@@ -271,6 +271,11 @@ export const renderMenus = function(panel) {
           }, elDataMap));
         });
 
+        // Toggle the menu open or closed from the anchor element.
+        menuButtonEl.addEventListener('click', e => {
+          return menu.open = !menu.open
+        });
+
         if (menuEl.classList.contains('z2-filter-on-keydown')) {
           const reset = () => {
             filterWord = '';
@@ -314,10 +319,6 @@ export const renderMenus = function(panel) {
           })
         }
 
-        // Toggle the menu open or closed from the anchor element.
-        menuButtonEl.addEventListener('click', e => {
-          return menu.open = !menu.open
-        });
       });
 };
 
@@ -400,6 +401,7 @@ export const renderSelectMenus = function(panel) {
   // Build the select menu items from the actual select options.
   // This just builds the DOM.
   const menuBuilder = (menuUl, htmSelectField) => () => {
+    console.log('Building Menu...');
     while (menuUl.firstChild) {
       menuUl.removeChild(menuUl.lastChild);
     }
@@ -464,7 +466,7 @@ export const renderSelectMenus = function(panel) {
       try {
         mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
       } catch (e) {
-        //  No op.
+        console.log("Error:", e);
       }
     }
     htmSelectField.buildMenu();
