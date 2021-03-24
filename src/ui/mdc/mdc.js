@@ -401,7 +401,6 @@ export const renderSelectMenus = function(panel) {
   // Build the select menu items from the actual select options.
   // This just builds the DOM.
   const menuBuilder = (menuUl, htmSelectField) => () => {
-    console.log('Building Menu...');
     while (menuUl.firstChild) {
       menuUl.removeChild(menuUl.lastChild);
     }
