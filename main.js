@@ -4795,7 +4795,8 @@ class View extends EVT {
               landOn,
               landOnPk,
               displayAs,
-              href
+              href,
+              eventData
             }, ePanel);
           } else {
             this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
