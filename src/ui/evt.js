@@ -1,4 +1,4 @@
-import { isDef, makeRandomString, } from "../../node_modules/badu/badu.js";
+import { isDef, makeRandomString, } from "badu";
 
 /*
 EVENT LISTENER LEAK DETECTOR

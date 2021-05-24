@@ -4,15 +4,13 @@ import {
   evalModules,
   splitScripts,
   getElDataMap,
-  enableClass,
   formToJSON,
 } from '../dom/utils.js';
 import {
   isDefAndNotNull,
   isNumber,
-  toUpperCase,
   toNumber
-} from '../../node_modules/badu/badu.js';
+} from 'badu';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';

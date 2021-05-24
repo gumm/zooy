@@ -1,7 +1,7 @@
 import Panel from './panel.js';
 import {UiEventType} from '../events/uieventtype.js';
 import {replaceNode, splitScripts} from '../dom/utils.js'
-import {isDefAndNotNull, whatType} from '../../node_modules/badu/badu.js';
+import {isDefAndNotNull, whatType} from 'badu';
 
 
 /** @typedef {{

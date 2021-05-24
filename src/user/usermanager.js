@@ -1,6 +1,6 @@
 import {getPath} from '../uri/uri.js';
 import {handleTemplateProm} from '../dom/utils.js'
-import {stripLeadingChar} from '../../node_modules/badu/badu.js';
+import {stripLeadingChar} from 'badu';
 
 const stripLeadingSpace = stripLeadingChar(' ');
 const stripLeadingSlash = stripLeadingChar('/');

@@ -3,7 +3,7 @@
  *
  */
 
-import { randomId } from '../../node_modules/badu/badu.js';
+import { randomId } from 'badu';
 
 /**
  * Constants for panel event.

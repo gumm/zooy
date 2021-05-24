@@ -6,7 +6,7 @@ import {
   randomId,
   isDefAndNotNull,
   maybeFunc,
-} from '../../node_modules/badu/badu.js';
+} from 'badu';
 import {randomColour,} from '../dom/utils.js';
 import {EV,} from '../events/mouseandtouchevents.js';
 import EVT from "./evt.js";

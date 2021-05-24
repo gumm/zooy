@@ -6,7 +6,7 @@ import {
   isNumber,
   toNumber,
   pathOr
-} from '../../node_modules/badu/badu.js'
+} from "badu";
 
 /**
  * Gets the current value of a checkable input element.

@@ -1,6 +1,6 @@
 import {getElDataMap} from "../../dom/utils.js";
 import {select, tabBar} from "material-components-web/index";
-import {toLowerCase} from "badu/badu";
+import {toLowerCase} from "badu";
 
 
 /**
