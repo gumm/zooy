@@ -420,7 +420,7 @@ class Panel extends Component {
             this.doOnBeat(() => {
               this.user.fetchAndSplit(href)
                   .then(data => {
-                    el.replaceChildren(data.html)
+                    el.replaceChildren(data.html);
                     this.parseContent(el);
                     this.evalScripts(data.scripts);
                     this.evalModules(data.modules);
