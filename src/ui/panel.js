@@ -230,7 +230,8 @@ class Panel extends Component {
 
     this.debugMe('Enable interactions. Panel:', panel);
 
-    if (isDefAndNotNull(window.mdc) && window.mdc.hasOwnProperty('autoInit')) {
+    if (isDefAndNotNull(window.mdc) &&
+        window.mdc.hasOwnProperty('autoInit')) {
       renderRipples.call(this, panel);
       renderButtons.call(this, panel);
       renderFloatingActionButtons.call(this, panel);
@@ -264,18 +265,20 @@ class Panel extends Component {
       })
     }
 
-    [...panel.querySelectorAll('.tst__button:not(.external):not(.mdc-data-table__row)')].forEach(el => {
-      this.listen(el, 'click', e => {
-        e.stopPropagation();
-        const trg = e.currentTarget;
-        const elDataMap = getElDataMap(trg);
-        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-          orgEvt: e,
-          trigger: trg,
-          href: trg.href || elDataMap['href'],
-        }, elDataMap));
-      });
-    });
+    [...panel.querySelectorAll(
+        '.tst__button:not(.external):not(.mdc-data-table__row)')].forEach(
+        el => {
+          this.listen(el, 'click', e => {
+            e.stopPropagation();
+            const trg = e.currentTarget;
+            const elDataMap = getElDataMap(trg);
+            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+              orgEvt: e,
+              trigger: trg,
+              href: trg.href || elDataMap['href'],
+            }, elDataMap));
+          });
+        });
 
     // Hijack elements with a straight-up 'href' attribute.
     // Make them emit a 'href' event with the original
@@ -364,7 +367,9 @@ class Panel extends Component {
       e.stopPropagation();
       let data = JSON.parse(e.dataTransfer.getData('text/plain'));
       let o = getElDataMap(e.target);
-      this.dispatchPanelEvent('drop_on', {custom: {'on': o, 'from': data}});
+      this.dispatchPanelEvent('drop_on', {
+        custom: {'on': o, 'from': data}
+      });
       return false;
     };
 
