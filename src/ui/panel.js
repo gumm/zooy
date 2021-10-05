@@ -225,6 +225,9 @@ class Panel extends Component {
   };
 
   //--------------------------------------------------------[ JSON Render ]-----
+  /**
+   * @param {Element} panel
+   */
   parseContent(panel) {
     // If we are in an environment where MDC is used.
 

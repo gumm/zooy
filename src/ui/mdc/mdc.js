@@ -1,11 +1,12 @@
+import * as mdc from 'material-components-web';
+
 import {getElDataMap} from "../../dom/utils.js";
-import {select, tabBar} from "material-components-web/index";
 import {toLowerCase} from "badu";
 
 
 /**
  * {@link https://material.io/develop/web/components/ripples/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderRipples = function(panel) {
   [...panel.querySelectorAll('.mdc-ripple-surface')].forEach(
@@ -15,7 +16,7 @@ export const renderRipples = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/buttons/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-button')].forEach(el => {
@@ -35,7 +36,7 @@ export const renderButtons = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/buttons/floating-action-buttons/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderFloatingActionButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-fab')].forEach(el => {
@@ -56,7 +57,7 @@ export const renderFloatingActionButtons = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/buttons/icon-buttons/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderIconButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-button:not(.mdc-icon-toggle)')].forEach(el => {
@@ -85,7 +86,7 @@ export const renderIconButtons = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/buttons/icon-buttons/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderIconToggleButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
@@ -173,7 +174,7 @@ export const renderDataTables = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/tabs/tab-bar/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderTabBars = function(panel) {
   [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
@@ -193,7 +194,7 @@ export const renderTabBars = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/switches/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderSwitches = function(panel) {
   [...panel.querySelectorAll('.mdc-switch')].forEach(el => {
@@ -214,7 +215,7 @@ export const renderSwitches = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/chips/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderChips = function(panel) {
   [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
@@ -236,7 +237,7 @@ export const renderChips = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/menu-surface/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderMenuSurfaces = function(panel) {
   [...panel.querySelectorAll('.mdc-menu-surface')].forEach(
@@ -246,7 +247,7 @@ export const renderMenuSurfaces = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/menus/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderMenus = function(panel) {
   [...panel.querySelectorAll('.mdc-menu-surface--anchor:not(.mdc-select__menu)')].forEach(
@@ -325,7 +326,7 @@ export const renderMenus = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/lists/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderLists = function(panel) {
   [...panel.querySelectorAll('.mdc-list:not(.mdc-menu__items)')].forEach(el => {
@@ -345,7 +346,7 @@ export const renderLists = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/sliders/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderSliders = function(panel) {
   [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
@@ -361,7 +362,7 @@ export const renderSliders = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/linear-progress/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderLinearProgress = function(panel) {
   [...panel.querySelectorAll('.mdc-linear-progress')].forEach(el => {
@@ -372,7 +373,7 @@ export const renderLinearProgress = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/text-field/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderTextFields = function(panel) {
   [...panel.querySelectorAll('.mdc-text-field')].forEach(
@@ -383,7 +384,7 @@ export const renderTextFields = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/text-field/icon/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderTextFieldIcons = function(panel) {
   [...panel.querySelectorAll('.mdc-text-field-icon')].forEach(
@@ -490,7 +491,7 @@ export const renderSelectMenus = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/form-fields/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderFormFields = function(panel) {
   [...panel.querySelectorAll(
@@ -501,7 +502,7 @@ export const renderFormFields = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/radio-buttons/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderRadioButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-form-field.for-radio')].forEach(ff => {
@@ -515,7 +516,7 @@ export const renderRadioButtons = function(panel) {
 
 /**
  * {@link https://material.io/develop/web/components/input-controls/checkboxes/}
- * @param {Panel} panel
+ * @param {Element} panel
  */
 export const renderCheckBoxes = function(panel) {
   [...panel.querySelectorAll('.mdc-form-field.for-checkbox')].forEach(ff => {
