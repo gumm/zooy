@@ -283,7 +283,7 @@ export const renderMenus = function(panel) {
             menu.items.forEach(e => e.classList.remove('hidden_list_item'));
           }
           const nameTargets = [...menu.items].map(e => toLowerCase(
-              e.querySelector('.mdc-list-item__text').textContent));
+              e.querySelector('.mdc-deprecated-list-item__text').textContent));
           let filterWord = '';
           const wordCodes = 'abcdefghijklmnopqrstuvwxyz0123456789 -_';
           const filterMenuOnTyping = e => {
@@ -329,7 +329,7 @@ export const renderMenus = function(panel) {
  * @param {Element} panel
  */
 export const renderLists = function(panel) {
-  [...panel.querySelectorAll('.mdc-list:not(.mdc-menu__items)')].forEach(el => {
+  [...panel.querySelectorAll('.mdc-deprecated-list:not(.mdc-menu__items)')].forEach(el => {
     const list = new mdc.list.MDCList(el);
     list.listElements.forEach(mdc.ripple.MDCRipple.attachTo);
     this.listen(el, 'click', e => {
@@ -394,37 +394,53 @@ export const renderTextFieldIcons = function(panel) {
 
 
 /**
- * This whole thing is perfectly horrible!
+ * Build a select menu from a hidden HTML Select element, making sure that
+ * there is bi-directional updates of the components.
+ * This also hoist the select menu surface to the body element on the
+ * document, so we are free from overflow issues.
+ *
  * {@link https://material.io/develop/web/components/input-controls/select-menus/}
  * @param {HTMLElement} panel
+ * @param {Component} panelComp
  */
-export const renderSelectMenus = function(panel) {
-  // Build the select menu items from the actual select options.
+export const renderSelectMenus = function(panel, panelComp) {
+
   // This just builds the DOM.
+  const htmlSelectToMdcSelectDom = e => {
+    const li = document.createElement('li');
+    li.classList.add('mdc-deprecated-list-item');
+    li.dataset.value = e.value;
+
+    const ripSpan = document.createElement('span');
+    ripSpan.classList.add('mdc-deprecated-list-item__ripple');
+    li.appendChild(ripSpan);
+
+    const span = document.createElement('span');
+    span.classList.add('mdc-deprecated-list-item__text');
+    span.textContent = e.textContent;
+    li.appendChild(span);
+
+    if (e.selected) {
+      li.classList.add('mdc-deprecated-list-item--selected');
+    }
+
+    return li;
+  }
+
+
   const menuBuilder = (menuUl, htmSelectField, mdcSelect) => () => {
 
+    // First clear anything in the menu.
     while (menuUl.firstChild) {
       menuUl.removeChild(menuUl.lastChild);
     }
-    [...htmSelectField.options].forEach(e => {
-      const li = document.createElement('li');
-      li.classList.add('mdc-list-item');
-      li.dataset.value = e.value;
-      if (e.selected) {
-        li.classList.add('mdc-list-item--selected');
-      }
-      const span = document.createElement('span');
-      span.classList.add('mdc-list-item__text');
-      span.classList.add('z2-list-item-text');
-      span.textContent = e.textContent;
-      li.appendChild(span);
-      menuUl.appendChild(li)
-    })
-
-    mdcSelect.layoutOptions();
+    [...htmSelectField.options].forEach(
+        e => menuUl.appendChild(htmlSelectToMdcSelectDom(e))
+    )
 
     // Match the selected indexes, and listen for changes on the MDC component
     // so we can update the real form component.
+    mdcSelect.layoutOptions();
     try {
       mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
     } catch (e) {
@@ -435,31 +451,10 @@ export const renderSelectMenus = function(panel) {
     }
   };
 
-  // Calculate the fixed position and maxHeight of the menu surface.
-  const calculatePosition = (anchorEl, toolbarEl) => e => {
-    const el = e.target;
-    const rect = anchorEl.getBoundingClientRect();
-    const rect2 = toolbarEl.getBoundingClientRect();
-    const vh = Math.max(
-        document.documentElement.clientHeight,
-        window.innerHeight || 0);
-    const max = vh - rect.bottom - 20;  // Give some space at
-                                        // the bottom of the page
-    const top = rect.bottom - rect2.top;
-    const left = rect.left - rect2.left;
-    el.style.cssText = `max-height:${max}px;position:fixed;top:${top}px;left:${left}px;`;
-  }
-
   [...panel.querySelectorAll('.mdc-select')].forEach(e => {
 
-    const menuUl = e.querySelector('ul.mdc-list');
-    const menuSurfaceEl = e.querySelector('.mdc-select__menu');
+    const menuUl = e.querySelector('ul.mdc-deprecated-list');
     const htmSelectField = e.querySelector('select');
-
-    // We need to control the position of the menu surface.
-    const anchorEl = e.querySelector('.mdc-select__anchor');
-    const toolbarEl = panel.querySelector('.tst__toolbar');
-    const calcPos = calculatePosition(anchorEl, toolbarEl);
 
     // Instantiate the MDCSelect component.
     // This adds the elements to the DOM
@@ -472,19 +467,20 @@ export const renderSelectMenus = function(panel) {
     htmSelectField.buildMenu = menuBuilder(menuUl, htmSelectField, mdcSelect);
     htmSelectField.buildMenu();
 
+    // Get a handle on the menu component, as we want
+    // to listen for when it opens.
+    const menu = mdcSelect.menu;
+
+    // Hoist the surface element.
+    panelComp.hoist(menu.menuSurface.root)
+    menu.setIsHoisted(true);
+
     // This fires twice for some reason :(
     mdcSelect.listen('MDCSelect:change', () => {
       htmSelectField.options[mdcSelect.selectedIndex].selected = true;
       htmSelectField.dispatchEvent(new Event('custom:select:change'));
     });
 
-    // Get a handle on the menu component, as we want
-    // to listen for when it opens.
-    const menu = mdcSelect.menu;
-    menu.setFixedPosition(true);
-
-    // Wholly override all css on the menu surface each time it opens.
-    menu.listen('MDCMenuSurface:opened', calcPos);
   });
 
 };

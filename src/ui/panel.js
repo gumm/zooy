@@ -249,7 +249,7 @@ class Panel extends Component {
       renderSliders.call(this, panel);
       renderLinearProgress.call(this, panel);
       renderFormFields.call(this, panel);
-      renderSelectMenus.call(this, panel);
+      renderSelectMenus.call(this, panel, this);
       renderTextFieldIcons.call(this, panel);
       renderTextFields.call(this, panel);
       renderRadioButtons.call(this, panel);

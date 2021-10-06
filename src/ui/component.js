@@ -128,6 +128,17 @@ export default class Component extends EVT {
      */
     this.children_ = new Map();
 
+
+    /**
+     * Dom Elements that are out of the direct tree of this component's element,
+     * but still belongs to the component. These may be things like menu
+     * surfaces that got hoisted to the document root (to fix overflow issues)
+     * and should be removed from the DOM when this component is removed from
+     * the DOM.
+     * @type {[Element]}
+     */
+    this.outOfTreeElements = []
+
     /**
      * A function guaranteed to be called before the component ready
      * event is fired.
@@ -294,6 +305,18 @@ export default class Component extends EVT {
 
 
   //------------------------------------------------------------[ Life-cycle ]--
+  /**
+   * @param {Node} el
+   * @param {Node} targetParent
+   */
+  hoist(el, targetParent = undefined) {
+    if (!targetParent) {
+      targetParent = document.querySelector("body");
+    }
+    targetParent.appendChild(el);
+    this.outOfTreeElements.push(el);
+  }
+
   executeBeforeReady() {
     this.beforeReadyFunc_();
   }
@@ -376,6 +399,8 @@ export default class Component extends EVT {
     if (this.children_) {
       [...this.children_.values()].forEach(child => child.disposeInternal());
     }
+
+    this.outOfTreeElements.forEach(removeNode);
 
     // Detach the component's element from the DOM, unless it was decorated.
     if (this.element_) {
