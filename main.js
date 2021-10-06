@@ -17676,10 +17676,6 @@ const renderTabBars = function(panel) {
   [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
     const tbar = new MDCTabBar(el);
     this.listen(el, 'MDCTabBar:activated', e => {
-
-      console.log(tbar);
-      console.log(tbar.tabList);
-
       const trg = tbar.tabList[e.detail.index].root;
       const elDataMap = getElDataMap(trg);
       this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
