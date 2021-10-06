@@ -143,7 +143,7 @@ const onDraggerEvent = e => {
   }
 };
 
-const onDoubleClick = component => e => {
+const onDoubleClick = component => () => {
   component.model.toggle();
 };
 
@@ -446,6 +446,7 @@ export default class Split extends Component {
   }
 
   get nestNames() {
+    // noinspection JSUnusedLocalSymbols
     return [...this.nestMap_.entries()]
         .filter(([k,v]) => !this.splitNests_.has(v))
         .map(([k, ]) => k);

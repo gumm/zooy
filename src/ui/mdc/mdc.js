@@ -90,7 +90,7 @@ export const renderIconButtons = function(panel) {
  */
 export const renderIconToggleButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
-    const _ = new mdc.iconButton.MDCIconButtonToggle(el);
+    new mdc.iconButton.MDCIconButtonToggle(el);
     this.listen(el, 'click', e => e.stopPropagation());
     this.listen(el, 'MDCIconButtonToggle:change', e => {
       e.stopPropagation();
@@ -180,7 +180,7 @@ export const renderTabBars = function(panel) {
   [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
     const tbar = new mdc.tabBar.MDCTabBar(el);
     this.listen(el, 'MDCTabBar:activated', e => {
-      const trg = tbar.tabList_[e.detail.index].root;
+      const trg = tbar.tabList[e.detail.index].root;
       const elDataMap = getElDataMap(trg);
       this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
         orgEvt: e,
@@ -273,7 +273,7 @@ export const renderMenus = function(panel) {
         });
 
         // Toggle the menu open or closed from the anchor element.
-        menuButtonEl.addEventListener('click', e => {
+        menuButtonEl.addEventListener('click', () => {
           return menu.open = !menu.open
         });
 
@@ -308,12 +308,12 @@ export const renderMenus = function(panel) {
               });
             }
           }
-          menu.listen('MDCMenuSurface:closed', e => {
+          menu.listen('MDCMenuSurface:closed', () => {
             reset();
             document.removeEventListener(
                 'keydown', filterMenuOnTyping, true);
           })
-          menu.listen('MDCMenuSurface:opened', e => {
+          menu.listen('MDCMenuSurface:opened', () => {
             reset();
             document.addEventListener(
                 'keydown', filterMenuOnTyping, true);
@@ -352,8 +352,9 @@ export const renderSliders = function(panel) {
   [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
     const slider = new mdc.slider.MDCSlider(el);
     const elDataMap = getElDataMap(el);
-    const inputEl = el.parentElement.querySelector(`#${elDataMap.inputid}`);
-    this.listen(el, 'MDCSlider:change', (e) => {
+    const inputEl = el.parentElement.querySelector(
+        `#${elDataMap.inputid}`);
+    this.listen(el, 'MDCSlider:change', () => {
       inputEl.value = slider.value;
     });
   });

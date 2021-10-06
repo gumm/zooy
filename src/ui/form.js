@@ -156,6 +156,7 @@ class FormPanel extends Panel {
      */
     this.fieldErr_ = new FieldErrs(this);
 
+    // noinspection JSUnusedLocalSymbols
     /**
      * @type {function(!FormPanel, (string|!ServerFormSuccessJsonType)=): (?|null|Promise<?>)}
      */
@@ -307,7 +308,7 @@ class FormPanel extends Panel {
     let success = false;
 
     if (whatType(reply) === 'object' && reply['success']) {
-      return Promise.resolve(this).then(p => {
+      return Promise.resolve(this).then(() => {
         this.onSubmitSucFunc(this, reply);
         this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
       });
@@ -359,7 +360,7 @@ class FormPanel extends Panel {
       SUCCESS: ${success}`);
       // We are done. Execute any 'onSuccess' directives, and
       // then fire the 'FORM_SUBMIT_SUCCESS' event.
-      return Promise.resolve(this).then(p => {
+      return Promise.resolve(this).then(() => {
         this.onSubmitSucFunc(this);
         this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
       });

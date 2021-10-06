@@ -65,6 +65,7 @@ const freeMoveListener = (emit, target, xOrg, yOrg) => event => {
   emit(ev);
 };
 
+// noinspection JSUnusedLocalSymbols
 const xMoveOnlyListener = (emit, target, xOrg, yOrg) => event => {
   event.preventDefault();
   const ev = normalizeEvent(event);
@@ -132,6 +133,7 @@ class Dragger extends Component {
     this.isLocked_ = true;
 
 
+    // noinspection JSUnusedLocalSymbols
     this.cancelDrag_ = e => null;
 
   };

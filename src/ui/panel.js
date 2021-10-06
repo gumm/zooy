@@ -362,9 +362,12 @@ class Panel extends Component {
       let o = getElDataMap(e.target);
       e.dataTransfer.setData('text/plain', JSON.stringify(o));
     };
+
+    // noinspection JSUnusedLocalSymbols
     const justLog = e => {
       //    console.log(e)
     };
+    
     const onDrop = e => {
       deactivate(e);
       e.stopPropagation();

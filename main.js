@@ -1603,6 +1603,7 @@ const freeMoveListener = (emit, target, xOrg, yOrg) => event => {
   emit(ev);
 };
 
+// noinspection JSUnusedLocalSymbols
 const xMoveOnlyListener = (emit, target, xOrg, yOrg) => event => {
   event.preventDefault();
   const ev = normalizeEvent(event);
@@ -1670,6 +1671,7 @@ class Dragger extends Component {
     this.isLocked_ = true;
 
 
+    // noinspection JSUnusedLocalSymbols
     this.cancelDrag_ = e => null;
 
   };
@@ -17674,7 +17676,11 @@ const renderTabBars = function(panel) {
   [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
     const tbar = new MDCTabBar(el);
     this.listen(el, 'MDCTabBar:activated', e => {
-      const trg = tbar.tabList_[e.detail.index].root;
+
+      console.log(tbar);
+      console.log(tbar.tabList);
+
+      const trg = tbar.tabList[e.detail.index].root;
       const elDataMap = getElDataMap(trg);
       this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
         orgEvt: e,
@@ -17767,7 +17773,7 @@ const renderMenus = function(panel) {
         });
 
         // Toggle the menu open or closed from the anchor element.
-        menuButtonEl.addEventListener('click', e => {
+        menuButtonEl.addEventListener('click', () => {
           return menu.open = !menu.open
         });
 
@@ -17802,12 +17808,12 @@ const renderMenus = function(panel) {
               });
             }
           };
-          menu.listen('MDCMenuSurface:closed', e => {
+          menu.listen('MDCMenuSurface:closed', () => {
             reset();
             document.removeEventListener(
                 'keydown', filterMenuOnTyping, true);
           });
-          menu.listen('MDCMenuSurface:opened', e => {
+          menu.listen('MDCMenuSurface:opened', () => {
             reset();
             document.addEventListener(
                 'keydown', filterMenuOnTyping, true);
@@ -17846,8 +17852,9 @@ const renderSliders = function(panel) {
   [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
     const slider = new MDCSlider(el);
     const elDataMap = getElDataMap(el);
-    const inputEl = el.parentElement.querySelector(`#${elDataMap.inputid}`);
-    this.listen(el, 'MDCSlider:change', (e) => {
+    const inputEl = el.parentElement.querySelector(
+        `#${elDataMap.inputid}`);
+    this.listen(el, 'MDCSlider:change', () => {
       inputEl.value = slider.value;
     });
   });
@@ -18340,9 +18347,12 @@ class Panel extends Component {
       let o = getElDataMap(e.target);
       e.dataTransfer.setData('text/plain', JSON.stringify(o));
     };
+
+    // noinspection JSUnusedLocalSymbols
     const justLog = e => {
       //    console.log(e)
     };
+    
     const onDrop = e => {
       deactivate(e);
       e.stopPropagation();
@@ -18610,6 +18620,7 @@ class FormPanel extends Panel {
      */
     this.fieldErr_ = new FieldErrs(this);
 
+    // noinspection JSUnusedLocalSymbols
     /**
      * @type {function(!FormPanel, (string|!ServerFormSuccessJsonType)=): (?|null|Promise<?>)}
      */
@@ -18761,7 +18772,7 @@ class FormPanel extends Panel {
     let success = false;
 
     if (whatType(reply) === 'object' && reply['success']) {
-      return Promise.resolve(this).then(p => {
+      return Promise.resolve(this).then(() => {
         this.onSubmitSucFunc(this, reply);
         this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
       });
@@ -18813,7 +18824,7 @@ class FormPanel extends Panel {
       SUCCESS: ${success}`);
       // We are done. Execute any 'onSuccess' directives, and
       // then fire the 'FORM_SUBMIT_SUCCESS' event.
-      return Promise.resolve(this).then(p => {
+      return Promise.resolve(this).then(() => {
         this.onSubmitSucFunc(this);
         this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
       });
@@ -18955,7 +18966,7 @@ const onDraggerEvent = e => {
   }
 };
 
-const onDoubleClick = component => e => {
+const onDoubleClick = component => () => {
   component.model.toggle();
 };
 
@@ -19258,6 +19269,7 @@ class Split extends Component {
   }
 
   get nestNames() {
+    // noinspection JSUnusedLocalSymbols
     return [...this.nestMap_.entries()]
         .filter(([k,v]) => !this.splitNests_.has(v))
         .map(([k, ]) => k);
