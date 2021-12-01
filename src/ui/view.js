@@ -316,6 +316,7 @@ export default class View extends EVT {
           const pk = eventData.pk;
           const view = eventData.view;
           const landOn = eventData.landon;
+          const context = eventData.context;
           const landOnPk = eventData.landonpk;
           const displayAs = eventData.displayas;
 
@@ -327,6 +328,7 @@ export default class View extends EVT {
               landOnPk,
               displayAs,
               href,
+              context,
               eventData
             }, ePanel);
           } else {
