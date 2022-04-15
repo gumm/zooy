@@ -74,7 +74,7 @@ export const treeNodeSelect = panel => id => {
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
   let targetNode = undefined;
   [...allNodes].forEach(n => {
-    enableClass(n, 'mdc-depreciated-list-item--activated', n.id === `tree-node_${id}`);
+    enableClass(n, 'mdc-deprecated-list-item--activated', n.id === `tree-node_${id}`);
     if (n.id === `tree-node_${id}`) {
       targetNode = n;
     }
