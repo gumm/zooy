@@ -60,7 +60,6 @@ const ComponentError = {
   STATE_INVALID: 'Invalid component state'
 };
 
-
 export default class Component extends EVT {
 
   //----------------------------------------------------------------[ Static ]--
@@ -227,6 +226,13 @@ export default class Component extends EVT {
   createDom() {
     this.element_ = this.makeDomFunc_()
   };
+
+
+  assertCanRenderAsync() {
+    if (this.disposed) {
+      throw new Error(ComponentError.ALREADY_DISPOSED);
+    }
+  }
 
 
   /**

@@ -1088,7 +1088,6 @@ const ComponentError = {
   STATE_INVALID: 'Invalid component state'
 };
 
-
 class Component extends EVT {
 
   //----------------------------------------------------------------[ Static ]--
@@ -1255,6 +1254,13 @@ class Component extends EVT {
   createDom() {
     this.element_ = this.makeDomFunc_();
   };
+
+
+  assertCanRenderAsync() {
+    if (this.disposed) {
+      throw new Error(ComponentError.ALREADY_DISPOSED);
+    }
+  }
 
 
   /**
@@ -1957,8 +1963,7 @@ const checkStatus = response => {
   if (response.ok) {
     return Promise.resolve(response);
   } else {
-    return Promise.reject(new Error(
-        `${response.url} ${response.status} (${response.statusText})`));
+    return Promise.reject(new Error(`${response.url} ${response.status} (${response.statusText})`));
   }
 };
 
@@ -1985,7 +1990,8 @@ const checkStatusTwo = panel => response => {
 const getJson = response => {
   return response.json().then(
       data => Promise.resolve(data),
-      err => Promise.reject(`Could not get JSON from response: ${err}`));
+      err => Promise.reject(`Could not get JSON from response: ${err}`)
+  );
 };
 
 
@@ -1996,7 +2002,8 @@ const getJson = response => {
 const getText = response => {
   return response.text().then(
       text => Promise.resolve(text),
-      err => Promise.reject(`Could not get text from response: ${err}`));
+      err => Promise.reject(`Could not get text from response: ${err}`)
+  );
 };
 
 
@@ -2014,56 +2021,33 @@ const getTextOrJson = response => {
 };
 
 
-
-
 /**
  * @param {string} jwt A JWT token
  * @param {Object} obj
  * @param {string} method One of PATCH, PUT, POST etc.
+ * @param {AbortSignal|undefined} signal
  * @return {!RequestInit}
  */
-const jsonInit = (jwt, obj, method = 'POST') => {
+const jsonInit = (
+    jwt, obj, method = 'POST',
+    signal = void 0) => {
+
   const h = new Headers();
   h.append('Content-type', 'application/json');
   h.append('X-Requested-With', 'XMLHttpRequest');
   jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
-  return {
+  const options = {
     cache: 'no-cache',
     method: method,
     headers: h,
     credentials: 'include',
     body: JSON.stringify(obj),
   };
+  if (signal) {
+    options.signal = signal;
+  }
+  return options;
 };
-
-/**
- * @param {string} jwt A JWT token
- * @param {Object} obj
- * @return {!RequestInit}
- */
-const jsonPostInit = (jwt, obj) => jsonInit(jwt, obj, 'POST');
-
-/**
- * @param {string} jwt A JWT token
- * @param {Object} obj
- * @return {!RequestInit}
- */
-const jsonPatchInit = (jwt, obj) => jsonInit(jwt, obj, 'PATCH');
-
-/**
- * @param {string} jwt A JWT token
- * @param {Object} obj
- * @return {!RequestInit}
- */
-const jsonPutInit = (jwt, obj) => jsonInit(jwt, obj, 'PUT');
-
-/**
- * @param {string} jwt A JWT token
- * @param {Object} obj
- * @return {!RequestInit}
- */
-const jsonDelInit = (jwt, obj) => jsonInit(jwt, obj, 'DELETE');
-
 
 /**
  * @param {string} method PUT, POST, PATCH
@@ -2073,9 +2057,13 @@ const jsonDelInit = (jwt, obj) => jsonInit(jwt, obj, 'DELETE');
  *    should be 'false' as the form itself carries the CSRF token.
  *    In cases where we are using AJAX, we need to grab the cookie from
  *    the document, so set this to 'true'
+ * @param {AbortSignal|undefined} signal
  * @return {!RequestInit}
  */
-const basicPutPostPatchInit = (method, jwt, useDocumentCookies = false) => {
+const basicPutPostPatchInit = (
+    method, jwt, useDocumentCookies = false,
+    signal = void 0) => {
+
   const h = new Headers();
   jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
@@ -2083,42 +2071,29 @@ const basicPutPostPatchInit = (method, jwt, useDocumentCookies = false) => {
     const token = getCookieByName('csrftoken');
     token && useDocumentCookies && h.append('X-CSRFToken', token);
   }
-  return {
+  const options = {
     cache: 'no-cache',
     method: method,
     headers: h,
     redirect: 'follow',  // This is anyway the default.
     credentials: 'include'
   };
+  if (signal) {
+    options.signal = signal;
+  }
+  return options;
 };
 
 
 /**
  * @param {string} jwt A JWT token
- * @param {boolean} useDocumentCookies
- * @return {!RequestInit}
- */
-const basicPostInit = (jwt, useDocumentCookies = true) =>
-    basicPutPostPatchInit('POST', jwt, useDocumentCookies);
-
-
-/**
- * @param {string} jwt A JWT token
- * @param {boolean} useDocumentCookies
- * @return {!RequestInit}
- */
-const basicPutInit = (jwt, useDocumentCookies = true) =>
-    basicPutPostPatchInit('PUT', jwt, useDocumentCookies);
-
-
-/**
- * @param {string} jwt A JWT token
  * @param {FormPanel} formPanel
+ * @param {AbortSignal|undefined} signal
  * @return {!RequestInit}
  */
-const formPostInit = (jwt, formPanel) => {
+const formPostInit = (jwt, formPanel, signal = void 0) => {
   const useDocumentCookies = false;
-  const resp = basicPostInit(jwt, useDocumentCookies);
+  const resp = basicPutPostPatchInit('POST', jwt, useDocumentCookies, signal);
   resp['body'] = new FormData(formPanel.formEl);
   return resp;
 };
@@ -2134,14 +2109,40 @@ const basicGetInit = (jwt, signal = void 0) => {
   h.append('Authorization', `bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
   const options = {
-    cache: 'no-cache',
-    headers: h,
-    credentials: 'include'
+    cache: 'no-cache', headers: h, credentials: 'include'
   };
   if (signal) {
     options.signal = signal;
   }
   return options
+};
+
+
+/**
+ * @param {string} uri
+ * @param {Object} init
+ * @return {Promise}
+ */
+const putPostPatchNobody = (uri, init) => {
+  const req = new Request(uri);
+  return fetch(req, init)
+      .then(checkStatus)
+      .then(getText);
+};
+
+/**
+ * @param {string} debugString
+ * @param {*} returnValue
+ * @returns {function(*): *}
+ */
+const genCatchClause = (debugString, returnValue = void 0) => err => {
+  stopSpin('').then(identity);
+  if (err.name === 'AbortError') {
+    console.log(debugString, 'ABORTED!');
+  } else {
+    console.log(debugString, err);
+  }
+  return returnValue;
 };
 
 
@@ -2191,7 +2192,7 @@ class UserManager {
    * @return {Promise}
    * @private
    */
-  updateProfileFromJwt(data, opt_onlyIfNoneExists=false) {
+  updateProfileFromJwt(data, opt_onlyIfNoneExists = false) {
     if (opt_onlyIfNoneExists && this.jwt !== '') {
       return Promise.resolve('User Profile Already exists');
     }
@@ -2265,38 +2266,28 @@ class UserManager {
   formSubmit(formPanel) {
     const req = new Request(formPanel.uri.toString());
     const processSubmitReply = formPanel.processSubmitReply.bind(formPanel);
+    const catchClause = genCatchClause('Form submit error');
     return startSpin()
-        .then(() => fetch(req, formPostInit(this.jwt, formPanel)))
+        .then(() => fetch(req, formPostInit(
+            this.jwt, formPanel, formPanel.abortController.signal)))
         .then(checkStatusTwo(formPanel))
         .then(stopSpin)
         .then(getTextOrJson)
         .then(processSubmitReply)
-        .catch(err => {
-          stopSpin('');
-          console.error('Form submit error', err);
-        });
+        .catch(catchClause);
   };
-
 
   /**
    * @param {string} uri
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
-  putPostPatchNobody(uri, init) {
-    const req = new Request(uri);
-    return fetch(req, init)
-        .then(checkStatus)
-        .then(getText)
-        .catch(err => console.error('Form submit error', err));
-  };
-
-
-  /**
-   * @param {string} uri
-   * @return {Promise}
-   */
-  putNoBody(uri) {
-    return this.putPostPatchNobody(uri, basicPutInit(''))
+  putNoBody(uri, signal = void 0) {
+    const catchClause = genCatchClause('putNobody error');
+    const opts = basicPutPostPatchInit(
+        'PUT', this.jwt, void 0, signal);
+    return putPostPatchNobody(uri, opts)
+        .catch(catchClause)
   };
 
   /**
@@ -2306,27 +2297,25 @@ class UserManager {
    */
   fetch(uri, signal = void 0) {
     const req = new Request(uri.toString());
+    const catchClause = genCatchClause(`UMan Text GET Fetch: ${uri}`);
     return startSpin()
         .then(() => fetch(req, basicGetInit(this.jwt, signal)))
         .then(checkStatus)
         .then(stopSpin)
         .then(getText)
-        .catch(err => {
-          stopSpin('');
-          if (err.name !== 'AbortError') {
-            console.error('UMan Text GET Fetch:', uri, err);
-          }
-        });
+        .catch(catchClause);
   };
 
   /**
    * Use this if you want to directly get a parsed template that does not go
    * through panel logic.
    * @param {string} uri
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
-  fetchAndSplit(uri) {
-    return this.fetch(uri).then(handleTemplateProm)
+  fetchAndSplit(uri, signal = void 0) {
+    const catchClause = genCatchClause(`fetchAndSplit: ${uri}`);
+    return this.fetch(uri, signal).then(handleTemplateProm).catch(catchClause);
   };
 
   /**
@@ -2336,70 +2325,78 @@ class UserManager {
    */
   fetchJson(uri, signal = void 0) {
     const req = new Request(uri.toString());
+    const catchClause = genCatchClause(`fetchJson: ${uri}`, {});
+    const opts = basicGetInit(this.jwt, signal);
     return startSpin()
-        .then(() => fetch(req, basicGetInit(this.jwt, signal)))
+        .then(() => fetch(req, opts))
         .then(checkStatus)
         .then(stopSpin)
         .then(getJson)
-        .catch(err => {
-          stopSpin('');
-          if (err.name !== 'AbortError') {
-            console.log('UMan JSON GET Fetch:', uri,  err);
-          }
-          return {};
-        });
+        .catch(catchClause);
   };
 
   /**
    * @param {string} uri
    * @param {Object} payload
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
-  patchJson(uri, payload) {
+  patchJson(uri, payload, signal = void 0) {
     const req = new Request(uri.toString());
-    return fetch(req, jsonPatchInit(this.jwt, payload))
+    const catchClause = genCatchClause(`patchJson: ${uri}`);
+    const opts = jsonInit(this.jwt, payload, 'PATCH', signal);
+    return fetch(req, opts)
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON PATCH Fetch:', uri, err));
+        .catch(catchClause);
   };
 
   /**
    * @param {string} uri
    * @param {Object} payload
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
-  postJson(uri, payload) {
+  postJson(uri, payload, signal = void 0) {
     const req = new Request(uri.toString());
-    return fetch(req, jsonPostInit(this.jwt, payload))
+    const catchClause = genCatchClause(`postJson: ${uri}`);
+    const opts = jsonInit(this.jwt, payload, 'POST', signal);
+    return fetch(req, opts)
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON POST Fetch:', uri, err));
+        .catch(catchClause);
   };
 
   /**
    * @param {string} uri
    * @param {Object} payload
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
-  putJson(uri, payload) {
+  putJson(uri, payload, signal = void 0) {
     const req = new Request(uri.toString());
-    return fetch(req, jsonPutInit(this.jwt, payload))
+    const catchClause = genCatchClause(`putJson: ${uri}`);
+    const opts = jsonInit(this.jwt, payload, 'PUT', signal);
+    return fetch(req, opts)
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON PUT Fetch:', uri, err));
+        .catch(catchClause);
   };
 
   /**
    * @param {string} uri
    * @param {Object} payload
+   * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
-  delJson(uri, payload) {
+  delJson(uri, payload, signal = void 0) {
     const req = new Request(uri.toString());
-    return fetch(req, jsonDelInit(this.jwt, payload))
+    const catchClause = genCatchClause(`delJson: ${uri}`);
+    const opts = jsonInit(this.jwt, payload, 'DELETE', signal);
+    return fetch(req, opts)
         .then(checkStatus)
         .then(getJson)
-        .catch(err => console.error('UMan JSON DELETE Fetch:', uri, err));
+        .catch(catchClause);
   };
 }
 
@@ -18064,7 +18061,7 @@ class Panel extends Component {
 
     // Feature detect
     if ("AbortController" in window) {
-      this.abortController = new AbortController;
+      this.abortController = new AbortController();
     } else {
       this.abortController = {
         signal: void 0,
@@ -18110,6 +18107,7 @@ class Panel extends Component {
     const usr = this.user;
     if (usr) {
       return usr.fetch(this.uri_, this.abortController.signal).then(s => {
+        this.assertCanRenderAsync();
         if (opt_callback) {
           opt_callback(this);
         }
@@ -18119,7 +18117,7 @@ class Panel extends Component {
           }
         });
         return this;
-      });
+      }).catch(identity);
     } else {
       return Promise.reject('No user')
     }
@@ -18166,11 +18164,12 @@ class Panel extends Component {
     if (usr) {
       return this.user.fetchJson(this.uri_, this.abortController.signal)
           .then(json => {
+            this.assertCanRenderAsync();
             if (opt_callback) {
               opt_callback(json, this);
             }
             this.onRenderWithJSON(json);
-          });
+          }).catch(identity)
     } else {
       return Promise.reject('No user')
     }
@@ -18381,11 +18380,11 @@ class Panel extends Component {
       const elDataMap = getElDataMap(el);
       const href = elDataMap['href'];
       const onReply = this.onAsyncJsonReply.bind(this, el, elDataMap);
-      this.user.fetchJson(href).then(onReply);
+      this.user.fetchJson(href, this.abortController.signal).then(onReply);
       const repeat = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat)) {
         this.doOnBeat(() => {
-          this.user.fetchJson(href).then(onReply);
+          this.user.fetchJson(href, this.abortController.signal).then(onReply);
         }, repeat * 60 * 1000);
       }
     });
@@ -18400,7 +18399,7 @@ class Panel extends Component {
         el => {
           const elDataMap = getElDataMap(el);
           const href = elDataMap['href'];
-          this.user.fetchAndSplit(href)
+          this.user.fetchAndSplit(href, this.abortController.signal)
               .then(data => {
                 el.appendChild(data.html);
                 this.parseContent(el);
@@ -18410,7 +18409,7 @@ class Panel extends Component {
           const repeat = toNumber(elDataMap['z_interval']);
           if (isNumber(repeat)) {
             this.doOnBeat(() => {
-              this.user.fetchAndSplit(href)
+              this.user.fetchAndSplit(href, this.abortController.signal)
                   .then(data => {
                     el.replaceChildren(data.html);
                     this.parseContent(el);
@@ -18434,6 +18433,11 @@ class Panel extends Component {
     // completed by the time this fires.
     super.enterDocument();
   };
+
+  exitDocument() {
+    this.abortController.abort();
+    super.exitDocument();
+  }
 
   /**
    * @param {boolean} bool
@@ -18752,7 +18756,8 @@ class FormPanel extends Panel {
     const usr = this.user;
     const uri = this.uri;
     if (usr) {
-      return usr.fetch(uri).then(s => this.replaceForm(s));
+      return usr.fetch(uri, this.abortController.signal).then(
+          s => this.replaceForm(s));
     } else {
       return Promise.reject('No user')
     }
@@ -19916,7 +19921,7 @@ class View extends EVT {
         })
         .set('paginate', (eventData, ePanel) => {
           const href = `${eventData.href}?${eventData.targetval}`;
-          this.user.fetchAndSplit(href).then(
+          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           );
         })
@@ -19934,13 +19939,13 @@ class View extends EVT {
             }
             href = qString !== '' ? `${href}&${newQDict}` : `${href}?${newQDict}`;
           }
-          this.user.fetchAndSplit(href).then(
+          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           );
         })
         .set('list_filter', (eventData, ePanel) => {
           const href = `${eventData.href}?${eventData.targetval}`;
-          this.user.fetchAndSplit(href).then(
+          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           );
         })

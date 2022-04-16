@@ -274,7 +274,7 @@ export default class View extends EVT {
         })
         .set('paginate', (eventData, ePanel) => {
           const href = `${eventData.href}?${eventData.targetval}`;
-          this.user.fetchAndSplit(href).then(
+          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           )
         })
@@ -292,13 +292,13 @@ export default class View extends EVT {
             }
             href = qString !== '' ? `${href}&${newQDict}` : `${href}?${newQDict}`;
           }
-          this.user.fetchAndSplit(href).then(
+          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           )
         })
         .set('list_filter', (eventData, ePanel) => {
           const href = `${eventData.href}?${eventData.targetval}`;
-          this.user.fetchAndSplit(href).then(
+          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
               s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
           )
         })

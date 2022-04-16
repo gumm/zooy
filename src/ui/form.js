@@ -292,7 +292,8 @@ class FormPanel extends Panel {
     const usr = this.user;
     const uri = this.uri;
     if (usr) {
-      return usr.fetch(uri).then(s => this.replaceForm(s));
+      return usr.fetch(uri, this.abortController.signal).then(
+          s => this.replaceForm(s));
     } else {
       return Promise.reject('No user')
     }

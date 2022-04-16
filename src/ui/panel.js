@@ -1,4 +1,5 @@
 import Component from './component.js';
+import {identity} from 'badu';
 import {
   evalScripts,
   evalModules,
@@ -36,8 +37,7 @@ import {
   renderRadioButtons,
   renderCheckBoxes,
   renderDataTables,
-} from './mdc/mdc.js'
-
+} from './mdc/mdc.js';
 
 class Panel extends Component {
 
@@ -83,7 +83,7 @@ class Panel extends Component {
 
     // Feature detect
     if ("AbortController" in window) {
-      this.abortController = new AbortController;
+      this.abortController = new AbortController();
     } else {
       this.abortController = {
         signal: void 0,
@@ -129,6 +129,7 @@ class Panel extends Component {
     const usr = this.user;
     if (usr) {
       return usr.fetch(this.uri_, this.abortController.signal).then(s => {
+        this.assertCanRenderAsync();
         if (opt_callback) {
           opt_callback(this);
         }
@@ -138,7 +139,7 @@ class Panel extends Component {
           }
         });
         return this;
-      });
+      }).catch(identity);
     } else {
       return Promise.reject('No user')
     }
@@ -185,11 +186,12 @@ class Panel extends Component {
     if (usr) {
       return this.user.fetchJson(this.uri_, this.abortController.signal)
           .then(json => {
+            this.assertCanRenderAsync();
             if (opt_callback) {
               opt_callback(json, this);
             }
             this.onRenderWithJSON(json)
-          });
+          }).catch(identity)
     } else {
       return Promise.reject('No user')
     }
@@ -400,11 +402,11 @@ class Panel extends Component {
       const elDataMap = getElDataMap(el);
       const href = elDataMap['href'];
       const onReply = this.onAsyncJsonReply.bind(this, el, elDataMap);
-      this.user.fetchJson(href).then(onReply);
+      this.user.fetchJson(href, this.abortController.signal).then(onReply);
       const repeat = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat)) {
         this.doOnBeat(() => {
-          this.user.fetchJson(href).then(onReply);
+          this.user.fetchJson(href, this.abortController.signal).then(onReply);
         }, repeat * 60 * 1000);
       }
     });
@@ -419,7 +421,7 @@ class Panel extends Component {
         el => {
           const elDataMap = getElDataMap(el);
           const href = elDataMap['href'];
-          this.user.fetchAndSplit(href)
+          this.user.fetchAndSplit(href, this.abortController.signal)
               .then(data => {
                 el.appendChild(data.html);
                 this.parseContent(el);
@@ -429,7 +431,7 @@ class Panel extends Component {
           const repeat = toNumber(elDataMap['z_interval']);
           if (isNumber(repeat)) {
             this.doOnBeat(() => {
-              this.user.fetchAndSplit(href)
+              this.user.fetchAndSplit(href, this.abortController.signal)
                   .then(data => {
                     el.replaceChildren(data.html);
                     this.parseContent(el);
@@ -453,6 +455,11 @@ class Panel extends Component {
     // completed by the time this fires.
     super.enterDocument();
   };
+
+  exitDocument() {
+    this.abortController.abort();
+    super.exitDocument();
+  }
 
   /**
    * @param {boolean} bool

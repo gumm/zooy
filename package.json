@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "13.1.0",
+  "version": "14.0.0",
   "main": "index.js",
   "author": {
     "name": "Jan Badenhorst",
@@ -11,8 +11,6 @@
     "Andries Niemandt <andries.niemandt91@gmail.com> (https://github.com/andriesniemandt)"
   ],
   "scripts": {
-    "compile_es6": "npm run rollup && build/compile.sh `pwd` es6",
-    "compile_dev": "npm run rollup && build/compile.sh `pwd` dev",
     "build_css": "sass --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css",
     "rollup": "npx rollup -c"
   },
@@ -26,15 +24,13 @@
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {
-    "rollup": "^2.58.0",
-    "@rollup/plugin-commonjs": "^21.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.5",
+    "rollup": "^2.70.2",
+    "@rollup/plugin-commonjs": "^21.1.0",
+    "@rollup/plugin-node-resolve": "^13.2.1",
     "esm": "^3.2.25",
-    "google-closure-compiler": "^20210907.0.0",
-    "google-closure-library": "^20210808.0.0",
     "material-components-web": "^13.0.0",
-    "mocha": "^9.1.2",
+    "mocha": "^9.2.2",
     "sass": "^1.42.1",
-    "ramda": "^0.27.1"
+    "ramda": "^0.28.0"
   }
 }
