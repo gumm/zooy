@@ -1166,6 +1166,13 @@ class Component extends EVT {
      */
     this.outOfTreeElements = [];
 
+
+    /**
+     * The DOM element for the component.
+     * @private {!Node|undefined}
+     */
+    this.placeholderDom_ = void 0;
+
     /**
      * A function guaranteed to be called before the component ready
      * event is fired.
@@ -1182,6 +1189,13 @@ class Component extends EVT {
    */
   set target(e) {
     this.target_ = e;
+  }
+
+  /**
+   * @returns {Element|undefined}
+   */
+  get target() {
+    return this.target_;
   }
 
   /**
@@ -1317,6 +1331,8 @@ class Component extends EVT {
       this.target_ = opt_target;
     }
 
+    this.placeholderDom_ && removeNode(this.placeholderDom_);
+
     if (this.target_) {
       if (!isInPage(rootEl)) {
         this.target_.insertBefore(rootEl, null);
@@ -1364,7 +1380,7 @@ class Component extends EVT {
    */
   enterDocument() {
 
-    // First check if I am disposed. If so, dont enter the document.
+    // First check if I am disposed. If so, don't enter the document.
     // This may happen on slow networks where the user clicks multiple times
     // and multiple queries are in flight...
     if (this.disposed) {
@@ -1374,8 +1390,7 @@ class Component extends EVT {
       this.isInDocument = true;
 
       // Propagate enterDocument to child components that have a DOM, if any.
-      // If a child was decorated before entering the document (permitted when
-      // goog.ui.Component.ALLOW_DETACHED_DECORATION is true), its enterDocument
+      // If a child was decorated before entering the document its enterDocument
       // will be called here.
       [...this.children_.values()].forEach(child => {
         if (!child.isInDocument && child.getElement()) {
@@ -1413,6 +1428,7 @@ class Component extends EVT {
     this.removeAllListener();
     this.isInDocument = false;
     removeNode(this.getElement());
+    this.placeholderDom_ && removeNode(this.placeholderDom_);
   };
 
 
@@ -1437,9 +1453,8 @@ class Component extends EVT {
     this.outOfTreeElements.forEach(removeNode);
 
     // Detach the component's element from the DOM, unless it was decorated.
-    if (this.element_) {
-      removeNode(this.element_);
-    }
+    this.element_ && removeNode(this.element_);
+    this.placeholderDom_ && removeNode(this.placeholderDom_);
 
     this.children_ = null;
     this.element_ = void 0;
@@ -1450,12 +1465,10 @@ class Component extends EVT {
   };
 
   dispose() {
-    if (this.abortController) {
-      this.abortController.abort();
-    }
+    this.abortController && this.abortController.abort();
     const me = this.getElement();
     if (me) {
-      const els = this.getElement().querySelectorAll("[data-mdc-auto-init]");
+      const els = me.querySelectorAll("[data-mdc-auto-init]");
       [...els].forEach(e => {
         try {
           e[e.getAttribute('data-mdc-auto-init')].destroy();
@@ -4314,7 +4327,7 @@ var MDCChipTrailingActionFoundation = /** @class */ (function (_super) {
         }
         if (isNavigationEvent(evt)) {
             this.adapter.notifyNavigation(key);
-            return;
+
         }
     };
     MDCChipTrailingActionFoundation.prototype.removeFocus = function () {
@@ -4764,7 +4777,7 @@ var MDCChipFoundation = /** @class */ (function (_super) {
         }
         if (shouldShowLeadingIcon) {
             this.adapter.removeClassFromLeadingIcon(cssClasses$m.HIDDEN_LEADING_ICON);
-            return;
+
         }
     };
     MDCChipFoundation.prototype.handleFocusIn = function (evt) {
@@ -18096,6 +18109,18 @@ class Panel extends Component {
 
   //----------------------------------------------------[ Template Render ]-----
   /**
+   * Temporarily render placeholder DOM
+   * @param {Node!} placeholder
+   */
+  renderPlaceHolder(placeholder) {
+    if (this.target) {
+      this.placeholderDom_ = placeholder;
+      this.target.insertBefore(this.placeholderDom_, null);
+    }
+  };
+
+
+  /**
    * Expects HTML data from a call to the back.
    * @param {Function=} opt_callback An optional callback to call before
    * rendering the panel. This is useful for when you only want to attach the
@@ -19883,6 +19908,10 @@ class View extends EVT {
     this.panelMap.has(name) && this.panelMap.get(name).dispose();
   };
 
+
+  /**
+   * @param {Panel} panel
+   */
   removePanel(panel) {
     const [n, p] = [...this.panelMap.entries()].find(([k, v]) => v === panel);
     if (n && p) {

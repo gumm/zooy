@@ -1,42 +1,37 @@
 import Component from './component.js';
-import {identity} from 'badu';
+import {identity, isDefAndNotNull, isNumber, toNumber} from 'badu';
 import {
-  evalScripts,
   evalModules,
-  splitScripts,
-  getElDataMap,
+  evalScripts,
   formToJSON,
+  getElDataMap,
+  splitScripts,
 } from '../dom/utils.js';
-import {
-  isDefAndNotNull,
-  isNumber,
-  toNumber
-} from 'badu';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';
 import EVT from './evt.js';
 import {
-  renderRipples,
+  renderButtons,
+  renderCheckBoxes,
+  renderChips,
+  renderDataTables,
+  renderFloatingActionButtons,
+  renderFormFields,
   renderIconButtons,
   renderIconToggleButtons,
-  renderFloatingActionButtons,
-  renderTabBars,
-  renderSwitches,
-  renderChips,
-  renderMenuSurfaces,
-  renderMenus,
-  renderLists,
-  renderSliders,
   renderLinearProgress,
-  renderButtons,
-  renderFormFields,
+  renderLists,
+  renderMenus,
+  renderMenuSurfaces,
+  renderRadioButtons,
+  renderRipples,
   renderSelectMenus,
+  renderSliders,
+  renderSwitches,
+  renderTabBars,
   renderTextFieldIcons,
   renderTextFields,
-  renderRadioButtons,
-  renderCheckBoxes,
-  renderDataTables,
 } from './mdc/mdc.js';
 
 class Panel extends Component {
@@ -117,6 +112,18 @@ class Panel extends Component {
 
 
   //----------------------------------------------------[ Template Render ]-----
+  /**
+   * Temporarily render placeholder DOM
+   * @param {Node!} placeholder
+   */
+  renderPlaceHolder(placeholder) {
+    if (this.target) {
+      this.placeholderDom_ = placeholder;
+      this.target.insertBefore(this.placeholderDom_, null);
+    }
+  };
+
+
   /**
    * Expects HTML data from a call to the back.
    * @param {Function=} opt_callback An optional callback to call before

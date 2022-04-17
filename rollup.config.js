@@ -11,7 +11,12 @@ export default [{
   },
   plugins: [
     resolve(),
-    commonjs()
+    commonjs(),
+    // terser({
+    //   output: {
+    //     comments: false,
+    //   },
+    // })
   ],
   treeshake: true
 }];

@@ -236,6 +236,10 @@ export default class View extends EVT {
     this.panelMap.has(name) && this.panelMap.get(name).dispose();
   };
 
+
+  /**
+   * @param {Panel} panel
+   */
   removePanel(panel) {
     const [n, p] = [...this.panelMap.entries()].find(([k, v]) => v === panel);
     if (n && p) {

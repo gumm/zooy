@@ -1,7 +1,7 @@
 import ZooyEventData from '../events/zooyeventdata.js';
 import EVT from './evt.js';
-import { UiEventType } from '../events/uieventtype.js'
-import { removeNode, isInPage } from '../dom/utils.js';
+import {UiEventType} from '../events/uieventtype.js'
+import {isInPage, removeNode} from '../dom/utils.js';
 
 
 /**
@@ -136,7 +136,14 @@ export default class Component extends EVT {
      * the DOM.
      * @type {[Element]}
      */
-    this.outOfTreeElements = []
+    this.outOfTreeElements = [];
+
+
+    /**
+     * The DOM element for the component.
+     * @private {!Node|undefined}
+     */
+    this.placeholderDom_ = void 0;
 
     /**
      * A function guaranteed to be called before the component ready
@@ -154,6 +161,13 @@ export default class Component extends EVT {
    */
   set target(e) {
     this.target_ = e;
+  }
+
+  /**
+   * @returns {Element|undefined}
+   */
+  get target() {
+    return this.target_;
   }
 
   /**
@@ -289,6 +303,8 @@ export default class Component extends EVT {
       this.target_ = opt_target;
     }
 
+    this.placeholderDom_ && removeNode(this.placeholderDom_);
+
     if (this.target_) {
       if (!isInPage(rootEl)) {
         this.target_.insertBefore(rootEl, null);
@@ -336,7 +352,7 @@ export default class Component extends EVT {
    */
   enterDocument() {
 
-    // First check if I am disposed. If so, dont enter the document.
+    // First check if I am disposed. If so, don't enter the document.
     // This may happen on slow networks where the user clicks multiple times
     // and multiple queries are in flight...
     if (this.disposed) {
@@ -346,8 +362,7 @@ export default class Component extends EVT {
       this.isInDocument = true;
 
       // Propagate enterDocument to child components that have a DOM, if any.
-      // If a child was decorated before entering the document (permitted when
-      // goog.ui.Component.ALLOW_DETACHED_DECORATION is true), its enterDocument
+      // If a child was decorated before entering the document its enterDocument
       // will be called here.
       [...this.children_.values()].forEach(child => {
         if (!child.isInDocument && child.getElement()) {
@@ -385,6 +400,7 @@ export default class Component extends EVT {
     this.removeAllListener();
     this.isInDocument = false;
     removeNode(this.getElement());
+    this.placeholderDom_ && removeNode(this.placeholderDom_);
   };
 
 
@@ -409,9 +425,8 @@ export default class Component extends EVT {
     this.outOfTreeElements.forEach(removeNode);
 
     // Detach the component's element from the DOM, unless it was decorated.
-    if (this.element_) {
-      removeNode(this.element_);
-    }
+    this.element_ && removeNode(this.element_);
+    this.placeholderDom_ && removeNode(this.placeholderDom_);
 
     this.children_ = null;
     this.element_ = void 0;
@@ -422,12 +437,10 @@ export default class Component extends EVT {
   };
 
   dispose() {
-    if (this.abortController) {
-      this.abortController.abort();
-    }
+    this.abortController && this.abortController.abort();
     const me = this.getElement();
     if (me) {
-      const els = this.getElement().querySelectorAll("[data-mdc-auto-init]");
+      const els = me.querySelectorAll("[data-mdc-auto-init]");
       [...els].forEach(e => {
         try {
           e[e.getAttribute('data-mdc-auto-init')].destroy();
