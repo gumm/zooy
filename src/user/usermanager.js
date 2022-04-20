@@ -388,13 +388,14 @@ export default class UserManager {
 
   /**
    * @param {string} uri
+   * @param {Boolean} useDocumentCookies
    * @param {AbortSignal|undefined} signal
    * @return {Promise}
    */
-  putNoBody(uri, signal = void 0) {
+  putNoBody(uri, signal = void 0, useDocumentCookies = false,) {
     const catchClause = genCatchClause('putNobody error');
     const opts = basicPutPostPatchInit(
-        'PUT', this.jwt, void 0, signal)
+        'PUT', this.jwt, useDocumentCookies, signal)
     return putPostPatchNobody(uri, opts)
         .catch(catchClause)
   };
