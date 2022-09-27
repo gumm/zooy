@@ -916,7 +916,6 @@ const dateToZooyStdTimeString = d => {
 };
 
 const mapDataToEls = (rootEl, json) => {
-  // console.log('mapDataToEls', rootEl, json);
 
   if (!json) {
     return;
@@ -2653,10 +2652,6 @@ var MDCComponent = /** @class */ (function () {
     };
     /* istanbul ignore next: method param only exists for typing purposes; it does not need to be unit tested */
     MDCComponent.prototype.initialize = function () {
-        var _args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            _args[_i] = arguments[_i];
-        }
         // Subclasses can override this to do any additional setup work that would be considered part of a
         // "constructor". Essentially, it is a hook into the parent constructor before the foundation is
         // initialized. Any additional arguments besides root and foundation will be passed in here.
@@ -4328,7 +4323,7 @@ var MDCChipTrailingActionFoundation = /** @class */ (function (_super) {
         }
         if (isNavigationEvent(evt)) {
             this.adapter.notifyNavigation(key);
-
+            return;
         }
     };
     MDCChipTrailingActionFoundation.prototype.removeFocus = function () {
@@ -4778,7 +4773,7 @@ var MDCChipFoundation = /** @class */ (function (_super) {
         }
         if (shouldShowLeadingIcon) {
             this.adapter.removeClassFromLeadingIcon(cssClasses$m.HIDDEN_LEADING_ICON);
-
+            return;
         }
     };
     MDCChipFoundation.prototype.handleFocusIn = function (evt) {
@@ -17838,6 +17833,13 @@ const renderMenus = function(panel) {
 const renderLists = function(panel) {
   [...panel.querySelectorAll('.mdc-deprecated-list:not(.mdc-menu__items)')].forEach(el => {
     const list = new MDCList(el);
+
+    // Park access to this list in a map against the list element id.
+    // If no id exists on the list element, nothing will be parked.
+    if (isDefAndNotNull(el.id)) {
+      this.listMap.set(el.id, list);
+    }
+
     list.listElements.forEach(MDCRipple.attachTo);
     this.listen(el, 'click', e => {
       const trg = e.target.closest('li');
@@ -18082,6 +18084,8 @@ class Panel extends Component {
         abort: () => void 0
       };
     }
+
+    this.listMap = new Map();
 
   };
 

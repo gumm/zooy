@@ -331,7 +331,6 @@ const dateToZooyStdTimeString = d => {
 }
 
 export const mapDataToEls = (rootEl, json) => {
-  // console.log('mapDataToEls', rootEl, json);
 
   if (!json) {
     return;

@@ -86,6 +86,8 @@ class Panel extends Component {
       }
     }
 
+    this.listMap = new Map();
+
   };
 
   //---------------------------------------------------[ Getters and Setters ]--

@@ -1,7 +1,7 @@
 import * as mdc from 'material-components-web';
 
 import {getElDataMap} from "../../dom/utils.js";
-import {toLowerCase} from "badu";
+import {toLowerCase, isDefAndNotNull} from "badu";
 
 
 /**
@@ -331,6 +331,13 @@ export const renderMenus = function(panel) {
 export const renderLists = function(panel) {
   [...panel.querySelectorAll('.mdc-deprecated-list:not(.mdc-menu__items)')].forEach(el => {
     const list = new mdc.list.MDCList(el);
+
+    // Park access to this list in a map against the list element id.
+    // If no id exists on the list element, nothing will be parked.
+    if (isDefAndNotNull(el.id)) {
+      this.listMap.set(el.id, list);
+    }
+
     list.listElements.forEach(mdc.ripple.MDCRipple.attachTo);
     this.listen(el, 'click', e => {
       const trg = e.target.closest('li');
