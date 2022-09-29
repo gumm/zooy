@@ -107,6 +107,12 @@ const isString = n => whatType(n) === 'string';
 const isNumber = n => whatType(n) === 'number' &&
     !Number.isNaN(/** @type number */(n));
 
+/**
+ * @param t
+ * @returns {boolean}
+ */
+const isArray = t => t instanceof Array;
+
 
 //--------------------------------------------------------------[ Conversion ]--
 /**
@@ -1003,9 +1009,23 @@ const mapDataToEls = (rootEl, json) => {
       }
     }
 
-    if (isDefAndNotNull(v) && parseAs !== 'class_update_only') {
-      el.innerHTML = v + units;
+    if (parseAs !== 'class_update_only') {
+      if (parseAs === 'templated-array' && isArray(v)) {
+        v = v || [];
+        const template = el.firstElementChild;
+        template.remove();
+        template.classList.remove('display__none');
+        v.map(e => {
+          const clone = template.cloneNode(true);
+          mapDataToEls(clone, e);
+          return clone;
+        }).forEach(t => el.appendChild(t));
+      } else if (isDefAndNotNull(v)) {
+        el.innerHTML = v + units;
+      }
     }
+
+
   });
 };
 
