@@ -423,13 +423,12 @@ export const mapDataToEls = (rootEl, json) => {
       if (parseAs === 'templated-array' && isArray(v)) {
         v = v || [];
         const template = el.firstElementChild;
-        template.remove();
         template.classList.remove('display__none');
-        v.map(e => {
+        el.replaceChildren(...v.map(e => {
           const clone = template.cloneNode(true);
           mapDataToEls(clone, e)
           return clone;
-        }).forEach(t => el.appendChild(t));
+        }));
       } else if (isDefAndNotNull(v)) {
         el.innerHTML = v + units
       }
