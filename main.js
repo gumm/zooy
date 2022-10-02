@@ -960,9 +960,12 @@ const mapDataToEls = (rootEl, json) => {
             v = new Date(v).toLocaleString(undefined, dFormatter);
             break;
           case 'moment_ago':
+            const prepend = dataMap['zdd_date_tz'] || void 0;
             let ts = v;
             if (isNumber(ts) && ts < 946684800000) {
               ts = ts * 1000;
+            } else if (prepend) {
+              ts = ts + prepend;
             }
             const d = new Date(ts);
             const ago = format(d);
