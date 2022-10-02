@@ -331,6 +331,28 @@ const dateToZooyStdTimeString = d => {
   return `${da} ${mo} ${ye}, ${hr}:${mn}:${sc}`;
 }
 
+const parseMomentAgo = (v, onlyAgo, prepend) => {
+  let ts = v;
+  if (isNumber(ts) && ts < 946684800000) {
+    ts = ts * 1000;
+  } else if (prepend) {
+    ts = ts + prepend
+  }
+  const d = new Date(ts);
+  const ago = format(d);
+  const time = dateToZooyStdTimeString(d);
+  if (onlyAgo === 'both') {
+    return `${ago} (${time})`
+  }
+  if (onlyAgo === 'ago') {
+    return `${ago}`
+  }
+  if (onlyAgo === 'datetime') {
+    return `${time}`
+  }
+  return `${ago} (${time})`;
+}
+
 export const mapDataToEls = (rootEl, json) => {
 
   if (!json) {
@@ -370,17 +392,13 @@ export const mapDataToEls = (rootEl, json) => {
             v = new Date(v).toLocaleString(undefined, dFormatter);
             break;
           case 'moment_ago':
-            const prepend = dataMap['zdd_date_tz'] || void 0;
-            let ts = v;
-            if (isNumber(ts) && ts < 946684800000) {
-              ts = ts * 1000;
-            } else if (prepend) {
-              ts = ts + prepend
-            }
-            const d = new Date(ts);
-            const ago = format(d);
-            const time = dateToZooyStdTimeString(d);
-            v = `${ago} (${time})`;
+            v = parseMomentAgo(v, 'both',dataMap['zdd_date_tz'] || void 0)
+            break;
+          case 'moment_ago_only':
+            v = parseMomentAgo(v, 'ago',dataMap['zdd_date_tz'] || void 0)
+            break;
+          case 'moment_ago_datetime':
+            v = parseMomentAgo(v, 'datetime',dataMap['zdd_date_tz'] || void 0)
             break;
           case 'linear-progress':
             const max = toNumber(dataMap.zpmax);
