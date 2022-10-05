@@ -32,15 +32,14 @@
 </div>
 <script type="module">
 
-  import Split from '../src/ui/split.js';
-  import Panel from '../src/ui/panel.js';
+  import zooy from '../main.js';
 
-  const s = new Split(30);
+  const s = new zooy.Split(30);
   s.domFunc = () => document.getElementById('root');
   s.render();
   s.addSplit(undefined, 'EW');
 
-  const p = new Panel('../demo/panel/empty.html');
+  const p = new zooy.Panel('./panel/empty.html');
   p.target = s.getNest('B');
   p.readyFunc = mdc.autoInit;
   p.renderWithTemplate();

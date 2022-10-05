@@ -35,8 +35,9 @@
 
 <button id="button">TESTME</button>
 <script type="module">
-    import EVT from '../src/ui/evt.js';
-    import Component from '../src/ui/component.js';
+    import zooy from '../main.js';
+    // import EVT from '../src/ui/evt.js';
+    // import Component from '../src/ui/component.js';
 
     const button = document.querySelector('#button');
     const root = document.querySelector('#root');
@@ -47,16 +48,16 @@
       return el;
     };
 
-    let a = new Component();
+    let a = new zooy.Component();
     a.domFunc = makeBlock('slateblue');
 
-    let b = new Component();
+    let b = new zooy.Component();
     b.domFunc = makeBlock('lightgrey');
 
-    let c = new Component();
+    let c = new zooy.Component();
     c.domFunc = makeBlock('limegreen');
 
-    let ev = EVT.makeEvent('hello', [123,456]);
+    let ev = zooy.EVT.makeEvent('hello', [123,456]);
 
     a.target = root;
     a.render();
@@ -67,8 +68,6 @@
     a.listen(b, 'hello', e => console.log('A got hello', e));
     b.listen(c, 'hello', e => console.log('B got hello', e));
 
-
-
     b.listen(a, 'hello', e => console.log('B got hello', e));
     c.listen(a, 'hello', e => console.log('C got hello', e));
 
@@ -77,8 +76,8 @@
 
     console.log('A is dispatching');
     a.dispatchEvent(ev);
-    b.listen(a, Component.compEventCode(), e => {
-      console.log('B got', Component.compEventCode(), e);
+    b.listen(a, zooy.Component.compEventCode(), e => {
+      console.log('B got', zooy.Component.compEventCode(), e);
       console.log('Value is', e.detail.getValue());
       console.log('Data is', e.detail.getData());
     });

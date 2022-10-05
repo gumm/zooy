@@ -61,14 +61,14 @@
     ">
 </div>
 <script type="module">
-    import Split from '../src/ui/split.js';
+    import zooy from '../main.js'
 
-    const l = new Split(30);
+    const l = new zooy.Split(30);
     l.domFunc = () => document.getElementById('left');
     l.render();
     l.addSplit(undefined, 'EW');
 
-    const r = new Split(30);
+    const r = new zooy.Split(30);
     r.domFunc = () => document.getElementById('right');
     r.render();
     r.addSplit(undefined, 'NS');

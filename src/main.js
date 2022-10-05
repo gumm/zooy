@@ -1,3 +1,4 @@
+import EVT from "./ui/evt.js";
 import Component from './ui/component.js';
 import Dragger from './ui/dragger.js';
 import Panel from './ui/panel.js';
@@ -11,6 +12,7 @@ import * as domUtils from './dom/utils.js';
 import * as uriUtils from './uri/uri.js';
 
 const zooy = {
+  EVT,
   Component,
   Dragger,
   Panel,

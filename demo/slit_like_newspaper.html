@@ -28,9 +28,9 @@
     ">
 </div>
 <script type="module">
-    import Split from '../src/ui/split.js';
+    import zooy from '../main.js'
     import lorum from './lorum.js'
-    const s = new Split(30);
+    const s = new zooy.Split(30);
     s.domFunc = () => document.getElementById('root');
     s.render();
     s.addSplit(undefined, 'EW');

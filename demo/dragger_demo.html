@@ -26,9 +26,7 @@
 <body>
 <div id="root" style="background-color: chartreuse; width: 200px; height: 200px;"></div>
 <script type="module">
-    import Component from '../src/ui/component.js';
-    import Dragger from '../src/ui/dragger.js';
-    import { UiEventType } from '../src/events/uieventtype.js'
+    import zooy from '../main.js';
 
     const root = document.querySelector('#root');
 
@@ -52,44 +50,44 @@
       return el;
     };
 
-    let DRAG_A = new Dragger('xy');
+    let DRAG_A = new zooy.Dragger('xy');
     DRAG_A.domFunc = makeDraggableBlock('FullFreedom');
     DRAG_A.render(root);
 
-    let DRAG_X = new Dragger('x');
+    let DRAG_X = new  zooy.Dragger('x');
     DRAG_X.domFunc = makeDraggableBlock('X-ONLY');
     DRAG_X.render(root);
     console.log(DRAG_X.getElement());
 
-    let DRAG_Y = new Dragger('y');
+    let DRAG_Y = new  zooy.Dragger('y');
     DRAG_Y.domFunc = makeDraggableBlock('Y-ONLY');
     DRAG_Y.render(root);
 
-    let a = new Component();
+    let a = new  zooy.Component();
     a.domFunc = makeBlock('slateblue');
     a.render(root);
-    a.listen(DRAG_A, Component.compEventCode(), (function(e) {
-      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
+    a.listen(DRAG_A,  zooy.Component.compEventCode(), (function(e) {
+      if (e.detail.getValue() === zooy.UiEventType.COMP_DRAG_MOVE) {
         const data = e.detail.getData();
         this.getElement().textContent = `${data.deltaX}, ${data.deltaY}`;
       }
     }).bind(a));
 
-    let b = new Component();
+    let b = new  zooy.Component();
     b.domFunc = makeBlock('limegreen');
     b.render(root);
-    b.listen(DRAG_X, Component.compEventCode(), (function(e) {
-      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
+    b.listen(DRAG_X,  zooy.Component.compEventCode(), (function(e) {
+      if (e.detail.getValue() === zooy.UiEventType.COMP_DRAG_MOVE) {
         const data = e.detail.getData();
         this.getElement().textContent = `${data.deltaX}, ${data.deltaY}`;
       }
     }).bind(b));
 
-    let c = new Component();
+    let c = new  zooy.Component();
     c.domFunc = makeBlock('lightgrey');
     c.render(root);
-    c.listen(DRAG_Y, Component.compEventCode(), (function(e) {
-      if (e.detail.getValue() === UiEventType.COMP_DRAG_MOVE) {
+    c.listen(DRAG_Y,  zooy.Component.compEventCode(), (function(e) {
+      if (e.detail.getValue() === zooy.UiEventType.COMP_DRAG_MOVE) {
         const data = e.detail.getData();
         this.getElement().textContent = `${data.deltaX}, ${data.deltaY}`;
       }

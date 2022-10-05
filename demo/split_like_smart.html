@@ -53,8 +53,8 @@
     <div class="footer"></div>
 </div>
 <script type="module">
-    import Split from '../src/ui/split.js';
-    const s = new Split(30);
+    import zooy from "../main.js";
+    const s = new zooy.Split(30);
     s.domFunc = () => document.getElementById('main');
     s.render();
     s.addSplit(undefined, 'EW', [300], [400]);

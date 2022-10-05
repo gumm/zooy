@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag Drop Demo</title>
+    <link rel="stylesheet" href="../src/css/main.css">
+    <script src="../node_modules/material-components-web/dist/material-components-web.js"></script>
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+
+        .nest {
+            border: 20px solid #666666;
+        }
+
+        .north-south._A {
+            border-bottom: none;
+        }
+
+        .north-south._C {
+            border-top: none;
+        }
+
+        .east-west._A {
+            border-right: none;
+        }
+
+        .east-west._C {
+            border-left: none;
+        }
+
+        .A, .dragger.__A .grabber {
+            background-color: tomato;
+        }
+
+        .B {
+            background-color: steelblue;
+        }
+
+        .C, .dragger.__C .grabber {
+            background-color: darkgoldenrod;
+        }
+
+        .grabber {
+            border: none;
+        }
+
+        .drag_item {
+            width: 200px;
+            height: 50px;
+            background-color: greenyellow;
+            border: 2px solid green;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 50px;
+            margin: 10px;
+        }
+
+        .drop_target {
+            width: 200px;
+            height: 100px;
+            background-color: #2e978e;
+            border: 2px solid green;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 100px;
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body style="height: 100%">
+<div id="main" style="
+    width: 70vw;
+    margin: auto;
+    background-color: lightgrey;
+    position: relative;
+    height: 70vh;
+    "></div>
+<script type="module">
+  import zooy from '../main.js'
+
+  const l = new zooy.Split(30);
+  l.domFunc = () => document.getElementById('main');
+  l.render();
+  l.addSplit(undefined, 'EW');
+  l.closeAndLock('C');
+
+  const leftNest = l.getNest('A');
+  const rightNest = l.getNest('B');
+
+  const dropTargets = new zooy.Panel('./panel/drop_targets.html');
+  dropTargets.debugMode = true;
+  dropTargets.target = leftNest;
+  dropTargets.readyFunc = mdc.autoInit;
+  dropTargets.renderWithTemplate();
+
+  const draggables = new zooy.Panel('./panel/draggable_items.html');
+  draggables.target = rightNest;
+  draggables.readyFunc = mdc.autoInit;
+  draggables.renderWithTemplate();
+
+
+
+</script>
+
+</body>
+</html>

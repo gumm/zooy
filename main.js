@@ -1,29 +1,3 @@
-//--------------------------------------------[ Standard component event data]--
-class ZooyEventData {
-
-  constructor(value, opt_data) {
-    /**
-     * @type {string|number}
-     * @private
-     */
-    this.value_ = value;
-
-    /**
-     * @type {string|number|Object|Map|Set}
-     * @private
-     */
-    this.data_ = opt_data || {};
-  }
-
-  getValue() {
-    return this.value_;
-  }
-
-  getData() {
-    return this.data_;
-  }
-}
-
 // noinspection JSUnusedLocalSymbols
 
 /**
@@ -412,6 +386,32 @@ class EVT extends EventTarget {
     this.disposeInternal();
   }
 
+}
+
+//--------------------------------------------[ Standard component event data]--
+class ZooyEventData {
+
+  constructor(value, opt_data) {
+    /**
+     * @type {string|number}
+     * @private
+     */
+    this.value_ = value;
+
+    /**
+     * @type {string|number|Object|Map|Set}
+     * @private
+     */
+    this.data_ = opt_data || {};
+  }
+
+  getValue() {
+    return this.value_;
+  }
+
+  getData() {
+    return this.data_;
+  }
 }
 
 /**
@@ -20242,6 +20242,7 @@ class Conductor extends EVT {
 }
 
 const zooy = {
+  EVT,
   Component,
   Dragger,
   Panel,
