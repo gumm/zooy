@@ -121,6 +121,12 @@ export default class View extends EVT {
 
     this.switchViewMap_ = new Map();
 
+    /**
+     * Arbitrary data object associated with the component.  Such as meta-data.
+     * @private {*}
+     */
+    this.meta_data_ = new Map();
+
   };
 
   set split(split) {
@@ -398,5 +404,29 @@ export default class View extends EVT {
     const event = EVT.makeEvent(UiEventType.VIEW, dataObj);
     return this.dispatchEvent(event);
   };
+
+
+  // ------------------------------------------------------------------------------[ Meta Data ]--
+  /**
+   * Returns the model associated with the UI component.
+   * @return {*}
+   */
+  get meta_data() {
+    return this.meta_data_
+  }
+
+  set_meta_data(k, v) {
+    this.meta_data_.set(k, v);
+    return this.meta_data;
+  }
+
+  get_meta_data(k) {
+    return this.meta_data_.get(k);
+  }
+
+  has_meta_data(k) {
+    return this.meta_data_.has(k);
+  }
+
 
 }

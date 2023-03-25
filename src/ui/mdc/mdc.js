@@ -90,7 +90,8 @@ export const renderIconButtons = function(panel) {
  */
 export const renderIconToggleButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
-    new mdc.iconButton.MDCIconButtonToggle(el);
+    const zComponent = new mdc.iconButton.MDCIconButtonToggle(el);
+    el.zComponent = zComponent;
     this.listen(el, 'click', e => e.stopPropagation());
     this.listen(el, 'MDCIconButtonToggle:change', e => {
       e.stopPropagation();
@@ -116,12 +117,9 @@ export const renderDataTables = function(panel) {
     // all across all pages.
     dataTable.selectedAllAcrossPages = false;
 
-    dataTable.onSomeSelected = () => {
-    };
-    dataTable.onNoneSelected = () => {
-    };
-    dataTable.onAllSelected = () => {
-    };
+    dataTable.onSomeSelected = () => {};
+    dataTable.onNoneSelected = () => {};
+    dataTable.onAllSelected = () => {};
     dataTable.toggleSelectAcrossPages = () => {
       dataTable.selectedAllAcrossPages = !dataTable.selectedAllAcrossPages;
       return dataTable.selectedAllAcrossPages;
