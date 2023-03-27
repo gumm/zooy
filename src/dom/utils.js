@@ -10,7 +10,7 @@ import {
 } from "badu";
 
 /**
- * Gets the current value of a checkable input element.
+ * Gets the current value of a check-able input element.
  * @param {Element} el The element.
  * @return {?string} The value of the form element (or null).
  * @private
@@ -35,7 +35,7 @@ const getSelectSingle_ = function(el) {
 /**
  * Gets the current value of a select-multiple element.
  * @param {Element} el The element.
- * @return {Array<string>?} The value of the form element (or null).
+ * @return {Array<string>|null} The value of the form element (or null).
  * @private
  */
 const getSelectMultiple_ = function(el) {
@@ -74,7 +74,7 @@ export const getValue = function(el) {
 
 
 /**
- * Converts a set of form elements to a object with form names, as keys,
+ * Converts a set of form elements to an object with form names, as keys,
  * and form values as values.
  * Use like this:
  *    const data = formToJSON(formElement.elements);
@@ -402,9 +402,9 @@ export const mapDataToEls = (rootEl, json) => {
             break;
           case 'linear-progress':
             const max = toNumber(dataMap.zpmax);
-            const prog = el.linProg;
-            if (max && prog) {
-              prog.progress = v / max;
+            const progress = el.linProg;
+            if (max && progress) {
+              progress.progress = v / max;
               v = undefined;
             }
             break;

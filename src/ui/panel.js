@@ -54,7 +54,7 @@ class Panel extends Component {
     this.evalScripts = evalScripts(this);
 
     // Modules are just appended to the DOM and does not share scope with
-    // the component. However they are appended to this panel's DOM, and will
+    // the component. However, they are appended to this panel's DOM, and will
     // disappear when the panel is removed from the DOM.
     this.evalModules = evalModules(this);
 
@@ -194,13 +194,13 @@ class Panel extends Component {
     const usr = this.user;
     if (usr) {
       return this.user.fetchJson(this.uri_, this.abortController.signal)
-          .then(json => {
-            this.assertCanRenderAsync();
-            if (opt_callback) {
-              opt_callback(json, this);
-            }
-            this.onRenderWithJSON(json)
-          }).catch(identity)
+        .then(json => {
+          this.assertCanRenderAsync();
+          if (opt_callback) {
+            opt_callback(json, this);
+          }
+          this.onRenderWithJSON(json)
+        }).catch(identity)
     } else {
       return Promise.reject('No user')
     }
@@ -245,7 +245,7 @@ class Panel extends Component {
     this.debugMe('Enable interactions. Panel:', panel);
 
     if (isDefAndNotNull(window.mdc) &&
-        window.mdc.hasOwnProperty('autoInit')) {
+      window.mdc.hasOwnProperty('autoInit')) {
       renderRipples.call(this, panel);
       renderButtons.call(this, panel);
       renderFloatingActionButtons.call(this, panel);
@@ -271,7 +271,7 @@ class Panel extends Component {
     // If I am a modal cover (.tst__modal-base), and have the
     // .close_on_click class, then close myself on click.
     if (panel.classList.contains('tst__modal-base') &&
-        panel.classList.contains('close_on_click')) {
+      panel.classList.contains('close_on_click')) {
       this.listen(panel, 'click', e => {
         if (e.target === panel) {
           this.dispatchPanelEvent('destroy_me');
@@ -280,19 +280,19 @@ class Panel extends Component {
     }
 
     [...panel.querySelectorAll(
-        '.tst__button:not(.external):not(.mdc-data-table__row)')].forEach(
-        el => {
-          this.listen(el, 'click', e => {
-            e.stopPropagation();
-            const trg = e.currentTarget;
-            const elDataMap = getElDataMap(trg);
-            this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-              orgEvt: e,
-              trigger: trg,
-              href: trg.href || elDataMap['href'],
-            }, elDataMap));
-          });
+      '.tst__button:not(.external):not(.mdc-data-table__row)')].forEach(
+      el => {
+        this.listen(el, 'click', e => {
+          e.stopPropagation();
+          const trg = e.currentTarget;
+          const elDataMap = getElDataMap(trg);
+          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+            orgEvt: e,
+            trigger: trg,
+            href: trg.href || elDataMap['href'],
+          }, elDataMap));
         });
+      });
 
     // Hijack elements with a straight-up 'href' attribute.
     // Make them emit a 'href' event with the original
@@ -332,18 +332,18 @@ class Panel extends Component {
 
     // Get all elements with class swapping functionality.
     [...panel.querySelectorAll('.tst__toggle_class_driver')].forEach(
-        el => {
-          const elDataMap = getElDataMap(el);
-          const toggleTarget = elDataMap['toggle_class_target_id'];
-          const toggleClass = elDataMap['toggle_class'];
-          const targetEl = panel.querySelector(`#${toggleTarget}`)
-          if (targetEl && toggleClass) {
-            el.addEventListener('click', e => {
-              e.stopPropagation();
-              targetEl.classList.toggle(toggleClass);
-            });
-          }
-        });
+      el => {
+        const elDataMap = getElDataMap(el);
+        const toggleTarget = elDataMap['toggle_class_target_id'];
+        const toggleClass = elDataMap['toggle_class'];
+        const targetEl = panel.querySelector(`#${toggleTarget}`)
+        if (targetEl && toggleClass) {
+          el.addEventListener('click', e => {
+            e.stopPropagation();
+            targetEl.classList.toggle(toggleClass);
+          });
+        }
+      });
 
     //-----------------------------------------------------------[ Drag Drop ]--
     const dropEls = Array.from(panel.querySelectorAll('.folder_drop_zone'));
@@ -372,13 +372,12 @@ class Panel extends Component {
       e.dataTransfer.dropEffect = 'move';
       let o = getElDataMap(e.target);
       e.dataTransfer.setData('text/plain', JSON.stringify(o));
+      e.target.classList.add('drag_in_progress');
+    };
+    const onDragend = e => {
+      e.target.classList.remove('drag_in_progress');
     };
 
-    // noinspection JSUnusedLocalSymbols
-    const justLog = e => {
-      //    console.log(e)
-    };
-    
     const onDrop = e => {
       deactivate(e);
       e.stopPropagation();
@@ -400,7 +399,7 @@ class Panel extends Component {
 
     dragEls.forEach(el => {
       el.addEventListener('dragstart', onDragStart, false);
-      el.addEventListener('dragend', justLog, false);
+      el.addEventListener('dragend', onDragend, false);
     }, false);
 
 
@@ -424,32 +423,32 @@ class Panel extends Component {
     // Call the given url, and then populate the calling element with the
     // results. Parse the content and scripts in the context of this panel.
     [...panel.querySelectorAll('.zoo_async_html')].forEach(
-        /**
-         * @param {Element} el
-         */
-        el => {
-          const elDataMap = getElDataMap(el);
-          const href = elDataMap['href'];
-          this.user.fetchAndSplit(href, this.abortController.signal)
+      /**
+       * @param {Element} el
+       */
+      el => {
+        const elDataMap = getElDataMap(el);
+        const href = elDataMap['href'];
+        this.user.fetchAndSplit(href, this.abortController.signal)
+          .then(data => {
+            el.appendChild(data.html);
+            this.parseContent(el);
+            this.evalScripts(data.scripts);
+            this.evalModules(data.modules);
+          });
+        const repeat = toNumber(elDataMap['z_interval']);
+        if (isNumber(repeat)) {
+          this.doOnBeat(() => {
+            this.user.fetchAndSplit(href, this.abortController.signal)
               .then(data => {
-                el.appendChild(data.html);
+                el.replaceChildren(data.html);
                 this.parseContent(el);
                 this.evalScripts(data.scripts);
                 this.evalModules(data.modules);
-              });
-          const repeat = toNumber(elDataMap['z_interval']);
-          if (isNumber(repeat)) {
-            this.doOnBeat(() => {
-              this.user.fetchAndSplit(href, this.abortController.signal)
-                  .then(data => {
-                    el.replaceChildren(data.html);
-                    this.parseContent(el);
-                    this.evalScripts(data.scripts);
-                    this.evalModules(data.modules);
-                  })
-            }, repeat * 60 * 1000)
-          }
-        });
+              })
+          }, repeat * 60 * 1000)
+        }
+      });
   };
 
   enterDocument() {
@@ -459,7 +458,7 @@ class Panel extends Component {
     this.evalModules(this.responseObject.modules);
 
     // Calling this last makes sure that the final PANEL-READY event really is
-    // dispatched right at the end of all of the enterDocument calls.
+    // dispatched right at the end of all the enterDocument calls.
     // However, note that the async populate is async, and my thus not be
     // completed by the time this fires.
     super.enterDocument();
@@ -495,8 +494,8 @@ class Panel extends Component {
    *    });
    * @param {string|number} value
    * @param {(string|number|?Object)=} opt_data
-   * @return {boolean} If anyone called preventDefault on the event object (or
-   *     if any of the handlers returns false this will also return false.
+   * @return {boolean} If anyone called preventDefault on the event object
+   *  or if any of the handlers returns false this will also return false.
    */
   dispatchPanelEvent(value, opt_data) {
     const dataObj = new ZooyEventData(value, opt_data);
