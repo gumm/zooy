@@ -21,10 +21,8 @@
   /*border-left: 1px solid darkgray;*/
 }
 .dragger {
-  background-color: transparent;
-  opacity: 0;
-  /*background-color: rgba(0,0,0,0.2);*/
-  /*opacity: 0.5;*/
+  background-color: rgba(0,0,0,0.2);
+  opacity: 0.5;
   display: flex;
   justify-content: space-around;
   align-items: center;

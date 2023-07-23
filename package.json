@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "18.0.1",
+  "version": "19.0.0",
   "main": "main.js",
   "type": "module",
   "author": {
