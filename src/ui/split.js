@@ -15,7 +15,7 @@ import ZooyEventData from "../events/zooyeventdata.js";
 
 
 
-//--------------------------------------------------------------[ DOM Makers ]--
+//----------------------------------------------------------------------[ DOM Makers ]--
 /**
  * @param {!Function} setW
  * @param {!Function} setH
@@ -517,7 +517,10 @@ export default class Split extends Component {
     if (this.resizeFuncs_.has(s)) {
       this.resizeFuncs_.get(s)(
           size,
-          () => {this.unlock(s); maybeFunc(func)},
+          () => {
+            this.unlock(s);
+            maybeFunc(func)();
+          },
           opt_skipAni);
     }
   }

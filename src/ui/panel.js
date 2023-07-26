@@ -482,11 +482,11 @@ class Panel extends Component {
 
   //-------------------------------------------------------[ Built in events ]--
   /**
-   * Dispatches a {@code UiEventType.PANEL} event.
+   * Dispatches a @code{UiEventType.PANEL} event.
    * A shorthand method to get panels to dispatch uniform events.
    * Views may listen just to this event, and act on the supplied value or
    * data payload.
-   * Example:
+   * @example
    *    b.listen(a, Panel.panelEventCode(), e => {
    *      console.log('B got', Panel.panelEventCode(), e);
    *      console.log('Value is', e.detail.getValue());
