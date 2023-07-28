@@ -1,21 +1,33 @@
 .zoo_split {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  padding: 0;
   gap: 0;
+
 }
 
 .zoo_split__ns {
   flex-direction: column;
   flex-wrap: nowrap;
+
+  > .zoo_nest__inner {
+    height: 0;
+  }
 }
 
 .zoo_split__ew {
   flex-direction: row;
   flex-wrap: nowrap;
+
+  > .zoo_nest__inner {
+    width: 0;
+  }
 }
 
 .zoo_nest {
-  background-color: rgba(255, 255, 255, 0.1);
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.1);
   border-radius: 20px;
   overflow: hidden;
   overflow-y: auto;
@@ -35,7 +47,6 @@
 
 .zoo_nest__inner {
   flex-grow: 1;
-  flex-shrink: 1;
 }
 
 .zoo_dragger {
@@ -45,8 +56,8 @@
   align-items: center;
   overflow: visible;
   flex-basis: 10px;
-  background-color: magenta;
-  opacity: 0.1;
+  background-color: rgba(255,255,255,0.5);
+  opacity: 0.7;
 
   &.locked {
     visibility: hidden;
@@ -57,25 +68,28 @@
   }
 
   &:hover, &:active {
-    opacity: 0.5;
+    opacity: 1;
   }
 }
 
 .zoo_grabber {
   position: absolute;
-  border-radius: 10px;
-  background-color: coral;
+  background-color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(0,0,0,0.3);
+  border-radius: 5px;
 }
 
 .zoo_split__ns > .zoo_dragger {
   height: 0;
   min-width: 0;
+  &:hover {
+    cursor: ns-resize;
+  }
 }
 
 .zoo_split__ns > .zoo_dragger > .zoo_grabber {
   height: 10px;
   width: 50px;
-
   &:hover {
     cursor: ns-resize;
   }
@@ -84,12 +98,14 @@
 .zoo_split__ew > .zoo_dragger {
   min-height: 0;
   width: 0;
+  &:hover {
+    cursor: ew-resize;
+  }
 }
 
 .zoo_split__ew > .zoo_dragger > .zoo_grabber {
   height: 50px;
   width: 10px;
-
   &:hover {
     cursor: ew-resize;
   }

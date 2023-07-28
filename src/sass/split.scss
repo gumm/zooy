@@ -1,8 +1,9 @@
 .nest {
-  background-color: lightgray;
+  background-color: rgba(0,0,0,0.1);
   overflow: hidden;
   overflow-y: auto;
   display: flex;
+  border-radius: 15px;
 }
 .nest.closed {
   border: none;

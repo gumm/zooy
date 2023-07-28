@@ -1,6 +1,7 @@
 html {
   box-sizing: border-box;
 }
+
 //*, *:before, *:after {
 //  box-sizing: inherit;
 //}
@@ -28,18 +29,15 @@ time, mark, audio, video {
 ::-webkit-scrollbar {
   width: 8px;
 }
-::-webkit-scrollbar-track {}
-::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.06);
-}
-::-webkit-scrollbar-thumb:window-inactive {
-  background: rgba(0,0,0,0.05);
+
+::-webkit-scrollbar-track {
 }
 
-#split_root {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.06);
 }
+
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(0, 0, 0, 0.05);
+}
+

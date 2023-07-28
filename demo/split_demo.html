@@ -42,23 +42,20 @@
 <script type="module">
   import zooy from '../main.js'
 
-  // Split (Simple)
+  // // Split (Simple)
   const t = new zooy.Split_2();
   t.domFunc = () => document.getElementById('right');
   t.render();
   t.addSplit(undefined, 'NS', 350, 80);
-  t.addSplit(t.getNest('A'), 'NS', 50, 50);
-  t.addSplit(t.getNest('B'), 'EW', 50, 80);
+  t.closeAndLock('A');
   window.split_test = t;
 
 
-  const r = new zooy.Split(0, 15);
+  const r = new zooy.Split(10, 15);
   r.domFunc = () => document.getElementById('left');
   r.render();
-  r.addSplit(undefined, 'NS');
-  r.addSplit(r.getNest('A'), 'NS');
-  r.addSplit(r.getNest('B'), 'EW');
-  r.closeAndLock('BA');
+  r.addSplit(undefined, 'NS', [350], [80]);
+  // r.addSplit(r.getNest('B'), 'EW');
 
 
 </script>
