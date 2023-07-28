@@ -8,70 +8,59 @@
         html {
             box-sizing: border-box;
         }
+
         *, *:before, *:after {
             box-sizing: inherit;
         }
-        .nest {
-            border: 20px solid #666666;
+
+        #left {
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            background-color: #f7f7f7;
+            height: 70%;
+            width: calc(35% - 7%);
         }
-        .north-south._A {
-            border-bottom: none;
+
+        #right {
+            position: absolute;
+            top: 15%;
+            right: 15%;
+            background-color: #fff4f4;
+            height: 70%;
+            width: calc(35% - 7%);
         }
-        .north-south._C {
-            border-top: none;
-        }
-        .east-west._A {
-            border-right: none;
-        }
-        .east-west._C {
-            border-left: none;
-        }
-        .A, .dragger.__A .grabber {
-            background-color: tomato;
-        }
-        .B {
-            background-color: steelblue;
-        }
-        .C, .dragger.__C .grabber {
-            background-color: darkgoldenrod;
-        }
-        .grabber {
-            border: none;
-        }
+
 
     </style>
 </head>
 <body>
-<div id="left" style="
-    position: absolute;
-    top: 15%;
-    left: 15%;
-    background-color: lightgrey;
-    height: 70%;
-    width: calc(35% - 7%);
-    ">
-</div>
-<div id="right" style="
-    position: absolute;
-    top: 15%;
-    right: 15%;
-    background-color: lightgrey;
-    height: 70%;
-    width: calc(35% - 7%);
-    ">
-</div>
+<div id="left"></div>
+<div id="right"></div>
+
+
 <script type="module">
-    import zooy from '../main.js'
+  import zooy from '../main.js'
 
-    const l = new zooy.Split(30);
-    l.domFunc = () => document.getElementById('left');
-    l.render();
-    l.addSplit(undefined, 'EW');
+  // Split (Simple)
+  const t = new zooy.Split_2();
+  t.domFunc = () => document.getElementById('right');
+  t.render();
+  t.addSplit(undefined, 'NS', 350, 80);
+  t.addSplit(t.getNest('A'), 'NS', 50, 50);
+  t.addSplit(t.getNest('B'), 'EW', 50, 80);
+  window.split_test = t;
 
-    const r = new zooy.Split(30);
-    r.domFunc = () => document.getElementById('right');
-    r.render();
-    r.addSplit(undefined, 'NS');
+
+  const r = new zooy.Split(0, 15);
+  r.domFunc = () => document.getElementById('left');
+  r.render();
+  r.addSplit(undefined, 'NS');
+  r.addSplit(r.getNest('A'), 'NS');
+  r.addSplit(r.getNest('B'), 'EW');
+  r.closeAndLock('BA');
+
+
 </script>
 
 </body>
