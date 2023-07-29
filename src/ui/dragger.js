@@ -26,9 +26,9 @@ const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) =>
 
       // Drag move.
       let dragFunc = freeMoveListener(moveEmit, target, xOrg, yOrg);
-      if (degreesOfFreedom === 'x') {
+      if (['x', 'ew'].includes(degreesOfFreedom)) {
         dragFunc = xMoveOnlyListener(moveEmit, target, xOrg, yOrg);
-      } else if (degreesOfFreedom === 'y') {
+      } else if (['y', 'ns'].includes(degreesOfFreedom)) {
         dragFunc = yMoveOnlyListener(moveEmit, target, xOrg, yOrg);
       }
 
@@ -111,8 +111,8 @@ class Dragger extends Component {
      * @type {string}
      * @private
      */
-    this.degreesOfFreedom_ = ['x', 'y', 'xy'].includes(freedom)
-        ? freedom
+    this.degreesOfFreedom_ = ['x', 'y', 'xy', 'ew', 'ns'].includes(freedom.toLowerCase())
+        ? freedom.toLowerCase()
         : 'xy';
 
     /**

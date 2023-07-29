@@ -4,7 +4,9 @@ import {
   identity, randomId,
 } from 'badu';
 import EVT from "./evt.js";
+import Dragger from './dragger.js';
 import ZooyEventData from "../events/zooyeventdata.js";
+import {EV} from "../events/mouseandtouchevents.js";
 
 
 //--------------------------------------------------------------[ Main Class ]--
@@ -61,7 +63,7 @@ export default class Split_2 extends Component {
    * @param {string} nestName Nest name
    */
   lock(nestName) {
-    const {nestEl, dragEl, defSize} = this.nestMap_.get(nestName);
+    const {dragEl} = this.nestMap_.get(nestName);
     dragEl.classList.add('locked');
   }
 
@@ -73,7 +75,7 @@ export default class Split_2 extends Component {
    * @param {string} nestName Nest name
    */
   unlock(nestName) {
-    const {nestEl, dragEl, defSize} = this.nestMap_.get(nestName);
+    const {dragEl} = this.nestMap_.get(nestName);
     dragEl.classList.remove('locked');
   }
 
@@ -87,9 +89,12 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    * TODO: There is a bug here when we resize a nest that is already on it's size,
    *    then the callback never gets called if the skip_ani flag is false (the default)
+   *    That is why there is the 100ms timeout on setting the flex basis.
    */
   resize(nestName, size, callback = identity, opt_skipAni = false) {
-    const {nestEl, dragEl, defSize} = this.nestMap_.get(nestName);
+    const {nestEl} = this.nestMap_.get(nestName);
+    this.nestMap_.get(nestName).isClosed = size <= 0;
+
     if (opt_skipAni) {
       nestEl.classList.remove('animated');
       nestEl.style.flexBasis = `${size}px`;
@@ -100,9 +105,11 @@ export default class Split_2 extends Component {
         callback();
       });
       nestEl.classList.add('animated');
+
+      // TODO: Workaround for race.
       setTimeout(() => {
         nestEl.style.flexBasis = `${size}px`;
-      }, 50);
+      }, 100);
 
     }
   }
@@ -116,7 +123,7 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   closeAndLock(nestName, callback = identity, opt_skipAni = false) {
-    const {nestEl, dragEl, defSize} = this.nestMap_.get(nestName);
+    const {nestEl, dragEl} = this.nestMap_.get(nestName);
     const onDone = () => {
       dragEl.classList.add('locked');
       dragEl.classList.add('closed');
@@ -137,11 +144,12 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   openAndUnlock(nestName, size, callback, opt_skipAni = false) {
-    const {nestEl, dragEl, defSize} = this.nestMap_.get(nestName);
-    const targetSize = size || defSize;
+    const {nestEl, dragEl, defSize, lastSize} = this.nestMap_.get(nestName);
+    const targetSize = size || lastSize || defSize;
     nestEl.classList.remove('closed');
     dragEl.classList.remove('closed');
     dragEl.classList.remove('locked');
+    dragEl.classList.remove('collapsed');
     setTimeout(() => {
       this.resize(nestName, targetSize, callback, opt_skipAni)
     }, 50);
@@ -157,10 +165,11 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   openAndLock(nestName, size, callback, opt_skipAni = false) {
-    const {nestEl, dragEl, defSize} = this.nestMap_.get(nestName);
-    const targetSize = size || defSize;
+    const {nestEl, dragEl, defSize, lastSize} = this.nestMap_.get(nestName);
+    const targetSize = size || lastSize || defSize;
     nestEl.classList.remove('closed');
     dragEl.classList.remove('closed');
+    dragEl.classList.remove('collapsed');
     setTimeout(() => {
       this.resize(nestName, targetSize, callback, opt_skipAni)
     }, 50);
@@ -175,8 +184,45 @@ export default class Split_2 extends Component {
    * @param {boolean?} opt_skipAni When true, the resize won't be animated, but
    *    simply affected directly.
    */
-  close(nestName, callback, opt_skipAni = false) {
-    this.resize(nestName, 0, callback, opt_skipAni);
+  close(nestName, callback = identity, opt_skipAni = false) {
+    const {dragEl} = this.nestMap_.get(nestName);
+    const cb = () => {
+      dragEl.classList.add('collapsed');
+      callback();
+    };
+    this.resize(nestName, 0, cb, opt_skipAni);
+  }
+
+  /**
+   * Open the nest ignoring its current locked state.
+   * @param {string} nestName Nest name
+   * @param {Function|undefined} callback A callback function to call once
+   *    the resize completed.
+   * @param {boolean?} opt_skipAni When true, the resize won't be animated, but
+   *    simply affected directly.
+   */
+  open(nestName, callback, opt_skipAni = false) {
+    const {defSize, lastSize, dragEl} = this.nestMap_.get(nestName);
+    dragEl.classList.remove('collapsed');
+    dragEl.classList.remove('closed');
+    const targetSize = lastSize || defSize;
+    this.resize(nestName, targetSize, callback, opt_skipAni);
+  }
+
+  /**
+   * Close the nest ignoring its current locked state.
+   * @param {string} nestName Nest name
+   * @param {Function|undefined} callback A callback function to call once
+   *    the resize completed.
+   * @param {boolean?} opt_skipAni When true, the resize won't be animated, but
+   *    simply affected directly.
+   */
+  toggle(nestName, callback, opt_skipAni = false) {
+    if (this.nestMap_.get(nestName).isClosed) {
+      this.open(nestName, callback, opt_skipAni);
+    } else {
+      this.close(nestName, callback, opt_skipAni);
+    }
   }
 
 
@@ -234,8 +280,12 @@ export default class Split_2 extends Component {
     // Make the nest elements
     const refA = `${refN}A`;
     const A = makeOuterNest(defSizeA, ['zoo_nest__A', refA]);
-    const AB = makeDraggerEl();
-    this.nestMap_.set(refA, {nestEl: A, dragEl: AB, defSize: defSizeA});
+    const AB = new Dragger(orientation);
+    AB.domFunc = makeDraggerEl;
+    AB.render(root);
+    this.nestMap_.set(refA, {
+      nestEl: A, dragger: AB, dragEl: AB.getElement(), defSize: defSizeA
+    });
 
     // Middle nests don't have accosted daggers
     const refB = `${refN}B`;
@@ -244,16 +294,44 @@ export default class Split_2 extends Component {
 
     // Outer nest and its dragger
     const refC = `${refN}C`;
-    const BC = makeDraggerEl();
+    const BC = new Dragger(orientation);
+    BC.domFunc = makeDraggerEl;
+    BC.render(root);
     const C = makeOuterNest(defSizeC, ['zoo_nest__C', refC]);
-    this.nestMap_.set(refC, {nestEl: C, dragEl: BC, defSize: defSizeC});
+    this.nestMap_.set(refC, {
+      nestEl: C, dragger: BC, dragEl: BC.getElement(), defSize: defSizeC
+    });
 
-    [A, AB, B, BC, C].forEach(e => root.appendChild(e));
+    [A, AB.getElement(), B, BC.getElement(), C].forEach(e => root.appendChild(e));
 
-    let sizeA;
-    let yStart;
-    let yRef;
-    let yDelta;
+    const onDragEvent = (orientation, nest, ref, factor) => {
+      let start;
+      const metric = orientation === 'NS' ? 'height' : 'width';
+      const delta = orientation === 'NS' ? 'deltaY' : 'deltaX';
+      return event => {
+        switch (event.detail.value_) {
+          case UiEventType.COMP_DRAG_START:
+            start = nest.getBoundingClientRect()[metric];
+            this.nestMap_.get(ref).dragEl.classList.remove('collapsed');
+            break;
+          case UiEventType.COMP_DRAG_MOVE:
+            const val = start + factor * event.detail.data_[delta];
+            this.nestMap_.get(ref).lastSize = val
+            nest.style.flexBasis = val + 'px';
+            break;
+          case UiEventType.COMP_DRAG_END:
+            // We do nothing here. Be careful, this fires even if no drag took place.
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    this.listen(AB, Component.compEventCode(), onDragEvent(orientation, A, refA, 1));
+    this.listen(BC, Component.compEventCode(), onDragEvent(orientation, C, refC, -1));
+    this.listen(AB.getElement(), EV.DBLCLICK, () => this.toggle(refA));
+    this.listen(BC.getElement(), EV.DBLCLICK, () => this.toggle(refC));
 
     this.listen(A, "transitionend", (event) => {
       const callback = this.nestCallbackMap_.get(refA);
@@ -265,54 +343,6 @@ export default class Split_2 extends Component {
       this.nestCallbackMap_.delete(refC);
       callback && callback();
     })
-
-    if (orientation === 'NS') {
-      AB.addEventListener("dragstart", (event) => {
-        event.dataTransfer.setDragImage(this.dragImage_, 0, 0);
-        sizeA = A.getBoundingClientRect().height;
-      });
-      AB.addEventListener("drag", (event) => {
-        sizeA = sizeA + event.offsetY
-        A.style.flexBasis = sizeA + 'px'
-      });
-
-      BC.addEventListener("dragstart", (event) => {
-        event.dataTransfer.setDragImage(this.dragImage_, 0, 0);
-        yStart = C.getBoundingClientRect().height;
-        yDelta = 0;
-        yRef = event.y;
-      });
-      BC.addEventListener("drag", (event) => {
-        const val = event.y
-        if (val !== 0) {
-          yDelta = yRef - val;
-          C.style.flexBasis = yStart + yDelta + 'px'
-        }
-      });
-    } else {
-      AB.addEventListener("dragstart", (event) => {
-        event.dataTransfer.setDragImage(this.dragImage_, 0, 0);
-        sizeA = A.getBoundingClientRect().width;
-      });
-      AB.addEventListener("drag", (event) => {
-        sizeA = sizeA + event.offsetX
-        A.style.flexBasis = sizeA + 'px'
-      });
-
-      BC.addEventListener("dragstart", (event) => {
-        event.dataTransfer.setDragImage(this.dragImage_, 0, 0);
-        yStart = C.getBoundingClientRect().width;
-        yDelta = 0;
-        yRef = event.x;
-      });
-      BC.addEventListener("drag", (event) => {
-        const val = event.x
-        if (val !== 0) {
-          yDelta = yRef - val;
-          C.style.flexBasis = yStart + yDelta + 'px'
-        }
-      });
-    }
   }
 
   //-------------------------------------------------------[ Built in events ]--
@@ -387,7 +417,7 @@ const makeInnerNest = (classArr = []) => {
 const makeDraggerEl = (classArr = []) => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
-  el.setAttribute('draggable', true);
+  // el.setAttribute('draggable', true);
   el.classList.add('zoo_dragger');
   classArr.forEach(e => el.classList.add(e));
 

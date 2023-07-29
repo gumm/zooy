@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "build_css": "sass --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css",
-    "rollup": "npx rollup -c"
+    "rollup": "npx rollup -c",
+    "dev_watch_sass": "sass --watch --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css"
   },
   "license": "Apache-2.0",
   "repository": {

@@ -5,26 +5,18 @@
     <title>Test Component</title>
     <link rel="stylesheet" href="../src/css/main.css">
     <style>
-        /*div {*/
-            /*color: white;*/
-            /*position: relative;*/
-            /*min-width: 20px;*/
-            /*min-height: 20px;*/
-            /*background-color: red;*/
-        /*}*/
-        /*.noselect {*/
-            /*-webkit-touch-callout: none; !* iOS Safari *!*/
-            /*-webkit-user-select: none; !* Safari *!*/
-            /*-khtml-user-select: none; !* Konqueror HTML *!*/
-            /*-moz-user-select: none; !* Firefox *!*/
-            /*-ms-user-select: none; !* Internet Explorer/Edge *!*/
-            /*user-select: none; !* Non-prefixed version, currently*/
-                                  /*supported by Chrome and Opera *!*/
-        /*}*/
+        .left {
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            background-color: #f7f7f7;
+            height: 50%;
+            width: calc(35% - 7%);
+        }
     </style>
 </head>
 <body>
-<div id="root" style="background-color: chartreuse; width: 200px; height: 200px;"></div>
+<div id="root" class="left" ></div>
 <script type="module">
     import zooy from '../main.js';
 
@@ -54,13 +46,13 @@
     DRAG_A.domFunc = makeDraggableBlock('FullFreedom');
     DRAG_A.render(root);
 
-    let DRAG_X = new  zooy.Dragger('x');
-    DRAG_X.domFunc = makeDraggableBlock('X-ONLY');
+    let DRAG_X = new  zooy.Dragger('ew');
+    DRAG_X.domFunc = makeDraggableBlock('X_Only');
     DRAG_X.render(root);
     console.log(DRAG_X.getElement());
 
     let DRAG_Y = new  zooy.Dragger('y');
-    DRAG_Y.domFunc = makeDraggableBlock('Y-ONLY');
+    DRAG_Y.domFunc = makeDraggableBlock('Y_Only');
     DRAG_Y.render(root);
 
     let a = new  zooy.Component();
