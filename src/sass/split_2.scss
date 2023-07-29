@@ -28,28 +28,29 @@
     }
   }
 
-  > .zoo_nest {
-    position: relative;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 20px;
-    overflow: hidden;
-    overflow-y: auto;
+}
 
-    &.closed {
-      display: none;
+.zoo_nest {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  overflow-y: auto;
+
+  &.closed {
+    display: none;
+  }
+
+  &.zoo_nest__outer {
+    flex-basis: 50px;
+
+    &.animated {
+      transition: flex-basis 200ms ease-in-out;
     }
+  }
 
-    &.zoo_nest__outer {
-      flex-basis: 50px;
-
-      &.animated {
-        transition: flex-basis 200ms ease-in-out;
-      }
-    }
-
-    &.zoo_nest__inner {
-      flex-grow: 1;
-    }
+  &.zoo_nest__inner {
+    flex-grow: 1;
   }
 }
 
