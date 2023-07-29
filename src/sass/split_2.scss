@@ -36,6 +36,7 @@
   border-radius: 20px;
   overflow: hidden;
   overflow-y: auto;
+  flex-shrink: 0;
 
   &.closed {
     display: none;
@@ -43,6 +44,7 @@
 
   &.zoo_nest__outer {
     flex-basis: 50px;
+    flex-shrink: 0;
 
     &.animated {
       transition: flex-basis 200ms ease-in-out;
@@ -64,6 +66,7 @@
   background-color: rgba(255, 255, 255, 0.5);
   opacity: 0.7;
   z-index: 2;
+  flex-shrink: 0;
 
   &.locked {
     visibility: hidden;
