@@ -62,6 +62,9 @@
   r.addSplit(undefined, 'NS', [350], [80]);
   r.addSplit(r.getNest('B'), 'EW', [80], [80]);
   r.closeAndLock('BA');
+  r.listen(r, zooy.UiEventType.SPLIT, e => {
+    console.log(e);
+  })
 
 
 </script>

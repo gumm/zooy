@@ -12,42 +12,51 @@ import {EV, normalizeEvent} from '../events/mouseandtouchevents.js';
  * @return {function(!Event)}
  */
 const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) =>
-    event => {
-      event.preventDefault();
-      const ev = normalizeEvent(event);
-      const target = /** @type {!HTMLElement} */ (ev.currentTarget);
-      const [left, top] = getPos(target);
-      const xOrg = ev.clientX - left;
-      const yOrg = ev.clientY - top;
+  event => {
+    event.preventDefault();
+    const ev = normalizeEvent(event);
+    const target = /** @type {!HTMLElement} */ (ev.currentTarget);
+    const [left, top] = getPos(target);
+    const xOrg = ev.clientX - left;
+    const yOrg = ev.clientY - top;
 
-      const startEmit = onStart(left, top, xOrg, yOrg, target);
-      const endEmit = onEnd(left, top, xOrg, yOrg, target);
-      const moveEmit = onMove(left, top, xOrg, yOrg, target);
+    // let didMove = false;
+    const startEmit = onStart(left, top, xOrg, yOrg, target);
+    const endEmit = onEnd(left, top, xOrg, yOrg, target);
+    const moveEmit = onMove(left, top, xOrg, yOrg, target);
 
-      // Drag move.
-      let dragFunc = freeMoveListener(moveEmit, target, xOrg, yOrg);
-      if (['x', 'ew'].includes(degreesOfFreedom)) {
-        dragFunc = xMoveOnlyListener(moveEmit, target, xOrg, yOrg);
-      } else if (['y', 'ns'].includes(degreesOfFreedom)) {
-        dragFunc = yMoveOnlyListener(moveEmit, target, xOrg, yOrg);
-      }
+    // Drag move.
+    let dragFunc = freeMoveListener(moveEmit, target, xOrg, yOrg);
+    if (['x', 'ew'].includes(degreesOfFreedom)) {
+      dragFunc = xMoveOnlyListener(moveEmit, target, xOrg, yOrg);
+    } else if (['y', 'ns'].includes(degreesOfFreedom)) {
+      dragFunc = yMoveOnlyListener(moveEmit, target, xOrg, yOrg);
+    }
 
-      const cancelFunc = e => {
-        document.removeEventListener(EV.MOUSEMOVE, dragFunc, true);
-        document.removeEventListener(EV.TOUCHMOVE, dragFunc, true);
-        document.removeEventListener(EV.MOUSEUP, cancelFunc, true);
-        document.removeEventListener(EV.TOUCHEND, cancelFunc, true);
+    let didMove = false;
+    let df = (e) => {
+      didMove = true;
+      dragFunc(e);
+    }
+
+    const cancelFunc = e => {
+      document.removeEventListener(EV.MOUSEMOVE, df, true);
+      document.removeEventListener(EV.TOUCHMOVE, df, true);
+      document.removeEventListener(EV.MOUSEUP, cancelFunc, true);
+      document.removeEventListener(EV.TOUCHEND, cancelFunc, true);
+      if (didMove) {
         endEmit(e);
-      };
-
-      document.addEventListener(EV.MOUSEUP, cancelFunc, true);
-      document.addEventListener(EV.TOUCHEND, cancelFunc, true);
-      document.addEventListener(EV.MOUSEMOVE, dragFunc, true);
-      document.addEventListener(EV.TOUCHMOVE, dragFunc, true);
-      startEmit(event);
-
-      return cancelFunc;
+      }
     };
+
+    document.addEventListener(EV.MOUSEUP, cancelFunc, true);
+    document.addEventListener(EV.TOUCHEND, cancelFunc, true);
+    document.addEventListener(EV.MOUSEMOVE, df, true);
+    document.addEventListener(EV.TOUCHMOVE, df, true);
+    startEmit(event);
+
+    return cancelFunc;
+  };
 
 
 /**
@@ -112,8 +121,8 @@ class Dragger extends Component {
      * @private
      */
     this.degreesOfFreedom_ = ['x', 'y', 'xy', 'ew', 'ns'].includes(freedom.toLowerCase())
-        ? freedom.toLowerCase()
-        : 'xy';
+      ? freedom.toLowerCase()
+      : 'xy';
 
     /**
      * @type {!Node|undefined}
@@ -189,10 +198,10 @@ class Dragger extends Component {
       const onStart = makeEmitter(this, UiEventType.COMP_DRAG_START);
       const onEnd = makeEmitter(this, UiEventType.COMP_DRAG_END);
       const dragFunc = dragStartListener(
-          onStart, onMove, onEnd, this.degreesOfFreedom_);
+        onStart, onMove, onEnd, this.degreesOfFreedom_);
       this.isLocked_ = false;
       this.dragHandle_ = /** @type {!Node} */ (
-          this.dragHandle_ || this.getElement());
+        this.dragHandle_ || this.getElement());
       this.listen(this.dragHandle_, EV.MOUSEDOWN, wrapperFunc(dragFunc));
       this.listen(this.dragHandle_, EV.TOUCHSTART, dragFunc);
       this.dragHandle_.classList.remove('locked');
