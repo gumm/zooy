@@ -49,6 +49,9 @@
   t.addSplit(undefined, 'NS', 350, 80);
   t.addSplit(t.getNest('B'), 'EW', 80, 80);
   t.closeAndLock('BA');
+  t.listen(t, zooy.UiEventType.SPLIT, e => {
+    console.log(e);
+  })
   window.split_test = t;
 
 

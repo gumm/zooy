@@ -22,6 +22,7 @@ export const UiEventType = {
   PANEL: randomId(),
   VIEW: randomId(),
   SPLIT: randomId(),
+  SPLIT_TRANSITION_END: randomId(),
   READY: randomId(),
   PANEL_MINIMIZE: randomId(),
   FORM_SUBMIT_SUCCESS: randomId(),

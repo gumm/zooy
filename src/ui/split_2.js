@@ -333,15 +333,38 @@ export default class Split_2 extends Component {
     this.listen(AB.getElement(), EV.DBLCLICK, () => this.toggle(refA));
     this.listen(BC.getElement(), EV.DBLCLICK, () => this.toggle(refC));
 
+
+
+  //   comp.dispatchCompEvent(evType, {
+  //   component: comp,
+  //   browserEvent: ev,
+  //   left: left,
+  //   top: top,
+  //   clientX: ev.clientX,
+  //   clientY: ev.clientY,
+  //   xOrg: xOrg,
+  //   yOrg: yOrg,
+  //   deltaX: ev.clientX - xOrg - left,
+  //   deltaY: ev.clientY - yOrg - top,
+  //   target: target
+  // })
+
+
+
+
+
+
     this.listen(A, "transitionend", (event) => {
       const callback = this.nestCallbackMap_.get(refA);
       this.nestCallbackMap_.delete(refA);
       callback && callback();
+      this.dispatchSplitEvent(UiEventType.SPLIT_TRANSITION_END, this.nestMap_.get(refA));
     });
     this.listen(C, "transitionend", (event) => {
       const callback = this.nestCallbackMap_.get(refC);
       this.nestCallbackMap_.delete(refC);
       callback && callback();
+      this.dispatchSplitEvent(UiEventType.SPLIT_TRANSITION_END, this.nestMap_.get(refC));
     })
   }
 
