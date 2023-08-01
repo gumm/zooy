@@ -2,6 +2,7 @@ import {format} from "timeago.js"
 import {
   identity,
   isDefAndNotNull,
+  isFunction,
   isString,
   isNumber,
   toNumber,
@@ -15,7 +16,7 @@ import {
  * @return {?string} The value of the form element (or null).
  * @private
  */
-const getInputChecked_ = function(el) {
+const getInputChecked_ = function (el) {
   return el.checked ? /** @type {?} */ (el).value : null;
 };
 
@@ -25,11 +26,11 @@ const getInputChecked_ = function(el) {
  * @return {?string} The value of the form element (or null).
  * @private
  */
-const getSelectSingle_ = function(el) {
+const getSelectSingle_ = function (el) {
   const selectedIndex = /** @type {!HTMLSelectElement} */ (el).selectedIndex;
   return selectedIndex >= 0 ?
-      /** @type {!HTMLSelectElement} */ (el).options[selectedIndex].value :
-      null;
+    /** @type {!HTMLSelectElement} */ (el).options[selectedIndex].value :
+    null;
 };
 
 /**
@@ -38,7 +39,7 @@ const getSelectSingle_ = function(el) {
  * @return {Array<string>|null} The value of the form element (or null).
  * @private
  */
-const getSelectMultiple_ = function(el) {
+const getSelectMultiple_ = function (el) {
   const values = [];
   for (let option, i = 0;
        option = /** @type {!HTMLSelectElement} */ (el).options[i]; i++) {
@@ -55,7 +56,7 @@ const getSelectMultiple_ = function(el) {
  * @return {string|Array<string>|null} The current value of the element
  *     (or null).
  */
-export const getValue = function(el) {
+export const getValue = function (el) {
   // Elements with a type may need more specialized logic.
   const type = /** @type {!HTMLInputElement} */ (el).type;
   switch (isString(type) && type.toLowerCase()) {
@@ -148,7 +149,7 @@ export const getPos = el => {
  */
 export const randomColour = opt_a => {
   return [1, 2, 3].map(() => Math.floor(Math.random() * 256) + 1)
-      .reduce((p, c) => `${p}${c},`, 'rgba(') + `${opt_a ? opt_a : 0.5}`;
+    .reduce((p, c) => `${p}${c},`, 'rgba(') + `${opt_a ? opt_a : 0.5}`;
 };
 
 
@@ -180,7 +181,7 @@ export const totalHeight = el => {
  */
 export const evalScripts = comp => arr => {
   arr && Array.from(arr).forEach(s => {
-    (function() {
+    (function () {
       eval(s.text);
     }).bind(comp)();
   });
@@ -198,7 +199,7 @@ export const evalScripts = comp => arr => {
  */
 export const evalModules = comp => arr => {
   arr && Array.from(arr).forEach(e => {
-    (function() {
+    (function () {
       const script = document.createElement('script');
       script.type = 'module';
       script.textContent = e.textContent;
@@ -297,16 +298,16 @@ const dFormatter = {
 };
 
 const dtf = new Intl.DateTimeFormat(
-    "en", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      // hour12: false
-      hourCycle: "h23",
-    });
+  "en", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    // hour12: false
+    hourCycle: "h23",
+  });
 
 const dateToZooyStdTimeString = d => {
   // [ { type: 'month', value: 'Aug' },
@@ -353,12 +354,46 @@ const parseMomentAgo = (v, onlyAgo, prepend) => {
   return `${ago} (${time})`;
 }
 
-export const mapDataToEls = (rootEl, json) => {
+const parseObfuscated = v => {
+  /**
+   * @param {string} s
+   * @return {function(number): boolean}
+   */
+  const tst = s => i => i < s.length - 4;
+  const t = tst(v);
+  const ob = s => s.split('').map((c, i) => t(i) ? '*' : c).join('');
+  return ob(v);
+}
+
+const parseMap = new Map()
+  .set(undefined, (v, el, dataMap) => identity(v))
+  .set('', (v, el, dataMap) => identity(v))
+  .set('class_update_only', (v, el, dataMap) => identity(v))
+  .set('frac_100', (v, el, dataMap) => Math.round((v * 100) * 100) / 100)
+  .set('date_and_time', (v, el, dataMap) => new Date(v).toLocaleString(undefined, dtFormatter))
+  .set('date', (v, el, dataMap) => new Date(v).toLocaleString(undefined, dFormatter))
+  .set('moment_ago', (v, el, dataMap) => parseMomentAgo(v, 'both', dataMap['zdd_date_tz'] || void 0))
+  .set('moment_ago_only', (v, el, dataMap) => parseMomentAgo(v, 'ago', dataMap['zdd_date_tz'] || void 0))
+  .set('moment_ago_datetime', (v, el, dataMap) => parseMomentAgo(v, 'datetime', dataMap['zdd_date_tz'] || void 0))
+  .set('pretty-json', (v, el, dataMap) => JSON.stringify(v, null, 4))
+  .set('obfuscated', (v, el, dataMap) => parseObfuscated(v))
+  .set('linear-progress', (v, el, dataMap) => {
+    const max = toNumber(dataMap.zpmax);
+    const progress = el.linProg;
+    if (max && progress) {
+      progress.progress = v / max;
+      v = undefined;
+    }
+    return v;
+  })
+
+export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map()) => {
 
   if (!json) {
     return;
   }
 
+  const merged = new Map([...parseMap, ...opt_extendedMap]);
   [...rootEl.querySelectorAll('[data-zdd]')].forEach(el => {
     const dataMap = getElDataMap(el);
     const lldRef = dataMap['zdd'];
@@ -368,56 +403,7 @@ export const mapDataToEls = (rootEl, json) => {
     let v = pathOr(undefined, lldRef.split('.'))(json);
 
     if (isDefAndNotNull(v)) {
-      if (parseAs) {
-        switch (parseAs) {
-          case 'class_update_only':
-            break;
-          case 'obfuscated':
-            /**
-             * @param {string} s
-             * @return {function(number): boolean}
-             */
-            const tst = s => i => i < s.length - 4;
-            const t = tst(v);
-            const ob = s => s.split('').map((c, i) => t(i) ? '*' : c).join('');
-            v = ob(v);
-            break;
-          case 'frac_100':
-            v = Math.round((v * 100) * 100) / 100;
-            break;
-          case 'date_and_time':
-            v = new Date(v).toLocaleString(undefined, dtFormatter);
-            break;
-          case 'date':
-            v = new Date(v).toLocaleString(undefined, dFormatter);
-            break;
-          case 'moment_ago':
-            v = parseMomentAgo(v, 'both',dataMap['zdd_date_tz'] || void 0)
-            break;
-          case 'moment_ago_only':
-            v = parseMomentAgo(v, 'ago',dataMap['zdd_date_tz'] || void 0)
-            break;
-          case 'moment_ago_datetime':
-            v = parseMomentAgo(v, 'datetime',dataMap['zdd_date_tz'] || void 0)
-            break;
-          case 'linear-progress':
-            const max = toNumber(dataMap.zpmax);
-            const progress = el.linProg;
-            if (max && progress) {
-              progress.progress = v / max;
-              v = undefined;
-            }
-            break;
-          case 'pretty-json':
-            v = JSON.stringify(v, null, 4)
-            break;
-          default:
-            // Do nothing;
-            // We add this identity func else rollup strips the default
-            // clause
-            v = identity(v);
-        }
-      }
+      v = merged.has(parseAs) ? merged.get(parseAs)(v, el, dataMap) : v
     }
 
     if (classUpdate) {
@@ -430,7 +416,7 @@ export const mapDataToEls = (rootEl, json) => {
             const oldClassName = name.replace(regex, '');
             const newClass = name.replace(regex, v);
             el.classList.remove(...[...el.classList].filter(
-                e => e.includes(oldClassName)))
+              e => e.includes(oldClassName)))
             el.classList.add(newClass);
             break;
           case 'remove_on_data':
