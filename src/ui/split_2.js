@@ -252,10 +252,19 @@ export default class Split_2 extends Component {
    *    components own element is used. Else, the element is checked to be
    *    a member of this split-group, and if so, is split.
    * @param {?string} orientation Only 'EW' or 'NS'. Defaults to 'EW'
-   * @param defSizeA {?number}
-   * @param defSizeC {?number}
+   * @param {?number} defSizeA Default size of the 'A' nest.
+   * @param {?number} defSizeC Default size of the 'C' nest. The 'B' nest gets the
+   *    remainder of the 'A' and 'C' nests, and can not be set directly.
+   * @param {?Array<string>} classArrA Extra class names to be added to this nest
+   * @param {?Array<string>} classArrB Extra class names to be added to this nest
+   * @param {?Array<string>} classArrC Extra class names to be added to this nest
    */
-  addSplit(opt_el = void 0, orientation = 'EW', defSizeA = 100, defSizeC = 100) {
+  addSplit(opt_el = void 0, orientation = 'EW',
+           defSizeA = 100,
+           defSizeC = 100,
+           classArrA = [],
+           classArrB = [],
+           classArrC = []) {
 
     // Check that we are not splitting the same root element twice.
     let root = opt_el ? opt_el : this.getElement();
@@ -279,7 +288,7 @@ export default class Split_2 extends Component {
 
     // Make the nest elements
     const refA = `${refN}A`;
-    const A = makeOuterNest(defSizeA, ['zoo_nest__A', refA]);
+    const A = makeOuterNest(defSizeA, [...['zoo_nest__A', refA], ...classArrA]);
     const AB = new Dragger(orientation);
     AB.domFunc = makeDraggerEl;
     AB.render(root);
@@ -289,7 +298,7 @@ export default class Split_2 extends Component {
 
     // Middle nests don't have accosted daggers
     const refB = `${refN}B`;
-    const B = makeInnerNest(['zoo_nest__B', refB]);
+    const B = makeInnerNest([...['zoo_nest__B', refB], ...classArrB]);
     this.nestMap_.set(refB, {nestEl: B});
 
     // Outer nest and its dragger
@@ -297,7 +306,7 @@ export default class Split_2 extends Component {
     const BC = new Dragger(orientation);
     BC.domFunc = makeDraggerEl;
     BC.render(root);
-    const C = makeOuterNest(defSizeC, ['zoo_nest__C', refC]);
+    const C = makeOuterNest(defSizeC, [...['zoo_nest__C', refC], ...classArrC]);
     this.nestMap_.set(refC, {
       nestEl: C, dragger: BC, dragEl: BC.getElement(), defSize: defSizeC
     });

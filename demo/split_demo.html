@@ -13,6 +13,10 @@
             box-sizing: inherit;
         }
 
+        .zoo_nest {
+            background-color: transparent;
+        }
+
         #left {
             position: absolute;
             top: 15%;
@@ -26,9 +30,25 @@
             position: absolute;
             top: 15%;
             right: 15%;
-            background-color: #fff4f4;
+            /*background-color: #ffebeb;*/
             height: 70%;
             width: calc(35% - 7%);
+        }
+
+        .bg_red {
+            background: tomato;
+        }
+
+        .bg_blue {
+            background: cornflowerblue;
+        }
+
+        .bg_orange {
+            background: sandybrown;
+        }
+
+        .bg_pink {
+            background: lightpink;
         }
 
 
@@ -46,8 +66,8 @@
   const t = new zooy.Split_2();
   t.domFunc = () => document.getElementById('right');
   t.render();
-  t.addSplit(undefined, 'NS', 350, 80);
-  t.addSplit(t.getNest('B'), 'EW', 80, 80);
+  t.addSplit(undefined, 'NS', 350, 80, ['bg_blue'], [], ['bg_red']);
+  t.addSplit(t.getNest('B'), 'EW', 80, 80, [], ['bg_orange'], ['bg_pink']);
   t.closeAndLock('BA');
   t.listen(t, zooy.UiEventType.SPLIT, e => {
     console.log(e);
