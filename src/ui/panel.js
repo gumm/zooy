@@ -1,5 +1,5 @@
 import Component from './component.js';
-import {identity, isDefAndNotNull, isNumber, toNumber} from 'badu';
+import {identity, isDefAndNotNull, isNumber, toNumber,} from 'badu';
 import {
   evalModules,
   evalScripts,
@@ -170,15 +170,42 @@ class Panel extends Component {
 
   /**
    * Partially replace panel's content.
+   * If an ID query selector (#something) is passed in, then that single node is replaced
+   * in the panel DOM with the single node in the content DOM
+   *
+   * If a class query selector (.some_class) is passed in, all elements in the
+   * panel's dom with that class is replaced with the matching
+   * element ID in the content DOM matching the target DOMs element IDs
+   *
+   * NOTE: For the spot replacement to work, you need both the classname
+   * and a unique element ID on the element you intend to replace.
+   *
+   * NOTE: Top level replacements will clobber child replacements.
+   *
    * @param content
    * @param qs
    */
   onReplacePartialDom(content, qs) {
-    const replacementContent = content.html.querySelector(qs);
-    const target = this.getElement().querySelector(qs);
-    target.parentNode.replaceChild(replacementContent, target);
 
-    this.parseContent(replacementContent);
+    const panelEl = this.getElement();
+    const hyperText = content.html;
+
+    if (qs.startsWith(".")) {
+      [...panelEl.querySelectorAll(qs)]
+        .filter(e => isDefAndNotNull(e.id))
+        .map(e => [e, hyperText.querySelector(`#${e.id}`)])
+        .filter(([target, replace]) => isDefAndNotNull(replace))
+        .forEach(([target, replace]) => {
+          target.parentNode.replaceChild(replace, target);
+          this.parseContent(replace);
+        })
+    } else if (qs.startsWith("#")) {
+      const replacementContent = hyperText.querySelector(qSelect);
+      const target = panelEl.querySelector(qSelect);
+      target.parentNode.replaceChild(replacementContent, target);
+      this.parseContent(replacementContent);
+    }
+
     this.evalScripts(content.scripts);
     this.evalModules(content.modules);
   }

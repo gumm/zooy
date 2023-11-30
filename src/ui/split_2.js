@@ -258,13 +258,17 @@ export default class Split_2 extends Component {
    * @param {?Array<string>} classArrA Extra class names to be added to this nest
    * @param {?Array<string>} classArrB Extra class names to be added to this nest
    * @param {?Array<string>} classArrC Extra class names to be added to this nest
+   * @param {?Array<string>} classArrDragger Extra classes for the dragger element
+   * @param {?Array<string>} classArrGrabber Extra classes for the grabber element
    */
   addSplit(opt_el = void 0, orientation = 'EW',
            defSizeA = 100,
            defSizeC = 100,
            classArrA = [],
            classArrB = [],
-           classArrC = []) {
+           classArrC = [],
+           classArrDragger = [],
+           classArrGrabber  = []) {
 
     // Check that we are not splitting the same root element twice.
     let root = opt_el ? opt_el : this.getElement();
@@ -290,7 +294,7 @@ export default class Split_2 extends Component {
     const refA = `${refN}A`;
     const A = makeOuterNest(defSizeA, [...['zoo_nest__A', refA], ...classArrA]);
     const AB = new Dragger(orientation);
-    AB.domFunc = makeDraggerEl;
+    AB.domFunc = makeDraggerEl(classArrDragger);
     AB.render(root);
     this.nestMap_.set(refA, {
       nestEl: A, dragger: AB, dragEl: AB.getElement(), defSize: defSizeA
@@ -304,7 +308,7 @@ export default class Split_2 extends Component {
     // Outer nest and its dragger
     const refC = `${refN}C`;
     const BC = new Dragger(orientation);
-    BC.domFunc = makeDraggerEl;
+    BC.domFunc = makeDraggerEl(classArrDragger, classArrGrabber);
     BC.render(root);
     const C = makeOuterNest(defSizeC, [...['zoo_nest__C', refC], ...classArrC]);
     this.nestMap_.set(refC, {
@@ -423,19 +427,21 @@ const makeInnerNest = (classArr = []) => {
 };
 
 /**
- * @param {!Array<string>} classArr
- * @return {!Element}
+ * @param {?Array<string>} classArrDragger
+ * @param {?Array<string>} classArrGrabber
+ * @returns {function(): HTMLDivElement}
  */
-const makeDraggerEl = (classArr = []) => {
+const makeDraggerEl = (classArrDragger = [], classArrGrabber = []) => () => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
   // el.setAttribute('draggable', true);
   el.classList.add('zoo_dragger');
-  classArr.forEach(e => el.classList.add(e));
+  classArrDragger.forEach(e => el.classList.add(e));
 
   // Append an inner grabber.
   const grabber = document.createElement('div');
   grabber.classList.add('zoo_grabber');
+  classArrGrabber.forEach(e => grabber.classList.add(e));
   el.appendChild(grabber);
   return el;
 };

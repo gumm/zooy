@@ -117,9 +117,9 @@ export const renderDataTables = function(panel) {
     // all across all pages.
     dataTable.selectedAllAcrossPages = false;
 
-    dataTable.onSomeSelected = () => {};
-    dataTable.onNoneSelected = () => {};
-    dataTable.onAllSelected = () => {};
+    dataTable.onSomeSelected = (selectedRowCount) => {};
+    dataTable.onNoneSelected = (selectedRowCount) => {};
+    dataTable.onAllSelected = (selectedRowCount) => {};
     dataTable.toggleSelectAcrossPages = () => {
       dataTable.selectedAllAcrossPages = !dataTable.selectedAllAcrossPages;
       return dataTable.selectedAllAcrossPages;
@@ -137,11 +137,11 @@ export const renderDataTables = function(panel) {
     const onSelections = e => {
       const selectedRowCount = dataTable.getSelectedRowIds().length
       if (e.type === 'MDCDataTable:selectedAll') {
-        dataTable.onAllSelected();
+        dataTable.onAllSelected(selectedRowCount);
       } else if (selectedRowCount === 0) {
-        dataTable.onNoneSelected();
+        dataTable.onNoneSelected(selectedRowCount);
       } else {
-        dataTable.onSomeSelected();
+        dataTable.onSomeSelected(selectedRowCount);
       }
     }
 

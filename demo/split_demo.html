@@ -51,6 +51,15 @@
             background: lightpink;
         }
 
+        .custom_dragger {
+            background: transparent;
+        }
+
+        .custom_grabber {
+            background: red;
+        }
+
+
 
     </style>
 </head>
@@ -66,8 +75,8 @@
   const t = new zooy.Split_2();
   t.domFunc = () => document.getElementById('right');
   t.render();
-  t.addSplit(undefined, 'NS', 350, 80, ['bg_blue'], [], ['bg_red']);
-  t.addSplit(t.getNest('B'), 'EW', 80, 80, [], ['bg_orange'], ['bg_pink']);
+  t.addSplit(undefined, 'NS', 350, 80, ['bg_blue'], [], ['bg_red'], ['custom_dragger'], ['custom_grabber']);
+  t.addSplit(t.getNest('B'), 'EW', 80, 80, [], ['bg_orange'], ['bg_pink'], ['custom_dragger']);
   t.closeAndLock('BA');
   t.listen(t, zooy.UiEventType.SPLIT, e => {
     console.log(e);
