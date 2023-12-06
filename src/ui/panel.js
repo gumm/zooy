@@ -1,5 +1,5 @@
 import Component from './component.js';
-import {identity, isDefAndNotNull, isNumber, toNumber,} from 'badu';
+import {identity, isDefAndNotNull, isNumber, toNumber, maybeBool} from 'badu';
 import {
   evalModules,
   evalScripts,
@@ -438,6 +438,14 @@ class Panel extends Component {
       const href = elDataMap['href'];
       const onReply = this.onAsyncJsonReply.bind(this, el, elDataMap);
       this.user.fetchJson(href, this.abortController.signal).then(onReply);
+      const reusableJson = elDataMap['z_json_reusable'];
+      if (reusableJson) {
+        this.jsonCallFuncs = this.jsonCallFuncs || {};
+        this.jsonCallFuncs[reusableJson] = () => {
+          this.user.fetchJson(href, this.abortController.signal).then(onReply);
+        }
+      }
+
       const repeat = toNumber(elDataMap['z_interval']);
       if (isNumber(repeat)) {
         this.doOnBeat(() => {
