@@ -297,7 +297,7 @@ const dFormatter = {
   day: 'numeric',
 };
 
-const dtf = new Intl.DateTimeFormat(
+export const dtf = new Intl.DateTimeFormat(
   "en", {
     day: "2-digit",
     month: "short",
@@ -309,7 +309,7 @@ const dtf = new Intl.DateTimeFormat(
     hourCycle: "h23",
   });
 
-const dateToZooyStdTimeString = d => {
+export const dateToZooyStdTimeString = d => {
   // [ { type: 'month', value: 'Aug' },
   //   { type: 'literal', value: ' ' },
   //   { type: 'day', value: '05' },
@@ -332,7 +332,7 @@ const dateToZooyStdTimeString = d => {
   return `${da} ${mo} ${ye}, ${hr}:${mn}:${sc}`;
 }
 
-const parseMomentAgo = (v, onlyAgo, prepend) => {
+export const parseMomentAgo = (v, onlyAgo, prepend) => {
   let ts = v;
   if (isNumber(ts) && ts < 946684800000) {
     ts = ts * 1000;
@@ -365,7 +365,7 @@ const parseObfuscated = v => {
   return ob(v);
 }
 
-const parseMap = new Map()
+export const parseMap = new Map()
   .set(undefined, (v, el, dataMap) => identity(v))
   .set('', (v, el, dataMap) => identity(v))
   .set('class_update_only', (v, el, dataMap) => identity(v))
