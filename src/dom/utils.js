@@ -301,7 +301,7 @@ export const dtf = new Intl.DateTimeFormat(
   "en", {
     day: "2-digit",
     month: "short",
-    year: "numeric",
+    year: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
@@ -329,10 +329,17 @@ export const dateToZooyStdTimeString = d => {
     {value: mn}, ,
     {value: sc}, ,
   ] = dtf.formatToParts(d)
-  return `${da} ${mo} ${ye}, ${hr}:${mn}:${sc}`;
+  return `${da} ${mo} ${ye} ${hr}:${mn}:${sc}`;
 }
 
-export const parseMomentAgo = (v, onlyAgo, prepend) => {
+/**
+ * Format a number to a date and time and time-ago string.
+ * @param {string|number} v The value to parse
+ * @param {string} resultFormat Any of "time|ago", "time", "ago" etc.
+ * @param prepend Data to prepend to the value.
+ * @returns {`${string}|${string}`|`${string} (${string})`|string}
+ */
+export const parseMomentAgo = (v, resultFormat = 'both', prepend = undefined) => {
   let ts = v;
   if (isNumber(ts) && ts < 946684800000) {
     ts = ts * 1000;
@@ -342,16 +349,21 @@ export const parseMomentAgo = (v, onlyAgo, prepend) => {
   const d = new Date(ts);
   const ago = format(d);
   const time = dateToZooyStdTimeString(d);
-  if (onlyAgo === 'both') {
-    return `${ago} (${time})`
+
+  switch (resultFormat) {
+    case 'time|ago':
+      return `${time}|${ago}`;
+    case 'ago':
+      return `${ago}`;
+    case 'datetime':
+    case 'time':
+      return `${time}`;
+    case 'both':
+    case 'ago (time)':
+    default:
+      return `${ago} (${time})`;
   }
-  if (onlyAgo === 'ago') {
-    return `${ago}`
-  }
-  if (onlyAgo === 'datetime') {
-    return `${time}`
-  }
-  return `${ago} (${time})`;
+
 }
 
 const parseObfuscated = v => {

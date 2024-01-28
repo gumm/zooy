@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "24.0.0",
+  "version": "25.0.0",
   "main": "main.js",
   "type": "module",
   "author": {
@@ -22,18 +22,18 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "badu": "^4.0.0",
+    "badu": "^8.1.0",
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {
-    "rollup": "^3.20.0",
-    "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-terser": "^0.4.0",
+    "rollup": "^4.9.5",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
     "esm": "^3.2.25",
     "material-components-web": "^14.0.0",
     "mocha": "^10.2.0",
-    "sass": "^1.59.3",
-    "ramda": "^0.28.0"
+    "sass": "^1.69.7",
+    "ramda": "^0.29.1"
   }
 }
