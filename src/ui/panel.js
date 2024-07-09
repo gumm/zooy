@@ -33,6 +33,7 @@ import {
   renderTextFieldIcons,
   renderTextFields,
 } from './mdc/mdc.js';
+import {getPath, objectToUrlParms, getQueryData, queryDataToMap} from "../uri/uri.js";
 
 class Panel extends Component {
 
@@ -48,7 +49,9 @@ class Panel extends Component {
   constructor(uri) {
     super();
 
-    this.uri_ = uri;
+    this.qParamMap_ = new Map();
+    this.uri_ = "";
+    this.parseUri(uri);
 
     // Script are evaluated in the context of the panel.
     this.evalScripts = evalScripts(this);
@@ -92,7 +95,10 @@ class Panel extends Component {
 
   //---------------------------------------------------[ Getters and Setters ]--
   get uri() {
-    return this.uri_;
+    const params = this.qParamMap_.size > 0
+      ? "?" + objectToUrlParms(Object.fromEntries(this.qParamMap_))
+      : "";
+    return this.uri_ + params;
   }
 
   /**
@@ -111,6 +117,23 @@ class Panel extends Component {
     }
     return this.user_;
   };
+
+  parseUri(uri) {
+    this.uri_ = getPath(uri);
+    this.qParamMap_ = queryDataToMap(getQueryData(uri));
+  }
+
+  addToQParams(k, v) {
+    this.qParamMap_.set(k, v);
+  };
+
+  removeFromQParams(k) {
+    this.qParamMap_.delete(k);
+  }
+
+  clearQParams() {
+    this.qParamMap_.clear();
+  }
 
 
   //----------------------------------------------------[ Template Render ]-----
@@ -137,7 +160,7 @@ class Panel extends Component {
   renderWithTemplate(opt_callback) {
     const usr = this.user;
     if (usr) {
-      return usr.fetch(this.uri_, this.abortController.signal).then(s => {
+      return usr.fetch(this.uri, this.abortController.signal).then(s => {
         this.assertCanRenderAsync();
         if (opt_callback) {
           opt_callback(this);

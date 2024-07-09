@@ -1,3 +1,4 @@
+
 /**
  * A regular expression for breaking a URI into its component parts.
  *
@@ -61,22 +62,22 @@
  * @private
  */
 const splitRe_ = new RegExp(
-    '^' +
-    '(?:' +
-    '([^:/?#.]+)' +  // scheme - ignore special characters
-    // used by other URL parts such as :,
-    // ?, /, #, and .
-    ':)?' +
-    '(?://' +
-    '(?:([^/?#]*)@)?' +  // userInfo
-    '([^/#?]*?)' +       // domain
-    '(?::([0-9]+))?' +   // port
-    '(?=[/#?]|$)' +      // authority-terminating character
-    ')?' +
-    '([^?#]+)?' +          // path
-    '(?:\\?([^#]*))?' +    // query
-    '(?:#([\\s\\S]*))?' +  // fragment
-    '$');
+  '^' +
+  '(?:' +
+  '([^:/?#.]+)' +  // scheme - ignore special characters
+  // used by other URL parts such as :,
+  // ?, /, #, and .
+  ':)?' +
+  '(?://' +
+  '(?:([^/?#]*)@)?' +  // userInfo
+  '([^/#?]*?)' +       // domain
+  '(?::([0-9]+))?' +   // port
+  '(?=[/#?]|$)' +      // authority-terminating character
+  ')?' +
+  '([^?#]+)?' +          // path
+  '(?:\\?([^#]*))?' +    // query
+  '(?:#([\\s\\S]*))?' +  // fragment
+  '$');
 
 
 /**
@@ -112,7 +113,7 @@ const ComponentIndex = {
 const split = uri => {
   // See @return comment -- never null.
   return /** @type {!Array<string|undefined>} */ (
-      uri.match(splitRe_));
+    uri.match(splitRe_));
 };
 
 
@@ -135,16 +136,31 @@ const decodeOrEmpty_ = (val, opt_preserveReserved) => {
   // so that we can distinguish between the 2 inputs. This is later undone by
   // removeDoubleEncoding_.
   return opt_preserveReserved ? decodeURI(val.replace(/%25/g, '%2525')) :
-      decodeURIComponent(val);
+    decodeURIComponent(val);
 };
 
 
 const getPath = uri => decodeOrEmpty_(split(uri)[ComponentIndex.PATH], true);
 
+const getQueryData = uri => decodeOrEmpty_(split(uri)[ComponentIndex.QUERY_DATA], true);
+
 const objectToUrlParms = obj => [...Object.entries(obj)].map(
-    e => `${e[0]}=${e[1]}`).join('&');
+  e => `${e[0]}=${e[1]}`).join('&');
+
+
+const isValidValue = t => t != null && t !== "";
+
+const queryDataToMap = qString => qString.split('&').reduce((p, c) => {
+  const [k, v] = c.split("=");
+  if (isValidValue(k) && isValidValue(v)) {
+    p.set(k,v);
+  }
+  return p;
+}, new Map());
 
 export {
   objectToUrlParms,
-  getPath
+  getPath,
+  getQueryData,
+  queryDataToMap,
 }

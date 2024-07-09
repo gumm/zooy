@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "25.0.0",
+  "version": "26.0.0",
   "main": "main.js",
   "type": "module",
   "author": {
@@ -26,14 +26,14 @@
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {
-    "rollup": "^4.9.5",
+    "rollup": "^4.17.2",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "esm": "^3.2.25",
-    "material-components-web": "^14.0.0",
-    "mocha": "^10.2.0",
-    "sass": "^1.69.7",
-    "ramda": "^0.29.1"
+    "material-components-web": "14.0.0",
+    "mocha": "^10.6.0",
+    "sass": "^1.77.6",
+    "ramda": "^0.30.1"
   }
 }

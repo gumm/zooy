@@ -21,9 +21,9 @@ const toggleTree = (eventData, panel) => {
   const children = panel.getElement().querySelectorAll('.children');
   const revealIcons = panel.getElement().querySelectorAll('.tst__reveal_icon');
   [...children].forEach(e => enableClass(
-      e, 'tst__tree-children__hidden', e !== fc && !isOn));
+    e, 'tst__tree-children__hidden', e !== fc && !isOn));
   [...revealIcons].forEach(e => enableClass(
-      e, 'tst__icon_rotated', e !== fc && !isOn));
+    e, 'tst__icon_rotated', e !== fc && !isOn));
 };
 
 
@@ -271,80 +271,104 @@ export default class View extends EVT {
 
   initPanelEventsInternal_() {
     return new Map()
-        .set('toggle_tree', (eventData, ePanel) => {
-          toggleTree(eventData, ePanel)
-        })
-        .set('tree_toggle-children', (eventData, ePanel) => {
-          toggleTreeChildren(
-              ePanel,
-              /**@type {{trigger:!HTMLElement}}*/ (eventData))
-        })
-        .set('destroy_me', (eventData, ePanel) => {
-          this.removePanel(ePanel);
-        })
-        .set('paginate', (eventData, ePanel) => {
-          const href = `${eventData.href}?${eventData.targetval}`;
-          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
-              s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-          )
-        })
-        .set('search', (eventData, ePanel) => {
-          let href = `${eventData.href}`;
-          const qString = eventData.formData.q;
-          const qDict = eventData.targetval;
-          if (qString !== '') {
-            href = `${href}?q=${qString}`
+      .set('toggle_tree', (eventData, ePanel) => {
+        toggleTree(eventData, ePanel)
+      })
+      .set('tree_toggle-children', (eventData, ePanel) => {
+        toggleTreeChildren(
+          ePanel,
+          /**@type {{trigger:!HTMLElement}}*/ (eventData))
+      })
+      .set('destroy_me', (eventData, ePanel) => {
+        this.removePanel(ePanel);
+      })
+      .set('paginate', (eventData, ePanel) => {
+        const href = `${eventData.href}?${eventData.targetval}`;
+        this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
+          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+        );
+      })
+      .set('search_by_qdict', (eventData, ePanel) => {
+        const qString = eventData.formData.q;
+        if (qString !== '') {
+          ePanel.addToQParams("q", qString);
+        } else {
+          ePanel.removeFromQParams("q");
+        }
+        this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
+          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+        );
+      })
+      .set('search', (eventData, ePanel) => {
+        let href = `${eventData.href}`;
+        const qString = eventData.formData.q;
+        const qDict = eventData.targetval;
+        if (qString !== '') {
+          href = `${href}?q=${qString}`
+        }
+        if (qDict !== '') {
+          let newQDict = qDict;
+          if (qDict.includes('page=')) {
+            newQDict = qDict.split('&').filter(e => !e.includes('page=')).join('&');
           }
-          if (qDict !== '') {
-            let newQDict = qDict;
-            if (qDict.includes('page=')) {
-              newQDict = qDict.split('&').filter(e => !e.includes('page=')).join('&');
-            }
-            href = qString !== '' ? `${href}&${newQDict}` : `${href}?${newQDict}`;
-          }
-          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
-              s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-          )
-        })
-        .set('list_filter', (eventData, ePanel) => {
-          const href = `${eventData.href}?${eventData.targetval}`;
-          this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
-              s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-          )
-        })
-        .set('reset_search', (eventData, ePanel) => {
-          // Grab the closest form up the DOM, reset its 'q' field and make
-          // it use the normal submit logic.
-          const form = eventData.trigger.closest('form');
-          form.elements['q'].value = '';
-          form.dispatchEvent(new Event('submit'));
-        })
-        .set('switch_view', (eventData, ePanel) => {
-          this.debugMe('switch_view received: eventData', eventData);
+          href = qString !== '' ? `${href}&${newQDict}` : `${href}?${newQDict}`;
+        }
+        this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
+          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+        );
+      })
+      .set('list_filter', (eventData, ePanel) => {
+        const href = `${eventData.href}?${eventData.targetval}`;
+        this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
+          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+        );
+      })
+      .set('add_q_dict_kv', (eventData, ePanel) => {
+        ePanel.addToQParams(eventData.zqdictkey, eventData.zqdictvalue);
+        this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
+          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+        );
+      })
+      .set('remove_q_dict_k', (eventData, ePanel) => {
+        ePanel.removeFromQParams(eventData.zqdictkey);
+        this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
+          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
+        );
+      })
+      .set('reset_search', (eventData, ePanel) => {
+        // Grab the closest form up the DOM, reset its 'q' field and make
+        // it use the normal submit logic.
+        const form = eventData.trigger.closest('form');
+        ePanel.removeFromQParams('q');
+        form.elements['q'].value = '';
+        form.dispatchEvent(new Event('submit'));
+      })
+      .set('switch_view', (eventData, ePanel) => {
+        this.debugMe('switch_view received: eventData', eventData);
 
-          const href = eventData.href;
-          const pk = eventData.pk;
-          const view = eventData.view;
-          const landOn = eventData.landon;
-          const context = eventData.context;
-          const landOnPk = eventData.landonpk;
-          const displayAs = eventData.displayas;
+        const href = eventData.href;
+        const pk = eventData.pk;
+        const view = eventData.view;
+        const landOn = eventData.landon;
+        const context = eventData.context;
+        const landOnPk = eventData.landonpk;
+        const displayAs = eventData.displayas;
 
-          if (this.switchViewMap_.has(view)) {
-            this.switchViewMap_.get(view)({
-              view,
-              pk,
-              landOn,
-              landOnPk,
-              displayAs,
-              href,
-              context,
-              eventData
-            }, ePanel);
-          } else {
-            this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
-          }
-        });
+        if (this.switchViewMap_.has(view)) {
+          this.switchViewMap_.get(view)({
+            view,
+            pk,
+            landOn,
+            landOnPk,
+            displayAs,
+            href,
+            context,
+            eventData
+          }, ePanel);
+        } else {
+          this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
+        }
+      });
   };
 
   mapPanEv(s, func) {
