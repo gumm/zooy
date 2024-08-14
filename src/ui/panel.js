@@ -1,5 +1,5 @@
 import Component from './component.js';
-import {identity, isDefAndNotNull, isNumber, toNumber, maybeBool} from 'badu';
+import {identity, isDefAndNotNull, isNumber, toNumber, isUndefined} from 'badu';
 import {
   evalModules,
   evalScripts,
@@ -211,6 +211,7 @@ class Panel extends Component {
   onReplacePartialDom(content, qs) {
 
     const panelEl = this.getElement();
+    if (isUndefined(panelEl)) { return; }
     const hyperText = content.html;
 
     if (qs.startsWith(".")) {
@@ -223,8 +224,8 @@ class Panel extends Component {
           this.parseContent(replace);
         })
     } else if (qs.startsWith("#")) {
-      const replacementContent = hyperText.querySelector(qSelect);
-      const target = panelEl.querySelector(qSelect);
+      const replacementContent = hyperText.querySelector(qs);
+      const target = panelEl.querySelector(qs);
       target.parentNode.replaceChild(replacementContent, target);
       this.parseContent(replacementContent);
     }
