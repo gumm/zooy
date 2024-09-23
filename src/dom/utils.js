@@ -406,10 +406,11 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map()) => {
   }
 
   const merged = new Map([...parseMap, ...opt_extendedMap]);
-  [...rootEl.querySelectorAll('[data-zdd]')].forEach(el => {
+  [...rootEl.querySelectorAll('[data-zdd],[data-zdd_class_update]')].forEach(el => {
     const dataMap = getElDataMap(el);
-    const lldRef = dataMap['zdd'];
+    const lldRef = dataMap['zdd'] || '';
     const parseAs = dataMap['zdd_parse_as'];
+    const renderEffect = dataMap['zdd_render_effect'] || '';
     const classUpdate = dataMap['zdd_class_update'];
     let units = dataMap['zdd_units'] || '';
     let v = pathOr(undefined, lldRef.split('.'))(json);
@@ -434,21 +435,46 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map()) => {
           case 'remove_on_data':
             el.classList.remove(name);
             break;
+          case 'choice_map':
+            // name: '1>blah.hello|2>blee.bing|3>blue.whatnow'
+            // If value is 1, add blah and remove all the rest
+            name.split('|').filter(e => e !== "").forEach(e => {
+              const [keyVal, className] = e.split('>');
+              if (keyVal === v + '') {
+                el.classList.add.apply(el.classList, className.split('.'))
+              } else {
+                el.classList.remove.apply(el.classList, className.split('.'))
+              }
+            });
+            break
         }
       }
     }
 
-    if (parseAs !== 'class_update_only') {
-      if (parseAs === 'templated-array' && isArray(v)) {
-        v = v || [];
-        const template = el.firstElementChild;
-        template.classList.remove('display__none');
-        el.replaceChildren(...v.map(e => {
-          const clone = template.cloneNode(true);
-          mapDataToEls(clone, e)
-          return clone;
-        }));
-      } else if (isDefAndNotNull(v)) {
+    if (parseAs === 'templated-array' && isArray(v)) {
+      v = v || [];
+      const template = el.firstElementChild;
+      template.classList.remove('display__none');
+      el.replaceChildren(...v.map(e => {
+        const clone = template.cloneNode(true);
+        mapDataToEls(clone, e)
+        return clone;
+      }));
+    } else if (isDefAndNotNull(v)) {
+      if (renderEffect === 'typewriter') {
+        let i = 0;
+        const txt = v + units;
+        const speed = 5;
+        const typeWriter = () => {
+          if (i < txt.length) {
+            el.innerHTML += txt.charAt(i);
+            i++;
+            setTimeout(typeWriter, speed);
+          }
+        }
+        el.innerHTML = "";
+        typeWriter();
+      } else {
         el.innerHTML = v + units
       }
     }
