@@ -1,8 +1,6 @@
 import Component from './component.js';
 import {UiEventType} from '../events/uieventtype.js';
-import {
-  identity, randomId,
-} from 'badu';
+import {identity, randomId,} from 'badu';
 import EVT from "./evt.js";
 import Dragger from './dragger.js';
 import ZooyEventData from "../events/zooyeventdata.js";
@@ -53,6 +51,20 @@ export default class Split_2 extends Component {
     return this.nestMap_.get(nestName)?.nestEl;
   }
 
+  get nestNames() {
+    return [...this.nestMap_.entries()]
+      .filter(([k, v]) => !this.splitNests_.has(v))
+      .map(([k,]) => k);
+  }
+
+  closeAndLockAll(callback = identity, ops_skipAni = false) {
+    this.nestNames.forEach(n => this.closeAndLock(n, callback, ops_skipAni));
+  }
+
+  openAndUnlockAll(callback = identity, ops_skipAni = false) {
+    this.nestNames.forEach(n => this.openAndUnlock(n, callback, ops_skipAni));
+  }
+
   // -----------------------------------------------------------------------------------
   /**
    * Lock a dragger. Removes the listeners that make it draggable.
@@ -87,30 +99,28 @@ export default class Split_2 extends Component {
    *    the resize completed.
    * @param {boolean?} opt_skipAni When true, the resize won't be animated, but
    *    simply affected directly.
-   * TODO: There is a bug here when we resize a nest that is already on it's size,
-   *    then the callback never gets called if the skip_ani flag is false (the default)
-   *    That is why there is the 100ms timeout on setting the flex basis.
    */
   resize(nestName, size, callback = identity, opt_skipAni = false) {
-    const {nestEl} = this.nestMap_.get(nestName);
-    this.nestMap_.get(nestName).isClosed = size <= 0;
-
-    if (opt_skipAni) {
+    const {sizeNow, nestEl, canResize} = this.nestMap_.get(nestName);
+    if (!canResize) {
+      return;
+    }
+    if (opt_skipAni || sizeNow === size) {
       nestEl.classList.remove('animated');
       nestEl.style.flexBasis = `${size}px`;
+      this.nestMap_.get(nestName).sizeNow = size;
       callback();
     } else {
-      this.nestCallbackMap_.set(nestName, () => {
-        nestEl.classList.remove('animated');
-        callback();
-      });
       nestEl.classList.add('animated');
+      this.nestCallbackMap_.set(nestName, () => {
+        // We always leave the nest without animations, as this makes for
+        // a more responsive drag behavior.
+        nestEl.classList.remove('animated');
+        this.nestMap_.get(nestName).sizeNow = size;
+        callback();
 
-      // TODO: Workaround for race.
-      setTimeout(() => {
-        nestEl.style.flexBasis = `${size}px`;
-      }, 100);
-
+      });
+      nestEl.style.flexBasis = `${size}px`;
     }
   }
 
@@ -123,7 +133,10 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   closeAndLock(nestName, callback = identity, opt_skipAni = false) {
-    const {nestEl, dragEl} = this.nestMap_.get(nestName);
+    const {nestEl, dragEl, canResize} = this.nestMap_.get(nestName);
+    if (!canResize) {
+      return;
+    }
     const onDone = () => {
       dragEl.classList.add('locked');
       dragEl.classList.add('closed');
@@ -144,7 +157,16 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   openAndUnlock(nestName, size, callback, opt_skipAni = false) {
-    const {nestEl, dragEl, defSize, lastSize} = this.nestMap_.get(nestName);
+    const {
+      nestEl,
+      dragEl,
+      defSize,
+      lastSize,
+      canResize
+    } = this.nestMap_.get(nestName);
+    if (!canResize) {
+      return;
+    }
     const targetSize = size || lastSize || defSize;
     nestEl.classList.remove('closed');
     dragEl.classList.remove('closed');
@@ -165,7 +187,16 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   openAndLock(nestName, size, callback, opt_skipAni = false) {
-    const {nestEl, dragEl, defSize, lastSize} = this.nestMap_.get(nestName);
+    const {
+      nestEl,
+      dragEl,
+      defSize,
+      lastSize,
+      canResize
+    } = this.nestMap_.get(nestName);
+    if (!canResize) {
+      return;
+    }
     const targetSize = size || lastSize || defSize;
     nestEl.classList.remove('closed');
     dragEl.classList.remove('closed');
@@ -185,7 +216,10 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   close(nestName, callback = identity, opt_skipAni = false) {
-    const {dragEl} = this.nestMap_.get(nestName);
+    const {dragEl, canResize} = this.nestMap_.get(nestName);
+    if (!canResize) {
+      return;
+    }
     const cb = () => {
       dragEl.classList.add('collapsed');
       callback();
@@ -202,7 +236,10 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   open(nestName, callback, opt_skipAni = false) {
-    const {defSize, lastSize, dragEl} = this.nestMap_.get(nestName);
+    const {defSize, lastSize, dragEl, canResize} = this.nestMap_.get(nestName);
+    if (!canResize) {
+      return;
+    }
     dragEl.classList.remove('collapsed');
     dragEl.classList.remove('closed');
     const targetSize = lastSize || defSize;
@@ -218,7 +255,7 @@ export default class Split_2 extends Component {
    *    simply affected directly.
    */
   toggle(nestName, callback, opt_skipAni = false) {
-    if (this.nestMap_.get(nestName).isClosed) {
+    if (this.nestMap_.get(nestName).sizeNow === 0) {
       this.open(nestName, callback, opt_skipAni);
     } else {
       this.close(nestName, callback, opt_skipAni);
@@ -268,7 +305,7 @@ export default class Split_2 extends Component {
            classArrB = [],
            classArrC = [],
            classArrDragger = [],
-           classArrGrabber  = []) {
+           classArrGrabber = []) {
 
     // Check that we are not splitting the same root element twice.
     let root = opt_el ? opt_el : this.getElement();
@@ -279,7 +316,7 @@ export default class Split_2 extends Component {
       this.splitNests_.add(root);
     }
 
-    // Check we are slitting a element that is part of the component.
+    // Check we are splitting a element that is part of the component.
     let refN = '';
     if (opt_el) {
       const match = [...this.nestMap_.entries()].find(([k, {nestEl}]) => nestEl === opt_el);
@@ -294,16 +331,21 @@ export default class Split_2 extends Component {
     const refA = `${refN}A`;
     const A = makeOuterNest(defSizeA, [...['zoo_nest__A', refA], ...classArrA]);
     const AB = new Dragger(orientation);
-    AB.domFunc = makeDraggerEl(classArrDragger);
+    AB.domFunc = makeDraggerEl(classArrDragger, classArrGrabber);
     AB.render(root);
     this.nestMap_.set(refA, {
-      nestEl: A, dragger: AB, dragEl: AB.getElement(), defSize: defSizeA
+      nestEl: A,
+      dragger: AB,
+      dragEl: AB.getElement(),
+      defSize: defSizeA,
+      sizeNow: -1,
+      canResize: true
     });
 
-    // Middle nests don't have accosted daggers
+    // Middle nests don't have associated daggers
     const refB = `${refN}B`;
     const B = makeInnerNest([...['zoo_nest__B', refB], ...classArrB]);
-    this.nestMap_.set(refB, {nestEl: B});
+    this.nestMap_.set(refB, {nestEl: B, canResize: false});
 
     // Outer nest and its dragger
     const refC = `${refN}C`;
@@ -312,11 +354,17 @@ export default class Split_2 extends Component {
     BC.render(root);
     const C = makeOuterNest(defSizeC, [...['zoo_nest__C', refC], ...classArrC]);
     this.nestMap_.set(refC, {
-      nestEl: C, dragger: BC, dragEl: BC.getElement(), defSize: defSizeC
+      nestEl: C,
+      dragger: BC,
+      dragEl: BC.getElement(),
+      defSize: defSizeC,
+      sizeNow: -1,
+      canResize: true
     });
 
     [A, AB.getElement(), B, BC.getElement(), C].forEach(e => root.appendChild(e));
 
+    let maxSize = 0;
     const onDragEvent = (orientation, nest, ref, factor) => {
       let start;
       const metric = orientation === 'NS' ? 'height' : 'width';
@@ -324,11 +372,13 @@ export default class Split_2 extends Component {
       return event => {
         switch (event.detail.value_) {
           case UiEventType.COMP_DRAG_START:
+            // Calculate the maximum move possible.
             start = nest.getBoundingClientRect()[metric];
+            maxSize = B.getBoundingClientRect()[metric] + start
             this.nestMap_.get(ref).dragEl.classList.remove('collapsed');
             break;
           case UiEventType.COMP_DRAG_MOVE:
-            const val = start + factor * event.detail.data_[delta];
+            const val = Math.min(maxSize, start + factor * event.detail.data_[delta]);
             this.nestMap_.get(ref).lastSize = val
             nest.style.flexBasis = val + 'px';
             break;
@@ -348,16 +398,20 @@ export default class Split_2 extends Component {
     this.listen(BC.getElement(), EV.DBLCLICK, () => this.toggle(refC));
 
     this.listen(A, EV.TRANSITIONEND, (event) => {
-      const callback = this.nestCallbackMap_.get(refA);
-      this.nestCallbackMap_.delete(refA);
-      callback && callback();
-      this.dispatchSplitEvent(UiEventType.SPLIT_TRANSITION_END, this.nestMap_.get(refA));
+      if (event.propertyName === 'flex-basis' && event.target === A) {
+        const callback = this.nestCallbackMap_.get(refA);
+        this.nestCallbackMap_.delete(refA);
+        callback && callback();
+        this.dispatchSplitEvent(UiEventType.SPLIT_TRANSITION_END, this.nestMap_.get(refA));
+      }
     });
     this.listen(C, EV.TRANSITIONEND, (event) => {
-      const callback = this.nestCallbackMap_.get(refC);
-      this.nestCallbackMap_.delete(refC);
-      callback && callback();
-      this.dispatchSplitEvent(UiEventType.SPLIT_TRANSITION_END, this.nestMap_.get(refC));
+      if (event.propertyName === 'flex-basis' && event.target === C) {
+        const callback = this.nestCallbackMap_.get(refC);
+        this.nestCallbackMap_.delete(refC);
+        callback && callback();
+        this.dispatchSplitEvent(UiEventType.SPLIT_TRANSITION_END, this.nestMap_.get(refC));
+      }
     })
   }
 

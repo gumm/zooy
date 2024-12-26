@@ -52,11 +52,11 @@
         }
 
         .custom_dragger {
-            background: transparent;
+            background: #953b39;
         }
 
         .custom_grabber {
-            background: red;
+            background: #00ffea;
         }
 
 
@@ -75,9 +75,10 @@
   const t = new zooy.Split_2();
   t.domFunc = () => document.getElementById('right');
   t.render();
-  t.addSplit(undefined, 'NS', 350, 80, ['bg_blue'], [], ['bg_red'], ['custom_dragger'], ['custom_grabber']);
-  t.addSplit(t.getNest('B'), 'EW', 80, 80, [], ['bg_orange'], ['bg_pink'], ['custom_dragger']);
+  t.addSplit(undefined, 'NS', 35, 80, ['bg_blue'], [], ['bg_red'], ['custom_dragger'], ['custom_grabber'],);
+  t.addSplit(t.getNest('B'), 'EW', 80, 80, [], ['bg_orange'], ['bg_pink'], ['custom_dragger'], ['custom_grabber']);
   t.closeAndLock('BA');
+  t.lock('A')
   t.listen(t, zooy.UiEventType.SPLIT, e => {
     console.log(e);
   })
@@ -88,7 +89,7 @@
   const r = new zooy.Split(10, 15);
   r.domFunc = () => document.getElementById('left');
   r.render();
-  r.addSplit(undefined, 'NS', [350], [80]);
+  r.addSplit(undefined, 'NS', [35], [80]);
   r.addSplit(r.getNest('B'), 'EW', [80], [80]);
   r.closeAndLock('BA');
   r.listen(r, zooy.UiEventType.SPLIT, e => {

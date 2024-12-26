@@ -277,17 +277,6 @@ export default class UserManager {
      */
     this.jwt = '';
 
-    // /**
-    //  * @type {Request}
-    //  */
-    // this.JWTTokenRequest = new Request('/api/v3/tokens/login/');
-
-
-    // /**
-    //  * @type {Request}
-    //  */
-    // this.loginRequest = new Request('/accounts/login/');
-
     if (opt_data) {
       this.updateProfileFromJwt(opt_data).then(() => {
       });

@@ -10,7 +10,7 @@
   padding: 0;
   gap: 0;
 
-  .zoo_split__ns {
+  &.zoo_split__ns {
     flex-direction: column;
     flex-wrap: nowrap;
 
@@ -19,7 +19,7 @@
     }
   }
 
-  .zoo_split__ew {
+  &.zoo_split__ew {
     flex-direction: row;
     flex-wrap: nowrap;
 
