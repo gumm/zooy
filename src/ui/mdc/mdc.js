@@ -62,6 +62,7 @@ export const renderFloatingActionButtons = function(panel) {
 export const renderIconButtons = function(panel) {
   [...panel.querySelectorAll('.mdc-icon-button:not(.mdc-icon-toggle)')].forEach(el => {
     const b = new mdc.ripple.MDCRipple(el);
+    el.zComponent = b;
     b.unbounded = true;
 
     this.listen(el, 'click', e => {
@@ -132,6 +133,7 @@ export const renderDataTables = function(panel) {
       return dataTable.selectedAllAcrossPages;
     }
 
+    el.zComponent = dataTable;
     el.dataTable = dataTable;
 
     const onSelections = e => {
@@ -177,6 +179,7 @@ export const renderDataTables = function(panel) {
 export const renderTabBars = function(panel) {
   [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
     const tbar = new mdc.tabBar.MDCTabBar(el);
+    el.zComponent = tbar;
     this.listen(el, 'MDCTabBar:activated', e => {
       const trg = tbar.tabList[e.detail.index].root;
       const elDataMap = getElDataMap(trg);
@@ -255,6 +258,7 @@ export const renderMenus = function(panel) {
 
         // Make the menu
         const menu = new mdc.menu.MDCMenu(menuEl);
+        menuEl.zComponent = menu;
         menu.setAnchorCorner(mdc.menuSurface.Corner[corner]);
         menu.items.forEach(mdc.ripple.MDCRipple.attachTo);
         menu.quickOpen = false;
@@ -329,6 +333,7 @@ export const renderMenus = function(panel) {
 export const renderLists = function(panel) {
   [...panel.querySelectorAll('.mdc-deprecated-list:not(.mdc-menu__items)')].forEach(el => {
     const list = new mdc.list.MDCList(el);
+    el.zComponent = list;
 
     // Park access to this list in a map against the list element id.
     // If no id exists on the list element, nothing will be parked.
@@ -356,6 +361,7 @@ export const renderLists = function(panel) {
 export const renderSliders = function(panel) {
   [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
     const slider = new mdc.slider.MDCSlider(el);
+    el.zComponent = slider;
     const elDataMap = getElDataMap(el);
     const inputEl = el.parentElement.querySelector(
         `#${elDataMap.inputid}`);
@@ -465,6 +471,7 @@ export const renderSelectMenus = function(panel, panelComp) {
     // Instantiate the MDCSelect component.
     // This adds the elements to the DOM
     const mdcSelect = new mdc.select.MDCSelect(e);
+    e.zComponent = mdcSelect;
 
     // We park some accessors on the select field itself
     // This is so that we can manipulate the dropdowns from the outside i.e

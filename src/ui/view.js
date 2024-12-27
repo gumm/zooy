@@ -125,7 +125,7 @@ export default class View extends EVT {
      * Arbitrary data object associated with the component.  Such as meta-data.
      * @private {*}
      */
-    this.meta_data_ = new Map();
+    this.metaData_ = new Map();
 
   };
 
@@ -435,21 +435,21 @@ export default class View extends EVT {
    * Returns the model associated with the UI component.
    * @return {*}
    */
-  get meta_data() {
-    return this.meta_data_
+  get metaData() {
+    return this.metaData_
   }
 
-  set_meta_data(k, v) {
-    this.meta_data_.set(k, v);
-    return this.meta_data;
+  setMetaData(k, v) {
+    this.metaData_.set(k, v);
+    return this.metaData;
   }
 
-  get_meta_data(k) {
-    return this.meta_data_.get(k);
+  getMetaData(k) {
+    return this.metaData_.get(k);
   }
 
-  has_meta_data(k) {
-    return this.meta_data_.has(k);
+  hasMetaData(k) {
+    return this.metaData_.has(k);
   }
 
 

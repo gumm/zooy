@@ -30,9 +30,9 @@ export default class EVT extends EventTarget {
     super();
 
     /**
-     * A map of listener targets to a object of event: functions
+     * A map of listener targets to an object of event: functions
      * When adding a listener, immediately also create the un-listen functions
-     * and store those in a object keyed with the event.
+     * and store those in an object keyed with the event.
      * Store these objects against the target in a map
      * @type {Map<!EventTarget, !Object<string, !Function>>}
      * @private
@@ -85,6 +85,10 @@ export default class EVT extends EventTarget {
 
   get disposed() {
     return this.disposed_;
+  }
+  
+  get listeningTo() {
+    return this.listeningTo_;
   }
 
   debugMe(...s) {
