@@ -17,22 +17,12 @@
             background-color: transparent;
         }
 
-        #left {
-            position: absolute;
-            top: 15%;
-            left: 15%;
-            background-color: #f7f7f7;
-            height: 70%;
-            width: calc(35% - 7%);
-        }
-
         #right {
             position: absolute;
             top: 15%;
-            right: 15%;
-            /*background-color: #ffebeb;*/
             height: 70%;
-            width: calc(35% - 7%);
+            left: 15%;
+            right: 15%;
         }
 
         .bg_red {
@@ -64,7 +54,6 @@
     </style>
 </head>
 <body>
-<div id="left"></div>
 <div id="right"></div>
 
 
@@ -72,7 +61,7 @@
   import zooy from '../main.js'
 
   // Split (Simple)
-  const t = new zooy.Split_2();
+  const t = new zooy.Split();
   t.domFunc = () => document.getElementById('right');
   t.render();
   t.addSplit(undefined, 'NS', 35, 80, ['bg_blue'], [], ['bg_red'], ['custom_dragger'], ['custom_grabber'],);
@@ -83,20 +72,7 @@
     console.log(e);
   })
   window.split_test = t;
-
-
-  // Traditional Split (Old Style)
-  const r = new zooy.Split(10, 15);
-  r.domFunc = () => document.getElementById('left');
-  r.render();
-  r.addSplit(undefined, 'NS', [35], [80]);
-  r.addSplit(r.getNest('B'), 'EW', [80], [80]);
-  r.closeAndLock('BA');
-  r.listen(r, zooy.UiEventType.SPLIT, e => {
-    console.log(e);
-  })
-
-
+  
 </script>
 
 </body>

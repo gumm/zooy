@@ -3,8 +3,8 @@ import Component from './ui/component.js';
 import Dragger from './ui/dragger.js';
 import Panel from './ui/panel.js';
 import FormPanel from './ui/form.js';
-import Split from './ui/split.js';
-import Split_2 from './ui/split_2.js';
+// import Split from './ui/split.js';
+import Split from './ui/split_2.js';
 import UserManager from './user/usermanager.js';
 import View, {treeNodeSelect} from './ui/view.js';
 import {UiEventType} from './events/uieventtype.js';
@@ -19,7 +19,6 @@ const zooy = {
   Panel,
   FormPanel,
   Split,
-  Split_2,
   UserManager,
   View,
   Conductor,
