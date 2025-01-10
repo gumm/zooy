@@ -13,17 +13,17 @@ import Panel from './panel.js';
  */
 const toggleTree = (eventData, panel) => {
   // The first level children. From a pure usability perspective
-  // its nicer if we don't to close these. If we did, the tree *always* ends
+  // it's nicer if we don't to close these. If we did, the tree *always* ends
   // up with only one element revealed. So we keep the first level children
   // open at all times.
   const fc = panel.getElement().querySelector('.children');
   const isOn = /**@type {boolean} */ (eventData.isOn);
   const children = panel.getElement().querySelectorAll('.children');
-  const revealIcons = panel.getElement().querySelectorAll('.tst__reveal_icon');
+  const revealIcons = panel.getElement().querySelectorAll('.zoo__reveal_icon');
   [...children].forEach(e => enableClass(
-    e, 'tst__tree-children__hidden', e !== fc && !isOn));
+    e, 'zoo__tree-children__hidden', e !== fc && !isOn));
   [...revealIcons].forEach(e => enableClass(
-    e, 'tst__icon_rotated', e !== fc && !isOn));
+    e, 'zoo__icon_rotated', e !== fc && !isOn));
 };
 
 
@@ -35,8 +35,8 @@ const toggleTreeChildren = (panel, eventData) => {
   const revealIcon = eventData.trigger;
   const elId = revealIcon.getAttribute('data-child-id');
   const child = panel.getElement().querySelector(`#${elId}`);
-  toggleClass(child, 'tst__tree-children__hidden');
-  toggleClass(revealIcon, 'tst__icon_rotated');
+  toggleClass(child, 'zoo__tree-children__hidden');
+  toggleClass(revealIcon, 'zoo__icon_rotated');
 };
 
 
@@ -48,7 +48,7 @@ const toggleTreeChildren = (panel, eventData) => {
 const openTreeFromNodeUp = (panel, n) => {
   const parentNode = n.parentElement;
   if (parentNode.classList.contains('children')) {
-    enableClass(parentNode, 'tst__tree-children__hidden', false);
+    enableClass(parentNode, 'zoo__tree-children__hidden', false);
     openTreeFromNodeUp(panel, parentNode);
   }
 };

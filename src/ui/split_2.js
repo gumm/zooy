@@ -8,7 +8,7 @@ import {EV} from "../events/mouseandtouchevents.js";
 
 
 //--------------------------------------------------------------[ Main Class ]--
-export default class Split_2 extends Component {
+export default class Split extends Component {
 
   static splitEventCode() {
     return UiEventType.SPLIT;
@@ -141,6 +141,21 @@ export default class Split_2 extends Component {
       dragEl.classList.add('locked');
       dragEl.classList.add('closed');
       nestEl.classList.add('closed');
+      callback();
+    }
+    this.resize(nestName, 0, onDone, opt_skipAni);
+  }
+  
+  closeAndUnlock(nestName, callback = identity, opt_skipAni = false) {
+    const {nestEl, dragEl, canResize} = this.nestMap_.get(nestName);
+    if (!canResize) {
+      return;
+    }
+    const onDone = () => {
+      nestEl.classList.remove('closed');
+      dragEl.classList.remove('closed');
+      dragEl.classList.remove('locked');
+      dragEl.classList.add('collapsed');
       callback();
     }
     this.resize(nestName, 0, onDone, opt_skipAni);
@@ -396,6 +411,8 @@ export default class Split_2 extends Component {
     this.listen(BC, Component.compEventCode(), onDragEvent(orientation, C, refC, -1));
     this.listen(AB.getElement(), EV.DBLCLICK, () => this.toggle(refA));
     this.listen(BC.getElement(), EV.DBLCLICK, () => this.toggle(refC));
+    this.listen(AB.getElement().querySelector('.zoo_grabber'), EV.CLICK, () => this.toggle(refA));
+    this.listen(BC.getElement().querySelector('.zoo_grabber'), EV.CLICK, () => this.toggle(refC));
 
     this.listen(A, EV.TRANSITIONEND, (event) => {
       if (event.propertyName === 'flex-basis' && event.target === A) {

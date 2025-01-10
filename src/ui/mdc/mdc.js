@@ -1,16 +1,16 @@
 import * as mdc from 'material-components-web';
 
 import {getElDataMap} from "../../dom/utils.js";
-import {toLowerCase, isDefAndNotNull} from "badu";
+import {isDefAndNotNull, toLowerCase} from "badu";
 
 
 /**
  * {@link https://material.io/develop/web/components/ripples/}
  * @param {Element} panel
  */
-export const renderRipples = function(panel) {
+export const renderRipples = function (panel) {
   [...panel.querySelectorAll('.mdc-ripple-surface')].forEach(
-      mdc.ripple.MDCRipple.attachTo);
+    mdc.ripple.MDCRipple.attachTo);
 };
 
 
@@ -18,7 +18,7 @@ export const renderRipples = function(panel) {
  * {@link https://material.io/develop/web/components/buttons/}
  * @param {Element} panel
  */
-export const renderButtons = function(panel) {
+export const renderButtons = function (panel) {
   [...panel.querySelectorAll('.mdc-button')].forEach(el => {
     mdc.ripple.MDCRipple.attachTo(el);
     this.listen(el, 'click', e => {
@@ -38,7 +38,7 @@ export const renderButtons = function(panel) {
  * {@link https://material.io/develop/web/components/buttons/floating-action-buttons/}
  * @param {Element} panel
  */
-export const renderFloatingActionButtons = function(panel) {
+export const renderFloatingActionButtons = function (panel) {
   [...panel.querySelectorAll('.mdc-fab')].forEach(el => {
     mdc.ripple.MDCRipple.attachTo(el);
     this.listen(el, 'click', e => {
@@ -59,7 +59,7 @@ export const renderFloatingActionButtons = function(panel) {
  * {@link https://material.io/develop/web/components/buttons/icon-buttons/}
  * @param {Element} panel
  */
-export const renderIconButtons = function(panel) {
+export const renderIconButtons = function (panel) {
   [...panel.querySelectorAll('.mdc-icon-button:not(.mdc-icon-toggle)')].forEach(el => {
     const b = new mdc.ripple.MDCRipple(el);
     el.zComponent = b;
@@ -68,18 +68,22 @@ export const renderIconButtons = function(panel) {
     this.listen(el, 'click', e => {
       const trg = e.currentTarget;
       const elDataMap = getElDataMap(trg);
-      const propageEvent = elDataMap['evpropagate'] || ''
-
-      if (propageEvent.toLowerCase() === "allow") {
-        // Allow propagation
-      } else {
+      const zValue = elDataMap['zv'];
+      
+      // We only stop propagation and issue the Panel event if there is a given
+      // zv to the button.
+      // This propagates the normal events, and skips the issuing of
+      // Panel events. It allows us to use some icon buttons like normal
+      // buttons. For instance when they play the role of menu anchors.
+      if (isDefAndNotNull(zValue)) {
         e.stopPropagation();
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+          orgEvt: e,
+          trigger: trg,
+          href: trg.href || elDataMap['href'],
+        }, elDataMap));
       }
-      this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-        orgEvt: e,
-        trigger: trg,
-        href: trg.href || elDataMap['href'],
-      }, elDataMap));
+
     });
   });
 };
@@ -89,9 +93,11 @@ export const renderIconButtons = function(panel) {
  * {@link https://material.io/develop/web/components/buttons/icon-buttons/}
  * @param {Element} panel
  */
-export const renderIconToggleButtons = function(panel) {
+export const renderIconToggleButtons = function (panel) {
   [...panel.querySelectorAll('.mdc-icon-toggle')].forEach(el => {
+    const initPressed = el.ariaPressed === 'true';
     const zComponent = new mdc.iconButton.MDCIconButtonToggle(el);
+    zComponent.on = initPressed;
     el.zComponent = zComponent;
     this.listen(el, 'click', e => e.stopPropagation());
     this.listen(el, 'MDCIconButtonToggle:change', e => {
@@ -109,7 +115,7 @@ export const renderIconToggleButtons = function(panel) {
   });
 };
 
-export const renderDataTables = function(panel) {
+export const renderDataTables = function (panel) {
   const checkboxController = "mdc-checkbox__native-control";
   [...panel.querySelectorAll('.mdc-data-table')].forEach(el => {
     const dataTable = new mdc.dataTable.MDCDataTable(el);
@@ -118,9 +124,12 @@ export const renderDataTables = function(panel) {
     // all across all pages.
     dataTable.selectedAllAcrossPages = false;
 
-    dataTable.onSomeSelected = (selectedRowCount) => {};
-    dataTable.onNoneSelected = (selectedRowCount) => {};
-    dataTable.onAllSelected = (selectedRowCount) => {};
+    dataTable.onSomeSelected = (selectedRowCount) => {
+    };
+    dataTable.onNoneSelected = (selectedRowCount) => {
+    };
+    dataTable.onAllSelected = (selectedRowCount) => {
+    };
     dataTable.toggleSelectAcrossPages = () => {
       dataTable.selectedAllAcrossPages = !dataTable.selectedAllAcrossPages;
       return dataTable.selectedAllAcrossPages;
@@ -176,7 +185,7 @@ export const renderDataTables = function(panel) {
  * {@link https://material.io/develop/web/components/tabs/tab-bar/}
  * @param {Element} panel
  */
-export const renderTabBars = function(panel) {
+export const renderTabBars = function (panel) {
   [...panel.querySelectorAll('.mdc-tab-bar')].forEach(el => {
     const tbar = new mdc.tabBar.MDCTabBar(el);
     el.zComponent = tbar;
@@ -197,7 +206,7 @@ export const renderTabBars = function(panel) {
  * {@link https://material.io/develop/web/components/input-controls/switches/}
  * @param {Element} panel
  */
-export const renderSwitches = function(panel) {
+export const renderSwitches = function (panel) {
   [...panel.querySelectorAll('.mdc-switch')].forEach(el => {
     const trg = el.querySelector('input');
     const elDataMap = getElDataMap(trg);
@@ -218,7 +227,7 @@ export const renderSwitches = function(panel) {
  * {@link https://material.io/develop/web/components/chips/}
  * @param {Element} panel
  */
-export const renderChips = function(panel) {
+export const renderChips = function (panel) {
   [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
     const chipSet = mdc.chips.MDCChipSet.attachTo(el);
     chipSet.listen('MDCChip:interaction', e => {
@@ -240,9 +249,9 @@ export const renderChips = function(panel) {
  * {@link https://material.io/develop/web/components/menu-surface/}
  * @param {Element} panel
  */
-export const renderMenuSurfaces = function(panel) {
+export const renderMenuSurfaces = function (panel) {
   [...panel.querySelectorAll('.mdc-menu-surface')].forEach(
-      mdc.menuSurface.MDCMenuSurface.attachTo
+    mdc.menuSurface.MDCMenuSurface.attachTo
   );
 };
 
@@ -250,79 +259,79 @@ export const renderMenuSurfaces = function(panel) {
  * {@link https://material.io/develop/web/components/menus/}
  * @param {Element} panel
  */
-export const renderMenus = function(panel) {
+export const renderMenus = function (panel) {
   [...panel.querySelectorAll('.mdc-menu-surface--anchor:not(.mdc-select__menu)')].forEach(
-      menuButtonEl => {
-        const menuEl = menuButtonEl.querySelector('.mdc-menu');
-        const corner = getElDataMap(menuEl)['corner'] || 'BOTTOM_START';
+    menuButtonEl => {
+      const menuEl = menuButtonEl.querySelector('.mdc-menu');
+      const corner = getElDataMap(menuEl)['corner'] || 'BOTTOM_START';
 
-        // Make the menu
-        const menu = new mdc.menu.MDCMenu(menuEl);
-        menuEl.zComponent = menu;
-        menu.setAnchorCorner(mdc.menuSurface.Corner[corner]);
-        menu.items.forEach(mdc.ripple.MDCRipple.attachTo);
-        menu.quickOpen = false;
-        menu.listen('click', e => e.stopPropagation());
-        menu.listen('MDCMenu:selected', e => {
-          e.stopPropagation();
-          const trg = e.detail['item'];
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href'],
-          }, elDataMap));
-        });
-
-        // Toggle the menu open or closed from the anchor element.
-        menuButtonEl.addEventListener('click', () => {
-          return menu.open = !menu.open
-        });
-
-        if (menuEl.classList.contains('z2-filter-on-keydown')) {
-          const reset = () => {
-            filterWord = '';
-            menu.items.forEach(e => e.classList.remove('hidden_list_item'));
-          }
-          const nameTargets = [...menu.items].map(e => toLowerCase(
-              e.querySelector('.mdc-deprecated-list-item__text').textContent));
-          let filterWord = '';
-          const wordCodes = 'abcdefghijklmnopqrstuvwxyz0123456789 -_';
-          const filterMenuOnTyping = e => {
-            const key = toLowerCase(e.key);
-            if (e.defaultPrevented) {
-              return; // Do nothing if the event was already processed
-            }
-            if (wordCodes.includes(key)) {
-              filterWord = `${filterWord}${key}`;
-            } else if (key === "escape") {
-              reset();
-            } else if (key === "backspace") {
-              filterWord = filterWord.slice(0, -1);
-            }
-            if (filterWord !== "") {
-              nameTargets.forEach((target, i) => {
-                if (target.includes(filterWord)) {
-                  menu.items[i].classList.remove('hidden_list_item');
-                } else {
-                  menu.items[i].classList.add('hidden_list_item');
-                }
-              });
-            }
-          }
-          menu.listen('MDCMenuSurface:closed', () => {
-            reset();
-            document.removeEventListener(
-                'keydown', filterMenuOnTyping, true);
-          })
-          menu.listen('MDCMenuSurface:opened', () => {
-            reset();
-            document.addEventListener(
-                'keydown', filterMenuOnTyping, true);
-          })
-        }
-
+      // Make the menu
+      const menu = new mdc.menu.MDCMenu(menuEl);
+      menuEl.zComponent = menu;
+      menu.setAnchorCorner(mdc.menuSurface.Corner[corner]);
+      menu.items.forEach(mdc.ripple.MDCRipple.attachTo);
+      menu.quickOpen = false;
+      menu.listen('click', e => e.stopPropagation());
+      menu.listen('MDCMenu:selected', e => {
+        e.stopPropagation();
+        const trg = e.detail['item'];
+        const elDataMap = getElDataMap(trg);
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+          orgEvt: e,
+          trigger: trg,
+          href: trg.href || elDataMap['href'],
+        }, elDataMap));
       });
+
+      // Toggle the menu open or closed from the anchor element.
+      menuButtonEl.addEventListener('click', () => {
+        return menu.open = !menu.open
+      });
+
+      if (menuEl.classList.contains('z2-filter-on-keydown')) {
+        const reset = () => {
+          filterWord = '';
+          menu.items.forEach(e => e.classList.remove('hidden_list_item'));
+        }
+        const nameTargets = [...menu.items].map(e => toLowerCase(
+          e.querySelector('.mdc-deprecated-list-item__text').textContent));
+        let filterWord = '';
+        const wordCodes = 'abcdefghijklmnopqrstuvwxyz0123456789 -_';
+        const filterMenuOnTyping = e => {
+          const key = toLowerCase(e.key);
+          if (e.defaultPrevented) {
+            return; // Do nothing if the event was already processed
+          }
+          if (wordCodes.includes(key)) {
+            filterWord = `${filterWord}${key}`;
+          } else if (key === "escape") {
+            reset();
+          } else if (key === "backspace") {
+            filterWord = filterWord.slice(0, -1);
+          }
+          if (filterWord !== "") {
+            nameTargets.forEach((target, i) => {
+              if (target.includes(filterWord)) {
+                menu.items[i].classList.remove('hidden_list_item');
+              } else {
+                menu.items[i].classList.add('hidden_list_item');
+              }
+            });
+          }
+        }
+        menu.listen('MDCMenuSurface:closed', () => {
+          reset();
+          document.removeEventListener(
+            'keydown', filterMenuOnTyping, true);
+        })
+        menu.listen('MDCMenuSurface:opened', () => {
+          reset();
+          document.addEventListener(
+            'keydown', filterMenuOnTyping, true);
+        })
+      }
+
+    });
 };
 
 
@@ -330,7 +339,7 @@ export const renderMenus = function(panel) {
  * {@link https://material.io/develop/web/components/lists/}
  * @param {Element} panel
  */
-export const renderLists = function(panel) {
+export const renderLists = function (panel) {
   [...panel.querySelectorAll('.mdc-deprecated-list:not(.mdc-menu__items)')].forEach(el => {
     const list = new mdc.list.MDCList(el);
     el.zComponent = list;
@@ -341,7 +350,7 @@ export const renderLists = function(panel) {
       this.listMap.set(el.id, list);
     }
 
-    list.listElements.forEach(mdc.ripple.MDCRipple.attachTo);
+    list.listElements.forEach(e => mdc.ripple.MDCRipple.attachTo(e));
     this.listen(el, 'click', e => {
       const trg = e.target.closest('li');
       const elDataMap = getElDataMap(trg);
@@ -358,13 +367,13 @@ export const renderLists = function(panel) {
  * {@link https://material.io/develop/web/components/input-controls/sliders/}
  * @param {Element} panel
  */
-export const renderSliders = function(panel) {
+export const renderSliders = function (panel) {
   [...panel.querySelectorAll('.mdc-slider')].forEach(el => {
     const slider = new mdc.slider.MDCSlider(el);
     el.zComponent = slider;
     const elDataMap = getElDataMap(el);
     const inputEl = el.parentElement.querySelector(
-        `#${elDataMap.inputid}`);
+      `#${elDataMap.inputid}`);
     this.listen(el, 'MDCSlider:change', () => {
       inputEl.value = slider.value;
     });
@@ -376,7 +385,7 @@ export const renderSliders = function(panel) {
  * {@link https://material.io/develop/web/components/linear-progress/}
  * @param {Element} panel
  */
-export const renderLinearProgress = function(panel) {
+export const renderLinearProgress = function (panel) {
   [...panel.querySelectorAll('.mdc-linear-progress')].forEach(el => {
     el.linProg = mdc.linearProgress.MDCLinearProgress.attachTo(el)
   });
@@ -387,9 +396,9 @@ export const renderLinearProgress = function(panel) {
  * {@link https://material.io/develop/web/components/input-controls/text-field/}
  * @param {Element} panel
  */
-export const renderTextFields = function(panel) {
+export const renderTextFields = function (panel) {
   [...panel.querySelectorAll('.mdc-text-field')].forEach(
-      mdc.textField.MDCTextField.attachTo
+    mdc.textField.MDCTextField.attachTo
   );
 };
 
@@ -398,9 +407,9 @@ export const renderTextFields = function(panel) {
  * {@link https://material.io/develop/web/components/input-controls/text-field/icon/}
  * @param {Element} panel
  */
-export const renderTextFieldIcons = function(panel) {
+export const renderTextFieldIcons = function (panel) {
   [...panel.querySelectorAll('.mdc-text-field-icon')].forEach(
-      mdc.textField.MDCTextFieldIcon.attachTo
+    mdc.textField.MDCTextFieldIcon.attachTo
   );
 };
 
@@ -415,7 +424,7 @@ export const renderTextFieldIcons = function(panel) {
  * @param {HTMLElement} panel
  * @param {Component} panelComp
  */
-export const renderSelectMenus = function(panel, panelComp) {
+export const renderSelectMenus = function (panel, panelComp) {
 
   // This just builds the DOM.
   const htmlSelectToMdcSelectDom = e => {
@@ -447,7 +456,7 @@ export const renderSelectMenus = function(panel, panelComp) {
       menuUl.removeChild(menuUl.lastChild);
     }
     [...htmSelectField.options].forEach(
-        e => menuUl.appendChild(htmlSelectToMdcSelectDom(e))
+      e => menuUl.appendChild(htmlSelectToMdcSelectDom(e))
     )
 
     // Match the selected indexes, and listen for changes on the MDC component
@@ -457,9 +466,9 @@ export const renderSelectMenus = function(panel, panelComp) {
       mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
     } catch (e) {
       console.log("Error:",
-          htmSelectField.options.selectedIndex,
-          htmSelectField, mdcSelect,
-          mdcSelect.selectedIndex, e);
+        htmSelectField.options.selectedIndex,
+        htmSelectField, mdcSelect,
+        mdcSelect.selectedIndex, e);
     }
   };
 
@@ -502,10 +511,10 @@ export const renderSelectMenus = function(panel, panelComp) {
  * {@link https://material.io/develop/web/components/input-controls/form-fields/}
  * @param {Element} panel
  */
-export const renderFormFields = function(panel) {
+export const renderFormFields = function (panel) {
   [...panel.querySelectorAll(
-      '.mdc-form-field:not(.for-radio):not(.for-checkbox)')].forEach(
-      mdc.formField.MDCFormField.attachTo
+    '.mdc-form-field:not(.for-radio):not(.for-checkbox)')].forEach(
+    mdc.formField.MDCFormField.attachTo
   );
 };
 
@@ -513,12 +522,12 @@ export const renderFormFields = function(panel) {
  * {@link https://material.io/develop/web/components/input-controls/radio-buttons/}
  * @param {Element} panel
  */
-export const renderRadioButtons = function(panel) {
+export const renderRadioButtons = function (panel) {
   [...panel.querySelectorAll('.mdc-form-field.for-radio')].forEach(ff => {
     const formField = new mdc.formField.MDCFormField(ff);
     const radContainerEl = ff.querySelector('.mdc-radio');
     radContainerEl.querySelector(
-        'input[type="radio"]').classList.add('mdc-radio__native-control');
+      'input[type="radio"]').classList.add('mdc-radio__native-control');
     formField.input = new mdc.radio.MDCRadio(radContainerEl);
   });
 };
@@ -527,7 +536,7 @@ export const renderRadioButtons = function(panel) {
  * {@link https://material.io/develop/web/components/input-controls/checkboxes/}
  * @param {Element} panel
  */
-export const renderCheckBoxes = function(panel) {
+export const renderCheckBoxes = function (panel) {
   [...panel.querySelectorAll('.mdc-form-field.for-checkbox')].forEach(ff => {
     const cbEl = ff.querySelector('.mdc-checkbox');
     const checkBox = new mdc.checkbox.MDCCheckbox(cbEl);

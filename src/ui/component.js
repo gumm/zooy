@@ -123,7 +123,7 @@ export default class Component extends EVT {
      * A map of child components.  Lazily initialized on first use.  Must be
      * kept in sync with `childIndex_`.  This property is strictly private and
      * must not be accessed directly outside of this class!
-     * @private {Map<string, Component>?}
+     * @private {Map<string, Component>}
      */
     this.children_ = new Map();
 
@@ -226,7 +226,7 @@ export default class Component extends EVT {
 
   /**
    * Gets the component's element.
-   * @return {!Node|undefined} The element
+   * @return {!HTMLElement|undefined} The element
    *    for the component.
    */
   getElement() {

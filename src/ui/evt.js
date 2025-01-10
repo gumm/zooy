@@ -178,8 +178,7 @@ export default class EVT extends EventTarget {
       this.stopListeningTo(target);
     }
   }
-
-
+  
   clearAllIntervals() {
     for (const interval of this.activeIntervals_) {
       clearInterval(interval);
@@ -191,8 +190,7 @@ export default class EVT extends EventTarget {
     const clearInt = setInterval(f, interval);
     this.activeIntervals_.add(clearInt);
   }
-
-
+  
   /**
    * Disposes of the component.  Calls `exitDocument`, which is expected to
    * remove event handlers and clean up the component.  Propagates the call to

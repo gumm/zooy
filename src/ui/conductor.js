@@ -121,7 +121,5 @@ export default class Conductor extends EVT {
   switchView(view) {
     this.setActiveView(this.initView(view));
   };
-
-
-
+  
 };

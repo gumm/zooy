@@ -1,5 +1,5 @@
 import Component from './component.js';
-import {identity, isDefAndNotNull, isNumber, toNumber, isUndefined} from 'badu';
+import {identity, isDefAndNotNull, isNumber, isUndefined, toNumber} from 'badu';
 import {
   evalModules,
   evalScripts,
@@ -33,7 +33,12 @@ import {
   renderTextFieldIcons,
   renderTextFields,
 } from './mdc/mdc.js';
-import {getPath, objectToUrlParms, getQueryData, queryDataToMap} from "../uri/uri.js";
+import {
+  getPath,
+  getQueryData,
+  objectToUrlParms,
+  queryDataToMap
+} from "../uri/uri.js";
 
 class Panel extends Component {
 
@@ -211,7 +216,9 @@ class Panel extends Component {
   onReplacePartialDom(content, qs) {
 
     const panelEl = this.getElement();
-    if (isUndefined(panelEl)) { return; }
+    if (isUndefined(panelEl)) {
+      return;
+    }
     const hyperText = content.html;
 
     if (qs.startsWith(".")) {
@@ -281,6 +288,16 @@ class Panel extends Component {
     // Stub
   };
 
+  /**
+   * Called on each async HTML response, after the content is in the DOM
+   * and rendered.
+   * @param {Element} el
+   * @param {Object} elDataMap
+   */
+  onAsyncHtmlReply(el, elDataMap) {
+    // Stub
+  };
+
 
   onViewDataBroadcast(data) {
     // Stub
@@ -319,9 +336,9 @@ class Panel extends Component {
       renderDataTables.call(this, panel);
     }
 
-    // If I am a modal cover (.tst__modal-base), and have the
+    // If I am a modal cover (.zoo__modal-base), and have the
     // .close_on_click class, then close myself on click.
-    if (panel.classList.contains('tst__modal-base') &&
+    if (panel.classList.contains('zoo__modal-base') &&
       panel.classList.contains('close_on_click')) {
       this.listen(panel, 'click', e => {
         if (e.target === panel) {
@@ -330,20 +347,21 @@ class Panel extends Component {
       })
     }
 
+    // Maker zoo-buttons issue panel events.
     [...panel.querySelectorAll(
-      '.tst__button:not(.external):not(.mdc-data-table__row)')].forEach(
-      el => {
-        this.listen(el, 'click', e => {
-          e.stopPropagation();
-          const trg = e.currentTarget;
-          const elDataMap = getElDataMap(trg);
-          this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
-            orgEvt: e,
-            trigger: trg,
-            href: trg.href || elDataMap['href'],
-          }, elDataMap));
-        });
+      '.zoo__button:not(.external):not(.mdc-data-table__row)'
+    )].forEach(el => {
+      this.listen(el, 'click', e => {
+        e.stopPropagation();
+        const trg = e.currentTarget;
+        const elDataMap = getElDataMap(trg);
+        this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
+          orgEvt: e,
+          trigger: trg,
+          href: trg.href || elDataMap['href'],
+        }, elDataMap));
       });
+    });
 
     // Hijack elements with a straight-up 'href' attribute.
     // Make them emit a 'href' event with the original
@@ -382,7 +400,7 @@ class Panel extends Component {
     });
 
     // Get all elements with class swapping functionality.
-    [...panel.querySelectorAll('.tst__toggle_class_driver')].forEach(
+    [...panel.querySelectorAll('.zoo__toggle_class_driver')].forEach(
       el => {
         const elDataMap = getElDataMap(el);
         const toggleTarget = elDataMap['toggle_class_target_id'];
@@ -495,6 +513,7 @@ class Panel extends Component {
             this.parseContent(el);
             this.evalScripts(data.scripts);
             this.evalModules(data.modules);
+            this.onAsyncHtmlReply(el, elDataMap);
           });
         const repeat = toNumber(elDataMap['z_interval']);
         if (isNumber(repeat)) {
