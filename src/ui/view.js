@@ -353,6 +353,9 @@ export default class View extends EVT {
         const context = eventData.context;
         const landOnPk = eventData.landonpk;
         const displayAs = eventData.displayas;
+        const fpk = eventData.fpk;
+        
+        history.pushState({href, fpk, pk, view, landOn, context, landOnPk, displayAs}, "", null);
 
         if (this.switchViewMap_.has(view)) {
           this.switchViewMap_.get(view)({

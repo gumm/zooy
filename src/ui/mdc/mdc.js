@@ -1,5 +1,4 @@
 import * as mdc from 'material-components-web';
-
 import {getElDataMap} from "../../dom/utils.js";
 import {isDefAndNotNull, toLowerCase} from "badu";
 
@@ -230,6 +229,7 @@ export const renderSwitches = function (panel) {
 export const renderChips = function (panel) {
   [...panel.querySelectorAll('.mdc-chip-set')].forEach(el => {
     const chipSet = mdc.chips.MDCChipSet.attachTo(el);
+    el.zComponent = chipSet;
     chipSet.listen('MDCChip:interaction', e => {
       const chip = chipSet.chips.find(c => c.id === e.detail.chipId);
       const trg = chip.root;

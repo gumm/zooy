@@ -22,7 +22,7 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "badu": "^8.2.0",
+    "badu": "^8.4.0",
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {
@@ -32,8 +32,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "esm": "^3.2.25",
     "material-components-web": "^14.0.0",
-    "mocha": "^10.6.0",
-    "sass": "^1.77.6",
+    "sass": "^1.83.0",
     "ramda": "^0.30.1"
   }
 }

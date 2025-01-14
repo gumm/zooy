@@ -21,6 +21,14 @@ export default class Conductor extends EVT {
 
     this.viewConstructorMap_ = new Map();
 
+    window.addEventListener('popstate', (event) => {
+      if (event.state === null) {
+        return;
+      }
+      // Handle navigation with state
+      this.navTo(event.state);
+    });
+
   };
 
   set split(split) {
@@ -73,13 +81,13 @@ export default class Conductor extends EVT {
 
   initViewEventsInternal_() {
     return new Map()
-        .set('switch_view', (eventData, eView) => {
-          if (this.viewConstructorMap_.has(eventData.view)) {
-            const view = this.viewConstructorMap_.get(eventData.view)(
-                eventData.pk, eventData);
-            this.switchView(view);
-          }
-        })
+      .set('switch_view', (eventData, eView) => {
+        if (this.viewConstructorMap_.has(eventData.view)) {
+          const view = this.viewConstructorMap_.get(eventData.view)(
+            eventData.pk, eventData);
+          this.switchView(view);
+        }
+      })
   };
 
   mapViewEv(s, func) {
@@ -114,6 +122,24 @@ export default class Conductor extends EVT {
     return view;
   }
 
+  navTo = (data) => {
+    const view = data.view;
+    const activeView = this.activeView_;
+
+    if (activeView.switchViewMap_.has(view)) {
+      console.log('Using Switch View Map');
+      activeView.switchViewMap_.get(view)(data);
+    } else if (this.viewConstructorMap_.has(view)) {
+      console.log('Using View Constructor Map');
+      const targetView = this.viewConstructorMap_.get(view)(data.pk, data);
+      this.switchView(targetView);
+    } else {
+      console.log('Doing Nothing...');
+    }
+
+
+  }
+
   //-------------------------------------------------------[ Views Utilities ]--
   /**
    * @param {!View} view The view we want active.
@@ -121,5 +147,6 @@ export default class Conductor extends EVT {
   switchView(view) {
     this.setActiveView(this.initView(view));
   };
-  
+
+
 };
