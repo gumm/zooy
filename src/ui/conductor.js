@@ -25,7 +25,6 @@ export default class Conductor extends EVT {
       if (event.state === null) {
         return;
       }
-      // Handle navigation with state
       this.navTo(event.state);
     });
 
@@ -113,31 +112,17 @@ export default class Conductor extends EVT {
     this.activeView_.render();
   };
 
+  /**
+   * @param {!View} view
+   * @returns {!View}
+   */
   initView(view) {
     view.user = this.user;
     view.split = this.split;
-    // view.switchView = this.switchView.bind(this);
+    view.recordHistory = this.recordHistory.bind(this);
     view.registerViewConstructor = this.registerViewConstructor.bind(this);
     this.listen(view, View.viewEventCode(), this.onViewEvent.bind(this));
     return view;
-  }
-
-  navTo = (data) => {
-    const view = data.view;
-    const activeView = this.activeView_;
-
-    if (activeView.switchViewMap_.has(view)) {
-      console.log('Using Switch View Map');
-      activeView.switchViewMap_.get(view)(data);
-    } else if (this.viewConstructorMap_.has(view)) {
-      console.log('Using View Constructor Map');
-      const targetView = this.viewConstructorMap_.get(view)(data.pk, data);
-      this.switchView(targetView);
-    } else {
-      console.log('Doing Nothing...');
-    }
-
-
   }
 
   //-------------------------------------------------------[ Views Utilities ]--
@@ -147,6 +132,31 @@ export default class Conductor extends EVT {
   switchView(view) {
     this.setActiveView(this.initView(view));
   };
+
+  // -----------------------------------------------[ History and Navigation ]--
+  recordHistory(item) {
+    this.debugMe('HISTORY', item);
+    if (item.init) {
+      history.replaceState(item, "", document.location.href);
+    } else if (!item.history) {
+      history.pushState(item, "", null);
+    }
+  }
+
+  navTo = (item) => {
+    item.history = true;
+    const view = item.view;
+    const activeView = this.activeView_;
+
+    if (activeView.switchViewMap_.has(view)) {
+      this.debugMe('NAV:VIEW:MAP', item);
+      activeView.switchViewMap_.get(view)(item);
+    } else if (this.viewConstructorMap_.has(view)) {
+      const targetView = this.viewConstructorMap_.get(view)(item.pk, item);
+      this.debugMe('NAV:NEW:VIEW', item);
+      this.switchView(targetView);
+    }
+  }
 
 
 };

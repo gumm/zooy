@@ -95,7 +95,7 @@ export default class View extends EVT {
 
   constructor() {
     super();
-
+    
     /**
      * Set this to true to get some debug in the console.
      * @type {boolean}
@@ -127,7 +127,28 @@ export default class View extends EVT {
      */
     this.metaData_ = new Map();
 
+
+    this.recordHistory_ = void 0;
+
+    this.registerViewConstructor_ = void 0;
+
   };
+
+  set recordHistory(func) {
+    this.recordHistory_ = func;
+  }
+
+  get recordHistory() {
+    return this.recordHistory_;
+  }
+
+  set registerViewConstructor(func) {
+    this.registerViewConstructor_ = func;
+  }
+
+  get registerViewConstructor() {
+    return this.registerViewConstructor_;
+  }
 
   set split(split) {
     this.split_ = split;
@@ -343,31 +364,13 @@ export default class View extends EVT {
         form.elements['q'].value = '';
         form.dispatchEvent(new Event('submit'));
       })
+      .set('nav_back', (eventData, eView) => history.back())
       .set('switch_view', (eventData, ePanel) => {
         this.debugMe('switch_view received: eventData', eventData);
 
-        const href = eventData.href;
-        const pk = eventData.pk;
         const view = eventData.view;
-        const landOn = eventData.landon;
-        const context = eventData.context;
-        const landOnPk = eventData.landonpk;
-        const displayAs = eventData.displayas;
-        const fpk = eventData.fpk;
-        
-        history.pushState({href, fpk, pk, view, landOn, context, landOnPk, displayAs}, "", null);
-
         if (this.switchViewMap_.has(view)) {
-          this.switchViewMap_.get(view)({
-            view,
-            pk,
-            landOn,
-            landOnPk,
-            displayAs,
-            href,
-            context,
-            eventData
-          }, ePanel);
+          this.switchViewMap_.get(view)(eventData, ePanel);
         } else {
           this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
         }
@@ -383,7 +386,7 @@ export default class View extends EVT {
    * a panel.
    * @param {string} s
    * @param {function(
-   *  {view:string, pk:string, landOn:string, href:string}, Panel):?} func
+   *  {view:string, pk:string, issue:string, href:string}, Panel):?} func
    */
   mapSwitchView(s, func) {
     this.switchViewMap_.set(s, func);

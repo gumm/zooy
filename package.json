@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "30.0.0",
+  "version": "30.5.0",
   "main": "main.js",
   "type": "module",
   "author": {
@@ -22,7 +22,7 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "badu": "^8.4.0",
+    "badu": "^8.6.0",
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {

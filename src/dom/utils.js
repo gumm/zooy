@@ -1,13 +1,12 @@
 import {format} from "timeago.js"
 import {
   identity,
-  isDefAndNotNull,
-  isFunction,
-  isString,
-  isNumber,
-  toNumber,
   isArray,
-  pathOr
+  isDefAndNotNull,
+  isNumber,
+  isString,
+  pathOr,
+  toNumber
 } from "badu";
 
 /**
@@ -366,6 +365,16 @@ export const parseMomentAgo = (v, resultFormat = 'both', prepend = undefined) =>
 
 }
 
+/**
+ * Parses an obfuscated version of a given string.
+ *
+ * The function takes a string as input and processes it to mask certain
+ * characters with an asterisk ('*') based on specific conditions.
+ *
+ * @param {string} v The input string to be obfuscated.
+ * @returns {string} A new string where characters meeting the defined
+ *                   criteria have been replaced by an asterisk ('*').
+ */
 const parseObfuscated = v => {
   /**
    * @param {string} s
@@ -377,6 +386,33 @@ const parseObfuscated = v => {
   return ob(v);
 }
 
+/**
+ * A Map object that associates specific keys with parsing functions to 
+ * manipulate or format data values.
+ *
+ * The `parseMap` variable maps string-based keys to functions, where each 
+ * function defines a specific way to process or transform the given 
+ * value (`v`). The functions may use additional parameters like `el` 
+ * (representing an element) and `dataMap` (representing a broader dataset 
+ * or configuration) to perform their transformations. The processed value is 
+ * then returned by the associated function.
+ *
+ * Keys and their associated functionality:
+ * - `undefined`: Returns the input value unmodified via the `identity` function.
+ * - `''`: Passes the value through the `identity` function without transformations.
+ * - `class_update_only`: Passes the value through the `identity` function without changes.
+ * - `frac_100`: Converts the input value into a percentage between 0 and 100. The result is rounded to two decimal places.
+ * - `date_and_time`: Parses the input as a date and time, formats it using `toLocaleString` with specified options.
+ * - `date`: Parses the input as a date and formats it using `toLocaleString` with custom date formatting.
+ * - `moment_ago`: Parses a relative time representation (e.g., "5 minutes ago") as both ago and datetime format.
+ * - `moment_ago_only`: Parses the input as relative time in an "ago" format only, taking timezone from `dataMap`.
+ * - `moment_ago_datetime`: Formats the input using the datetime aspect of a "moment ago" parser.
+ * - `pretty-json`: Serializes a JavaScript object or value into a human-readable JSON string with 4-space indentation.
+ * - `obfuscated`: Processes the value to generate or decipher an obfuscated version of the input.
+ * - `linear-progress`: Adjusts the progress value of an associated `linear-progress` element. Progress is computed based on
+ *   the input value (`v`) divided by a maximum value (`zpmax`) fetched from `dataMap`. Returns `undefined` if the progress
+ *   is successfully updated.
+ */
 export const parseMap = new Map()
   .set(undefined, (v, el, dataMap) => identity(v))
   .set('', (v, el, dataMap) => identity(v))
@@ -398,6 +434,56 @@ export const parseMap = new Map()
     }
     return v;
   })
+
+
+/**
+ * Parses a string containing key-value definitions into an array of key-value pairs.
+ * It is used to add element data properties to elements that were created from
+ * the 'templated-array' directive.
+ * @example
+ *    zoodatapropkv='["propName":"propValue", "p2":"v2",]'
+ *    parseDataPropKvDef(zoodatapropkv) 
+ *    // -> [["propName","propValue"], ["p2","v2"]]
+ * 
+ * @param {string} str - The input string to parse, which should be enclosed in delimiters and contain key-value pairs
+ * separated by commas. Each key-value pair should be separated by a colon.
+ * 
+ * @returns {Array.<Array.<string>>} An array of key-value pairs, where each pair is represented as a two-element array
+ * with the key and value as strings. Invalid or empty pairs are excluded from the result.
+ */
+const parseDataPropKvDef = (str) => {
+  const cleaned = str.slice(1, -1).trim();
+  const pairs = cleaned.split(',').map(pair => pair.trim());
+  return pairs.map(pair => {
+    const [key, value] = pair.split(':').map(item => item.trim());
+    return [key, value];
+  }).filter(([key, value]) => key !== '' && value !== '');
+}
+
+/**
+ * Parses and assigns data properties to an element based on a mapping
+ * defined in its dataset and the provided data object.
+ *
+ * This function retrieves a special data property mapping from the element's
+ * dataset, processes the mapping definitions, and updates the element's
+ * dataset with properties and their corresponding values found in the
+ * provided data object.
+ *
+ * @param {HTMLElement} el - The target HTML element whose dataset will be updated.
+ * @param {Object} data - The source data object used to resolve property values.
+ * @returns {HTMLElement} - The updated HTML element with modified dataset properties.
+ */
+const parseDataProps = (el, data) => {
+  const dm = getElDataMap(el);
+  delete el.dataset.zoodatapropkv;
+  const targetPropDef = dm.zoodatapropkv || '';
+  const propDefs = parseDataPropKvDef(targetPropDef);
+  propDefs.forEach(([prop, valueAccess]) => {
+    el.dataset[prop] = pathOr(undefined, valueAccess.split('.'))(data);
+  });
+  return el;
+}
+
 
 export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map()) => {
 
@@ -457,7 +543,10 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map()) => {
       template.classList.remove('display__none');
       el.replaceChildren(...v.map(e => {
         const clone = template.cloneNode(true);
-        mapDataToEls(clone, e)
+
+        parseDataProps(clone, e);
+        mapDataToEls(clone, e);
+        
         return clone;
       }));
     } else if (isDefAndNotNull(v)) {

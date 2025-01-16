@@ -79,10 +79,6 @@ export default class EVT extends EventTarget {
     this.debugMode_ = bool;
   }
 
-  get debugMode() {
-    return this.debugMode_;
-  }
-
   get disposed() {
     return this.disposed_;
   }
@@ -92,7 +88,7 @@ export default class EVT extends EventTarget {
   }
 
   debugMe(...s) {
-    if (this.debugMode) {
+    if (this.debugMode_) {
       console.log.apply(null, [this.constructor.name, 'DEBUG:', ...s]);
     }
   }
