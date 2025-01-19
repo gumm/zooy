@@ -4,6 +4,7 @@ import {enableClass, toggleClass} from '../dom/utils.js';
 import ZooyEventData from "../events/zooyeventdata.js";
 import UserManager from "../user/usermanager.js";
 import Panel from './panel.js';
+import {identity} from "badu";
 
 
 /**
@@ -95,7 +96,7 @@ export default class View extends EVT {
 
   constructor() {
     super();
-    
+
     /**
      * Set this to true to get some debug in the console.
      * @type {boolean}
@@ -152,15 +153,28 @@ export default class View extends EVT {
 
   set split(split) {
     this.split_ = split;
-    // this.listen(this.split_, UiEventType.SPLIT, e => {
-    //   const eventValue = e.detail.getValue();
-    //   const eventData = e.detail.getData();
-    //   console.log(eventValue, eventData, this.disposed_, this.constructor.name);
-    // });
-    // console.log('LISTENRS', this.split_.numListeners)
-    // this.split_.isObservedBy_.forEach(e => {
-    //   console.log('    ', e.constructor.name, e.disposed_)
-    // })
+    this.listen(this.split_, UiEventType.SPLIT, e => {
+      const eventValue = e.detail.getValue();
+      const eventData = e.detail.getData();
+      switch (eventValue) {
+        case UiEventType.SPLIT_WILL_OPEN:
+          this.onSplitWillOpen(eventData);
+          break;
+        case UiEventType.SPLIT_WILL_CLOSE:
+          this.onSplitWillClose(eventData);
+          break;
+        case UiEventType.SPLIT_DID_CLOSE:
+          this.onSplitDidClose(eventData);
+          break;
+        case UiEventType.SPLIT_DID_OPEN:
+          this.onSplitDidOpen(eventData);
+          break;
+        case UiEventType.SPLIT_TRANSITION_END:
+          break;
+        default:
+          identity();
+      }
+    });
   }
 
   get split() {
@@ -386,7 +400,7 @@ export default class View extends EVT {
    * a panel.
    * @param {string} s
    * @param {function(
-   *  {view:string, pk:string, issue:string, href:string}, Panel):?} func
+   *  {view:string, pk:string, emit:string, href:string}, Panel):?} func
    */
   mapSwitchView(s, func) {
     this.switchViewMap_.set(s, func);
@@ -411,6 +425,38 @@ export default class View extends EVT {
     }
   };
 
+  //----------------------------------------------------------[ Split Events ]--
+  /**
+   * Triggered before a split will open.
+   *
+   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   */
+  onSplitWillOpen(data) {
+  }
+
+  /**
+   * Triggered before a split will close.
+   *
+   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   */
+  onSplitWillClose(data) {
+  }
+
+  /**
+   * Triggered after a split closed.
+   *
+   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   */
+  onSplitDidClose(data) {
+  }
+
+  /**
+   * Triggered after a split opened.
+   *
+   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   */
+  onSplitDidOpen(data) {
+  }
 
   //-------------------------------------------------------[ Built in events ]--
   /**

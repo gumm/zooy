@@ -65,7 +65,7 @@ export default class Split extends Component {
     this.nestNames.forEach(n => this.openAndUnlock(n, callback, ops_skipAni));
   }
 
-  // -----------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   /**
    * Lock a dragger. Removes the listeners that make it draggable.
    * Adds the 'locked' class to the element.
@@ -118,7 +118,6 @@ export default class Split extends Component {
         nestEl.classList.remove('animated');
         this.nestMap_.get(nestName).sizeNow = size;
         callback();
-
       });
       nestEl.style.flexBasis = `${size}px`;
     }
@@ -138,14 +137,13 @@ export default class Split extends Component {
       return;
     }
     const onDone = () => {
-      dragEl.classList.add('locked');
-      dragEl.classList.add('closed');
+      dragEl.classList.add('locked', 'closed');
       nestEl.classList.add('closed');
       callback();
     }
     this.resize(nestName, 0, onDone, opt_skipAni);
   }
-  
+
   closeAndUnlock(nestName, callback = identity, opt_skipAni = false) {
     const {nestEl, dragEl, canResize} = this.nestMap_.get(nestName);
     if (!canResize) {
@@ -153,8 +151,7 @@ export default class Split extends Component {
     }
     const onDone = () => {
       nestEl.classList.remove('closed');
-      dragEl.classList.remove('closed');
-      dragEl.classList.remove('locked');
+      dragEl.classList.remove('closed', 'locked');
       dragEl.classList.add('collapsed');
       callback();
     }
@@ -184,9 +181,7 @@ export default class Split extends Component {
     }
     const targetSize = size || lastSize || defSize;
     nestEl.classList.remove('closed');
-    dragEl.classList.remove('closed');
-    dragEl.classList.remove('locked');
-    dragEl.classList.remove('collapsed');
+    dragEl.classList.remove('closed', 'locked', 'collapsed');
     setTimeout(() => {
       this.resize(nestName, targetSize, callback, opt_skipAni)
     }, 50);
@@ -214,8 +209,7 @@ export default class Split extends Component {
     }
     const targetSize = size || lastSize || defSize;
     nestEl.classList.remove('closed');
-    dragEl.classList.remove('closed');
-    dragEl.classList.remove('collapsed');
+    dragEl.classList.remove('closed', 'collapsed');
     setTimeout(() => {
       this.resize(nestName, targetSize, callback, opt_skipAni)
     }, 50);
@@ -231,12 +225,14 @@ export default class Split extends Component {
    *    simply affected directly.
    */
   close(nestName, callback = identity, opt_skipAni = false) {
-    const {dragEl, canResize} = this.nestMap_.get(nestName);
+    const {dragEl, canResize, nestEl} = this.nestMap_.get(nestName);
     if (!canResize) {
       return;
     }
+    this.dispatchSplitEvent(UiEventType.SPLIT_WILL_CLOSE, {nestName, nestEl});
     const cb = () => {
       dragEl.classList.add('collapsed');
+      this.dispatchSplitEvent(UiEventType.SPLIT_DID_CLOSE, {nestName, nestEl});
       callback();
     };
     this.resize(nestName, 0, cb, opt_skipAni);
@@ -250,15 +246,19 @@ export default class Split extends Component {
    * @param {boolean?} opt_skipAni When true, the resize won't be animated, but
    *    simply affected directly.
    */
-  open(nestName, callback, opt_skipAni = false) {
-    const {defSize, lastSize, dragEl, canResize} = this.nestMap_.get(nestName);
+  open(nestName, callback = identity, opt_skipAni = false) {
+    const {defSize, lastSize, dragEl, canResize, nestEl} = this.nestMap_.get(nestName);
     if (!canResize) {
       return;
     }
-    dragEl.classList.remove('collapsed');
-    dragEl.classList.remove('closed');
+    this.dispatchSplitEvent(UiEventType.SPLIT_WILL_OPEN, {nestName, nestEl});
+    dragEl.classList.remove('collapsed', 'closed');
     const targetSize = lastSize || defSize;
-    this.resize(nestName, targetSize, callback, opt_skipAni);
+    const cb = () => {
+      this.dispatchSplitEvent(UiEventType.SPLIT_DID_OPEN, {nestName, nestEl});
+      callback();
+    };
+    this.resize(nestName, targetSize, cb, opt_skipAni);
   }
 
   /**
@@ -278,7 +278,7 @@ export default class Split extends Component {
   }
 
 
-  //------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /**
    * Split an element into parts, each separated by a dragger component.
    * The split creates 3 new elements inside root element. Thus it is not
@@ -349,6 +349,7 @@ export default class Split extends Component {
     AB.domFunc = makeDraggerEl(classArrDragger, classArrGrabber);
     AB.render(root);
     this.nestMap_.set(refA, {
+      side: "A",
       nestEl: A,
       dragger: AB,
       dragEl: AB.getElement(),
@@ -369,6 +370,7 @@ export default class Split extends Component {
     BC.render(root);
     const C = makeOuterNest(defSizeC, [...['zoo_nest__C', refC], ...classArrC]);
     this.nestMap_.set(refC, {
+      side: "C",
       nestEl: C,
       dragger: BC,
       dragEl: BC.getElement(),
@@ -434,16 +436,9 @@ export default class Split extends Component {
 
   //-------------------------------------------------------[ Built in events ]--
   /**
-   * Dispatches a {@code UiEventType.VIEW} event.
-   * A shorthand method to get panels to dispatch uniform events.
+   * Dispatches a {@code UiEventType.SPLIT} event.
    * Views may listen just to this event, and act on the supplied value or
    * data payload.
-   * Example:
-   *    b.listen(a, Component.compEventCode(), e => {
-   *      console.log('B got', Component.compEventCode(), e);
-   *      console.log('Value is', e.detail.getValue());
-   *      console.log('Data is', e.detail.getData());
-   *    });
    * @param {string|number} value
    * @param {(string|number|?Object)=} opt_data
    * @return {boolean} If anyone called preventDefault on the event object (or
@@ -457,15 +452,14 @@ export default class Split extends Component {
 
 }
 
-//----------------------------------------------------------------------[ DOM Makers ]--
+//--------------------------------------------------------------[ DOM Makers ]--
 /**
  * @param {!Element} el
  * @param {!string} orientation
  * @return {!Element}
  */
 const convertElToSplit = (el, orientation) => {
-  el.classList.add('zoo_split');
-  el.classList.add(`zoo_split__${orientation.toLowerCase()}`);
+  el.classList.add('zoo_split', `zoo_split__${orientation.toLowerCase()}`);
   return el;
 };
 
@@ -477,10 +471,9 @@ const convertElToSplit = (el, orientation) => {
 const makeOuterNest = (initialSize, classArr = []) => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
-  el.classList.add('zoo_nest');
-  el.classList.add('zoo_nest__outer');
+  el.classList.add('zoo_nest', 'zoo_nest__outer', ...classArr);
   el.style.flexBasis = initialSize + 'px';
-  classArr.forEach(e => el.classList.add(e));
+  // classArr.forEach(e => el.classList.add(e));
   return el;
 };
 
@@ -491,9 +484,9 @@ const makeOuterNest = (initialSize, classArr = []) => {
 const makeInnerNest = (classArr = []) => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
-  el.classList.add('zoo_nest');
-  el.classList.add('zoo_nest__inner');
-  classArr.forEach(e => el.classList.add(e));
+  el.classList.add('zoo_nest', 'zoo_nest__inner', ...classArr);
+  // el.classList.add();
+  // classArr.forEach(e => el.classList.add(e));
   return el;
 };
 
@@ -506,13 +499,13 @@ const makeDraggerEl = (classArrDragger = [], classArrGrabber = []) => () => {
   const el = document.createElement('div');
   el.setAttribute('id', randomId(7));
   // el.setAttribute('draggable', true);
-  el.classList.add('zoo_dragger');
-  classArrDragger.forEach(e => el.classList.add(e));
+  el.classList.add('zoo_dragger', ...classArrDragger);
+  // classArrDragger.forEach(e => el.classList.add(e));
 
   // Append an inner grabber.
   const grabber = document.createElement('div');
-  grabber.classList.add('zoo_grabber');
-  classArrGrabber.forEach(e => grabber.classList.add(e));
+  grabber.classList.add('zoo_grabber', ...classArrGrabber);
+  // classArrGrabber.forEach(e => grabber.classList.add(e));
   el.appendChild(grabber);
   return el;
 };
