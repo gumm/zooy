@@ -346,7 +346,7 @@ export default class Split extends Component {
     const refA = `${refN}A`;
     const A = makeOuterNest(defSizeA, [...['zoo_nest__A', refA], ...classArrA]);
     const AB = new Dragger(orientation);
-    AB.domFunc = makeDraggerEl(classArrDragger, classArrGrabber);
+    AB.domFunc = makeDraggerEl([`zoo_drag_${refA}`,...classArrDragger], classArrGrabber);
     AB.render(root);
     this.nestMap_.set(refA, {
       side: "A",
@@ -366,7 +366,7 @@ export default class Split extends Component {
     // Outer nest and its dragger
     const refC = `${refN}C`;
     const BC = new Dragger(orientation);
-    BC.domFunc = makeDraggerEl(classArrDragger, classArrGrabber);
+    BC.domFunc = makeDraggerEl([`zoo_drag_${refC}`,...classArrDragger], classArrGrabber);
     BC.render(root);
     const C = makeOuterNest(defSizeC, [...['zoo_nest__C', refC], ...classArrC]);
     this.nestMap_.set(refC, {
