@@ -291,7 +291,7 @@ export const renderMenus = function (panel) {
       if (menuEl.classList.contains('z2-filter-on-keydown')) {
         const reset = () => {
           filterWord = '';
-          menu.items.forEach(e => e.classList.remove('hidden_list_item'));
+          menu.items.forEach(e => e.classList.remove('hidden-list-itme'));
         }
         const nameTargets = [...menu.items].map(e => toLowerCase(
           e.querySelector('.mdc-deprecated-list-item__text').textContent));
@@ -312,9 +312,9 @@ export const renderMenus = function (panel) {
           if (filterWord !== "") {
             nameTargets.forEach((target, i) => {
               if (target.includes(filterWord)) {
-                menu.items[i].classList.remove('hidden_list_item');
+                menu.items[i].classList.remove('hidden-list-itme');
               } else {
-                menu.items[i].classList.add('hidden_list_item');
+                menu.items[i].classList.add('hidden-list-itme');
               }
             });
           }
