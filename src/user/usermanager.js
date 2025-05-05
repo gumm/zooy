@@ -130,7 +130,7 @@ const jsonInit = (
   const h = new Headers();
   h.append('Content-type', 'application/json');
   h.append('X-Requested-With', 'XMLHttpRequest');
-  jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
+  jwt && jwt !== '' && h.append('Authorization', `Bearer ${jwt}`);
   const options = {
     cache: 'no-cache',
     method: method,
@@ -160,7 +160,7 @@ const basicPutPostPatchInit = (
     signal = void 0) => {
 
   const h = new Headers();
-  jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
+  jwt && jwt !== '' && h.append('Authorization', `Bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
   if (useDocumentCookies) {
     const token = getCookieByName('csrftoken');
@@ -201,7 +201,7 @@ const formPostInit = (jwt, formPanel, signal = void 0) => {
  */
 const basicGetInit = (jwt, signal = void 0) => {
   const h = new Headers();
-  h.append('Authorization', `bearer ${jwt}`);
+  h.append('Authorization', `Bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
   const options = {
     cache: 'no-cache', headers: h, credentials: 'include'
