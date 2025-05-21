@@ -83,6 +83,9 @@ const checkStatusTwo = panel => response => {
  * @return {Promise}
  */
 const getJson = response => {
+  if (response.status === 204) {
+    return Promise.resolve({});
+  }
   return response.json().then(
       data => Promise.resolve(data),
       err => Promise.reject(`Could not get JSON from response: ${err}`)
