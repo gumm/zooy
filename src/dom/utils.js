@@ -387,14 +387,14 @@ const parseObfuscated = v => {
 }
 
 /**
- * A Map object that associates specific keys with parsing functions to 
+ * A Map object that associates specific keys with parsing functions to
  * manipulate or format data values.
  *
- * The `parseMap` variable maps string-based keys to functions, where each 
- * function defines a specific way to process or transform the given 
- * value (`v`). The functions may use additional parameters like `el` 
- * (representing an element) and `dataMap` (representing a broader dataset 
- * or configuration) to perform their transformations. The processed value is 
+ * The `parseMap` variable maps string-based keys to functions, where each
+ * function defines a specific way to process or transform the given
+ * value (`v`). The functions may use additional parameters like `el`
+ * (representing an element) and `dataMap` (representing a broader dataset
+ * or configuration) to perform their transformations. The processed value is
  * then returned by the associated function.
  *
  * Keys and their associated functionality:
@@ -442,12 +442,12 @@ export const parseMap = new Map()
  * the 'templated-array' directive.
  * @example
  *    zoodatapropkv='["propName":"propValue", "p2":"v2",]'
- *    parseDataPropKvDef(zoodatapropkv) 
+ *    parseDataPropKvDef(zoodatapropkv)
  *    // -> [["propName","propValue"], ["p2","v2"]]
- * 
+ *
  * @param {string} str - The input string to parse, which should be enclosed in delimiters and contain key-value pairs
  * separated by commas. Each key-value pair should be separated by a colon.
- * 
+ *
  * @returns {Array.<Array.<string>>} An array of key-value pairs, where each pair is represented as a two-element array
  * with the key and value as strings. Invalid or empty pairs are excluded from the result.
  */
@@ -485,24 +485,36 @@ const parseDataProps = (el, data) => {
 }
 
 
-export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map()) => {
+export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map(), opt_loopIndex = undefined) => {
 
   if (!json) {
     return;
   }
 
   const merged = new Map([...parseMap, ...opt_extendedMap]);
-  [...rootEl.querySelectorAll('[data-zdd],[data-zdd_class_update]')].forEach(el => {
+  [...rootEl.querySelectorAll('[data-zdd],[data-zdd_class_update],[data-zdd_template_loop_index]')].forEach(el => {
     const dataMap = getElDataMap(el);
     const lldRef = dataMap['zdd'] || '';
     const parseAs = dataMap['zdd_parse_as'];
     const renderEffect = dataMap['zdd_render_effect'] || '';
     const classUpdate = dataMap['zdd_class_update'];
+    const loopIndex = dataMap['zdd_template_loop_index'];
     let units = dataMap['zdd_units'] || '';
     let v = pathOr(undefined, lldRef.split('.'))(json);
 
     if (isDefAndNotNull(v)) {
       v = merged.has(parseAs) ? merged.get(parseAs)(v, el, dataMap) : v
+    }
+
+    if (loopIndex && isNumber(opt_loopIndex)) {
+      console.log("loopIndex: ", loopIndex, " opt_loopIndex: ", opt_loopIndex,)
+      if (loopIndex === "zero_indexed") {
+        el.innerHTML = opt_loopIndex;
+      } else if (loopIndex === "one_indexed") {
+        el.innerHTML = opt_loopIndex + 1;
+      } else {
+        el.innerHTML = opt_loopIndex;
+      }
     }
 
     if (classUpdate) {
@@ -538,17 +550,20 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map()) => {
     }
 
     if (parseAs === 'templated-array' && isArray(v)) {
-      v = v || [];
-      const template = el.firstElementChild;
-      template.classList.remove('display__none');
-      el.replaceChildren(...v.map(e => {
-        const clone = template.cloneNode(true);
-
-        parseDataProps(clone, e);
-        mapDataToEls(clone, e);
-        
-        return clone;
-      }));
+      if (v.length === 0) {
+        el.classList.add('display__none');
+      } else {
+        el.classList.remove('display__none');
+        v = v || [];
+        const template = el.firstElementChild;
+        template.classList.remove('display__none');
+        el.replaceChildren(...v.map((e, i) => {
+          const clone = template.cloneNode(true);
+          parseDataProps(clone, e);
+          mapDataToEls(clone, e, undefined, i);
+          return clone;
+        }));
+      }
     } else if (isDefAndNotNull(v)) {
       if (renderEffect === 'typewriter') {
         let i = 0;
