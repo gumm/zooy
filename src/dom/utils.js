@@ -441,7 +441,7 @@ export const parseMap = new Map()
  * It is used to add element data properties to elements that were created from
  * the 'templated-array' directive.
  * @example
- *    zoodatapropkv='["propName":"propValue", "p2":"v2",]'
+ *    zoodatapropkv="propName:propValue, p2:v2";
  *    parseDataPropKvDef(zoodatapropkv)
  *    // -> [["propName","propValue"], ["p2","v2"]]
  *
@@ -451,8 +451,8 @@ export const parseMap = new Map()
  * @returns {Array.<Array.<string>>} An array of key-value pairs, where each pair is represented as a two-element array
  * with the key and value as strings. Invalid or empty pairs are excluded from the result.
  */
-const parseDataPropKvDef = (str) => {
-  const cleaned = str.slice(1, -1).trim();
+export const parseDataPropKvDef = (str) => {
+  const cleaned = str.trim();
   const pairs = cleaned.split(',').map(pair => pair.trim());
   return pairs.map(pair => {
     const [key, value] = pair.split(':').map(item => item.trim());
@@ -559,9 +559,9 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map(), opt_loop
         template.classList.remove('display__none');
         el.replaceChildren(...v.map((e, i) => {
           const clone = template.cloneNode(true);
-          parseDataProps(clone, e);
-          mapDataToEls(clone, e, undefined, i);
-          return clone;
+          const c2 = parseDataProps(clone, e);
+          mapDataToEls(c2, e, undefined, i);
+          return c2;
         }));
       }
     } else if (isDefAndNotNull(v)) {
