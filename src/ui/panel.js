@@ -5,7 +5,7 @@ import {
   evalScripts,
   formToJSON,
   getElDataMap,
-  splitScripts,
+  splitScripts
 } from '../dom/utils.js';
 import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
@@ -15,7 +15,7 @@ import {
   renderButtons,
   renderCheckBoxes,
   renderChips,
-  renderDataTables, 
+  renderDataTables,
   renderFloatingActionButtons,
   renderFormFields,
   renderIconButtons,
@@ -31,31 +31,50 @@ import {
   renderSwitches,
   renderTabBars,
   renderTextFieldIcons,
-  renderTextFields,
+  renderTextFields
 } from './mdc/mdc.js';
 import {
   getPath,
   getQueryData,
   objectToUrlParms,
   queryDataToMap
-} from "../uri/uri.js";
+} from '../uri/uri.js';
 
+/**
+ * A Panel represents a UI component that can fetch and display content from a URI.
+ * Panels handle form submissions, async content loading, Material Design Component
+ * rendering, and user interactions. They manage query parameters, scripts, and
+ * provide hooks for async JSON and HTML responses.
+ *
+ * @extends {Component}
+ */
 class Panel extends Component {
 
+  /**
+   * Returns the panel event type code used for dispatching panel events.
+   * @return {string} The PANEL event type
+   */
   static panelEventCode() {
     return UiEventType.PANEL;
   }
 
+  /**
+   * Returns the component ready event type code.
+   * @return {string} The READY event type
+   */
   static compReadyCode() {
     return UiEventType.READY;
   }
 
-
+  /**
+   * Creates a new Panel instance.
+   * @param {string=} uri Optional URI for fetching panel content
+   */
   constructor(uri) {
     super();
 
     this.qParamMap_ = new Map();
-    this.uri_ = "";
+    this.uri_ = '';
     this.parseUri(uri);
 
     // Script are evaluated in the context of the panel.
@@ -85,13 +104,13 @@ class Panel extends Component {
     this.user_ = void 0;
 
     // Feature detect
-    if ("AbortController" in window) {
+    if ('AbortController' in window) {
       this.abortController = new AbortController();
     } else {
       this.abortController = {
         signal: void 0,
         abort: () => void 0
-      }
+      };
     }
 
     this.listMap = new Map();
@@ -101,8 +120,8 @@ class Panel extends Component {
   //---------------------------------------------------[ Getters and Setters ]--
   get uri() {
     const params = this.qParamMap_.size > 0
-      ? "?" + objectToUrlParms(Object.fromEntries(this.qParamMap_))
-      : "";
+      ? '?' + objectToUrlParms(Object.fromEntries(this.qParamMap_))
+      : '';
     return this.uri_ + params;
   }
 
@@ -123,19 +142,36 @@ class Panel extends Component {
     return this.user_;
   };
 
+  /**
+   * Parses a URI into its path and query parameters. Updates the panel's
+   * internal URI and query parameter map.
+   * @param {string} uri The URI to parse
+   */
   parseUri(uri) {
     this.uri_ = getPath(uri);
     this.qParamMap_ = queryDataToMap(getQueryData(uri));
   }
 
+  /**
+   * Adds or updates a query parameter in the panel's query parameter map.
+   * @param {string} k The parameter key
+   * @param {string} v The parameter value
+   */
   addToQParams(k, v) {
     this.qParamMap_.set(k, v);
   };
 
+  /**
+   * Removes a query parameter from the panel's query parameter map.
+   * @param {string} k The parameter key to remove
+   */
   removeFromQParams(k) {
     this.qParamMap_.delete(k);
   }
 
+  /**
+   * Clears all query parameters from the panel's query parameter map.
+   */
   clearQParams() {
     this.qParamMap_.clear();
   }
@@ -178,7 +214,7 @@ class Panel extends Component {
         return this;
       }).catch(identity);
     } else {
-      return Promise.reject('No user')
+      return Promise.reject('No user');
     }
   };
 
@@ -188,12 +224,10 @@ class Panel extends Component {
    * @return {Promise}
    */
   onRenderWithTemplateReply(s) {
-    return new Promise(x => {
-      this.responseObject = splitScripts(s);
-      this.domFunc = () => /** @type {!Element} */ (this.responseObject.html);
-      this.render();
-      return x(this);
-    })
+    this.responseObject = splitScripts(s);
+    this.domFunc = () => /** @type {!Element} */ (this.responseObject.html);
+    this.render();
+    return Promise.resolve(this);
   };
 
   /**
@@ -221,7 +255,7 @@ class Panel extends Component {
     }
     const hyperText = content.html;
 
-    if (qs.startsWith(".")) {
+    if (qs.startsWith('.')) {
       [...panelEl.querySelectorAll(qs)]
         .filter(e => isDefAndNotNull(e.id))
         .map(e => [e, hyperText.querySelector(`#${e.id}`)])
@@ -229,8 +263,8 @@ class Panel extends Component {
         .forEach(([target, replace]) => {
           target.parentNode.replaceChild(replace, target);
           this.parseContent(replace);
-        })
-    } else if (qs.startsWith("#")) {
+        });
+    } else if (qs.startsWith('#')) {
       const replacementContent = hyperText.querySelector(qs);
       const target = panelEl.querySelector(qs);
       target.parentNode.replaceChild(replacementContent, target);
@@ -257,10 +291,10 @@ class Panel extends Component {
           if (opt_callback) {
             opt_callback(json, this);
           }
-          this.onRenderWithJSON(json)
-        }).catch(identity)
+          this.onRenderWithJSON(json);
+        }).catch(identity);
     } else {
-      return Promise.reject('No user')
+      return Promise.reject('No user');
     }
 
   };
@@ -273,9 +307,7 @@ class Panel extends Component {
    * @return {Promise}
    */
   onRenderWithJSON(json) {
-    return new Promise(x => {
-      return x(this);
-    })
+    return Promise.resolve(this);
   };
 
 
@@ -298,7 +330,11 @@ class Panel extends Component {
     // Stub
   };
 
-
+  /**
+   * Hook method called when the view broadcasts data to all its panels.
+   * Override this method to handle broadcasted data in subclasses.
+   * @param {*} data The data broadcast from the view
+   */
   onViewDataBroadcast(data) {
     // Stub
   };
@@ -313,7 +349,7 @@ class Panel extends Component {
     this.debugMe('Enable interactions. Panel:', panel);
 
     if (isDefAndNotNull(window.mdc) &&
-      window.mdc.hasOwnProperty('autoInit')) {
+      Object.prototype.hasOwnProperty.call(window.mdc, 'autoInit')) {
       renderRipples.call(this, panel);
       renderButtons.call(this, panel);
       renderFloatingActionButtons.call(this, panel);
@@ -344,7 +380,7 @@ class Panel extends Component {
         if (e.target === panel) {
           this.dispatchPanelEvent('destroy_me');
         }
-      })
+      });
     }
 
     // Maker zoo-buttons issue panel events.
@@ -358,7 +394,7 @@ class Panel extends Component {
         this.dispatchPanelEvent(elDataMap['zv'], Object.assign({
           orgEvt: e,
           trigger: trg,
-          href: trg.href || elDataMap['href'],
+          href: trg.href || elDataMap['href']
         }, elDataMap));
       });
     });
@@ -372,7 +408,7 @@ class Panel extends Component {
         e.preventDefault();
         e.stopPropagation();
         const elDataMap = getElDataMap(trg);
-        let v = elDataMap['zv'] || 'href';
+        const v = elDataMap['zv'] || 'href';
         this.dispatchPanelEvent(v, Object.assign({
           orgEvt: e,
           trigger: e.target,
@@ -405,7 +441,7 @@ class Panel extends Component {
         const elDataMap = getElDataMap(el);
         const toggleTarget = elDataMap['toggle_class_target_id'];
         const toggleClass = elDataMap['toggle_class'];
-        const targetEl = panel.querySelector(`#${toggleTarget}`)
+        const targetEl = panel.querySelector(`#${toggleTarget}`);
         if (targetEl && toggleClass) {
           el.addEventListener('click', e => {
             e.stopPropagation();
@@ -439,7 +475,7 @@ class Panel extends Component {
     };
     const onDragStart = e => {
       e.dataTransfer.dropEffect = 'move';
-      let o = getElDataMap(e.target);
+      const o = getElDataMap(e.target);
       e.dataTransfer.setData('text/plain', JSON.stringify(o));
       e.target.classList.add('drag_in_progress');
     };
@@ -450,8 +486,8 @@ class Panel extends Component {
     const onDrop = e => {
       deactivate(e);
       e.stopPropagation();
-      let data = JSON.parse(e.dataTransfer.getData('text/plain'));
-      let o = getElDataMap(e.target);
+      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+      const o = getElDataMap(e.target);
       this.dispatchPanelEvent('drop_on', {
         custom: {'on': o, 'from': data}
       });
@@ -486,7 +522,7 @@ class Panel extends Component {
         this.jsonCallFuncs = this.jsonCallFuncs || {};
         this.jsonCallFuncs[reusableJson] = () => {
           this.user.fetchJson(href, this.abortController.signal).then(onReply);
-        }
+        };
       }
 
       const repeat = toNumber(elDataMap['z_interval']);
@@ -524,12 +560,18 @@ class Panel extends Component {
                 this.parseContent(el);
                 this.evalScripts(data.scripts);
                 this.evalModules(data.modules);
-              })
-          }, repeat * 60 * 1000)
+              });
+          }, repeat * 60 * 1000);
         }
       });
   };
 
+  /**
+   * @inheritDoc
+   * Called when the panel enters the document. Parses content to enable
+   * Material Design Components, executes scripts and modules, then dispatches
+   * the READY event.
+   */
   enterDocument() {
     const panel = this.getElement();
     this.parseContent(panel);
@@ -543,6 +585,11 @@ class Panel extends Component {
     super.enterDocument();
   };
 
+  /**
+   * @inheritDoc
+   * Called when the panel exits the document. Aborts any pending async
+   * operations and performs cleanup.
+   */
   exitDocument() {
     this.abortController.abort();
     super.exitDocument();

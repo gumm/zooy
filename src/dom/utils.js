@@ -1,4 +1,4 @@
-import {format} from "timeago.js"
+import {format} from 'timeago.js';
 import {
   identity,
   isArray,
@@ -7,7 +7,7 @@ import {
   isString,
   pathOr,
   toNumber
-} from "badu";
+} from 'badu';
 
 /**
  * Gets the current value of a check-able input element.
@@ -41,7 +41,7 @@ const getSelectSingle_ = function (el) {
 const getSelectMultiple_ = function (el) {
   const values = [];
   for (let option, i = 0;
-       option = /** @type {!HTMLSelectElement} */ (el).options[i]; i++) {
+    (option = /** @type {!HTMLSelectElement} */ (el).options[i]); i++) {
     if (option.selected) {
       values.push(option.value);
     }
@@ -68,7 +68,7 @@ export const getValue = function (el) {
       return getSelectMultiple_(el);
     default:
       // Not every element with a value has a type (e.g. meter and progress).
-      return el.value != null ? el.value : null;
+      return el.value !== null && el.value !== undefined ? el.value : null;
   }
 };
 
@@ -158,7 +158,7 @@ export const totalWidth = el => {
   const margin = parseFloat(s.marginLeft) + parseFloat(s.marginRight);
   const padding = parseFloat(s.paddingLeft) + parseFloat(s.paddingRight);
   const border = parseFloat(s.borderLeftWidth) + parseFloat(s.borderRightWidth);
-  return width + margin - padding + border
+  return width + margin - padding + border;
 };
 
 export const totalHeight = el => {
@@ -167,7 +167,7 @@ export const totalHeight = el => {
   const margin = parseFloat(s.marginTop) + parseFloat(s.marginBottom);
   const padding = parseFloat(s.paddingTop) + parseFloat(s.paddingBottom);
   const border = parseFloat(s.borderTopWidth) + parseFloat(s.borderBottomWidth);
-  return height + margin - padding + border
+  return height + margin - padding + border;
 };
 
 
@@ -293,19 +293,19 @@ const dtFormatter = {
 const dFormatter = {
   year: 'numeric',
   month: 'short',
-  day: 'numeric',
+  day: 'numeric'
 };
 
 export const dtf = new Intl.DateTimeFormat(
-  "en", {
-    day: "2-digit",
-    month: "short",
-    year: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
+  'en', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
     // hour12: false
-    hourCycle: "h23",
+    hourCycle: 'h23'
   });
 
 export const dateToZooyStdTimeString = d => {
@@ -327,9 +327,9 @@ export const dateToZooyStdTimeString = d => {
     {value: hr}, ,
     {value: mn}, ,
     {value: sc}, ,
-  ] = dtf.formatToParts(d)
+  ] = dtf.formatToParts(d);
   return `${da} ${mo} ${ye} ${hr}:${mn}:${sc}`;
-}
+};
 
 /**
  * Format a number to a date and time and time-ago string.
@@ -343,7 +343,7 @@ export const parseMomentAgo = (v, resultFormat = 'both', prepend = undefined) =>
   if (isNumber(ts) && ts < 946684800000) {
     ts = ts * 1000;
   } else if (prepend) {
-    ts = ts + prepend
+    ts = ts + prepend;
   }
   const d = new Date(ts);
   const ago = format(d);
@@ -363,7 +363,7 @@ export const parseMomentAgo = (v, resultFormat = 'both', prepend = undefined) =>
       return `${ago} (${time})`;
   }
 
-}
+};
 
 /**
  * Parses an obfuscated version of a given string.
@@ -384,7 +384,7 @@ const parseObfuscated = v => {
   const t = tst(v);
   const ob = s => s.split('').map((c, i) => t(i) ? '*' : c).join('');
   return ob(v);
-}
+};
 
 /**
  * A Map object that associates specific keys with parsing functions to
@@ -433,7 +433,7 @@ export const parseMap = new Map()
       v = undefined;
     }
     return v;
-  })
+  });
 
 
 /**
@@ -458,7 +458,7 @@ export const parseDataPropKvDef = (str) => {
     const [key, value] = pair.split(':').map(item => item.trim());
     return [key, value];
   }).filter(([key, value]) => key !== '' && value !== '');
-}
+};
 
 /**
  * Parses and assigns data properties to an element based on a mapping
@@ -482,7 +482,7 @@ const parseDataProps = (el, data) => {
     el.dataset[prop] = pathOr(undefined, valueAccess.split('.'))(data);
   });
   return el;
-}
+};
 
 
 export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map(), opt_loopIndex = undefined) => {
@@ -499,18 +499,18 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map(), opt_loop
     const renderEffect = dataMap['zdd_render_effect'] || '';
     const classUpdate = dataMap['zdd_class_update'];
     const loopIndex = dataMap['zdd_template_loop_index'];
-    let units = dataMap['zdd_units'] || '';
+    const units = dataMap['zdd_units'] || '';
     let v = pathOr(undefined, lldRef.split('.'))(json);
 
     if (isDefAndNotNull(v)) {
-      v = merged.has(parseAs) ? merged.get(parseAs)(v, el, dataMap) : v
+      v = merged.has(parseAs) ? merged.get(parseAs)(v, el, dataMap) : v;
     }
 
     if (loopIndex && isNumber(opt_loopIndex)) {
-      console.log("loopIndex: ", loopIndex, " opt_loopIndex: ", opt_loopIndex,)
-      if (loopIndex === "zero_indexed") {
+      console.log('loopIndex: ', loopIndex, ' opt_loopIndex: ', opt_loopIndex);
+      if (loopIndex === 'zero_indexed') {
         el.innerHTML = opt_loopIndex;
-      } else if (loopIndex === "one_indexed") {
+      } else if (loopIndex === 'one_indexed') {
         el.innerHTML = opt_loopIndex + 1;
       } else {
         el.innerHTML = opt_loopIndex;
@@ -518,33 +518,34 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map(), opt_loop
     }
 
     if (classUpdate) {
-      const [valueAccess, action, name] = classUpdate.split(":");
-      let v = pathOr(undefined, valueAccess.split('.'))(json);
+      const [valueAccess, action, name] = classUpdate.split(':');
+      const v = pathOr(undefined, valueAccess.split('.'))(json);
       if (isDefAndNotNull(v)) {
         switch (action) {
-          case 'swap':
+          case 'swap': {
             const regex = /\{}/gi;
             const oldClassName = name.replace(regex, '');
             const newClass = name.replace(regex, v);
             el.classList.remove(...[...el.classList].filter(
-              e => e.includes(oldClassName)))
+              e => e.includes(oldClassName)));
             el.classList.add(newClass);
             break;
+          }
           case 'remove_on_data':
             el.classList.remove(name);
             break;
           case 'choice_map':
             // name: '1>blah.hello|2>blee.bing|3>blue.whatnow'
             // If value is 1, add blah and remove all the rest
-            name.split('|').filter(e => e !== "").forEach(e => {
+            name.split('|').filter(e => e !== '').forEach(e => {
               const [keyVal, className] = e.split('>');
               if (keyVal === v + '') {
-                el.classList.add.apply(el.classList, className.split('.'))
+                el.classList.add.apply(el.classList, className.split('.'));
               } else {
-                el.classList.remove.apply(el.classList, className.split('.'))
+                el.classList.remove.apply(el.classList, className.split('.'));
               }
             });
-            break
+            break;
         }
       }
     }
@@ -575,11 +576,11 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map(), opt_loop
             i++;
             setTimeout(typeWriter, speed);
           }
-        }
-        el.innerHTML = "";
+        };
+        el.innerHTML = '';
         typeWriter();
       } else {
-        el.innerHTML = v + units
+        el.innerHTML = v + units;
       }
     }
 

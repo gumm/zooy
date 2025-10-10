@@ -1,6 +1,6 @@
 import Panel from './panel.js';
 import {UiEventType} from '../events/uieventtype.js';
-import {replaceNode, splitScripts} from '../dom/utils.js'
+import {replaceNode, splitScripts} from '../dom/utils.js';
 import {isDefAndNotNull, whatType} from 'badu';
 
 
@@ -13,21 +13,31 @@ import {isDefAndNotNull, whatType} from 'badu';
 let ServerFormSuccessJsonType;
 
 /**
- * A class for managing the display of field level messages on a form.
+ * A class for managing field-level error messages and validation on a form.
+ * Handles HTML5 constraint validation, displays error messages, and provides
+ * hooks for change and input events to clear/display validation errors.
  */
 class FieldErrs {
 
+  /**
+   * Creates a new FieldErrs instance.
+   * @param {!FormPanel} formPanel The parent form panel
+   */
   constructor(formPanel) {
     this.formPanel_ = formPanel;
     this.fMap = new Map();
     this.form_ = null;
   }
 
+  /**
+   * Initializes the field error handler. Sets up event listeners on the form
+   * for change, input, and invalid events.
+   */
   init() {
     this.form_ = this.formPanel_.formEl;
     if (this.form_) {
       this.form_.addEventListener('change', e => {
-        this.validateOnChange(e)
+        this.validateOnChange(e);
       }, {passive: true});
       this.form_.addEventListener('input', e => {
         this.clearAll();
@@ -42,10 +52,15 @@ class FieldErrs {
     }
   }
 
+  /**
+   * Checks all form fields for validity. Returns true if all fields are valid.
+   * Displays error messages for any invalid fields.
+   * @return {boolean} True if all fields are valid, false otherwise
+   */
   checkAll() {
     const arr = [...this.form_.elements]
-        .map(e => [this.checkValidationForField(e), e])
-        .filter(e => !e[0]);
+      .map(e => [this.checkValidationForField(e), e])
+      .filter(e => !e[0]);
     arr.forEach(e => this.displayError(e[1]));
     return arr.length === 0;
   };
@@ -54,12 +69,12 @@ class FieldErrs {
    * Clear all existing errors
    */
   clearAll() {
-    let fields = this.form_ ? this.form_.elements : [];
+    const fields = this.form_ ? this.form_.elements : [];
     [...fields].forEach(field => this.clearAlertOnField(field));
 
-    let nonFieldErrs = this.form_.querySelectorAll(
-        '.non-field-errors');
-    [...nonFieldErrs].forEach(e => e.classList.remove('alert-error'))
+    const nonFieldErrs = this.form_.querySelectorAll(
+      '.non-field-errors');
+    [...nonFieldErrs].forEach(e => e.classList.remove('alert-error'));
 
   };
 
@@ -96,7 +111,7 @@ class FieldErrs {
   clearAlertOnField(field) {
     field.classList.remove('error');
     if (this.fMap.has(field)) {
-      this.fMap.get(field).textContent = ''
+      this.fMap.get(field).textContent = '';
     }
     this.fMap.delete(field);
   };
@@ -107,7 +122,7 @@ class FieldErrs {
    * @param {string=} opt_msg
    */
   displayError(field, opt_msg) {
-    let message = opt_msg || field.validationMessage;
+    const message = opt_msg || field.validationMessage;
     field.classList.add('error');
     this.displayAlert(field, message, 'alert-error');
   };
@@ -138,9 +153,19 @@ class FieldErrs {
   }
 }
 
-
+/**
+ * A specialized Panel for handling forms with validation, submission interception,
+ * and server response processing. Automatically intercepts form submissions to
+ * enable AJAX-style form posting with validation and error handling.
+ *
+ * @extends {Panel}
+ */
 class FormPanel extends Panel {
 
+  /**
+   * Creates a new FormPanel instance.
+   * @param {string=} uri Optional URI for fetching form content
+   */
   constructor(uri) {
     super(uri);
 
@@ -165,14 +190,17 @@ class FormPanel extends Panel {
   }
 
   /**
-   * @return {?HTMLFormElement}
+   * Gets the form element managed by this panel.
+   * @return {?HTMLFormElement} The form element, or null if not found
    */
   get formEl() {
-      return this.form_;
+    return this.form_;
   }
 
   /**
    * @inheritDoc
+   * Called when the form panel enters the document. Identifies the form element
+   * and sets up submission interception and field error handling.
    */
   enterDocument() {
     super.enterDocument();
@@ -181,6 +209,7 @@ class FormPanel extends Panel {
 
 
   /**
+   * Internal method to identify the form element and set up interception.
    * @private
    */
   formIdElementToForm_() {
@@ -262,7 +291,7 @@ class FormPanel extends Panel {
       } else {
         // Just replace the form component.
         const newForm = /** @type {!Element} */ (this.responseObject.html)
-            .querySelector('form');
+          .querySelector('form');
         if (newForm) {
           replaceNode(newForm, this.form_);
         }
@@ -270,9 +299,9 @@ class FormPanel extends Panel {
         // Forms have randomIDs so the submit button must come along...
         // Sadly :(
         const newSubmit = /** @type {!Element} */ (this.responseObject.html)
-            .querySelector('button[type="submit"]');
+          .querySelector('button[type="submit"]');
         const oldSubmit = /** @type {!Element} */ (this.getElement())
-            .querySelector('button[type="submit"]');
+          .querySelector('button[type="submit"]');
         if (newSubmit && oldSubmit) {
           replaceNode(newSubmit, oldSubmit);
         }
@@ -293,9 +322,9 @@ class FormPanel extends Panel {
     const uri = this.uri;
     if (usr) {
       return usr.fetch(uri, this.abortController.signal).then(
-          s => this.replaceForm(s));
+        s => this.replaceForm(s));
     } else {
-      return Promise.reject('No user')
+      return Promise.reject('No user');
     }
   };
 
@@ -345,7 +374,7 @@ class FormPanel extends Panel {
       if (isDefAndNotNull(this.form_)) {
         hasErrors = this.form_.querySelectorAll('.alert-error');
       }
-      success = !hasErrors.length
+      success = !hasErrors.length;
     }
 
     if (success && this.redirected) {

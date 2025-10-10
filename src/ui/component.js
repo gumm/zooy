@@ -1,6 +1,6 @@
 import ZooyEventData from '../events/zooyeventdata.js';
 import EVT from './evt.js';
-import {UiEventType} from '../events/uieventtype.js'
+import {UiEventType} from '../events/uieventtype.js';
 import {isInPage, removeNode} from '../dom/utils.js';
 
 
@@ -60,19 +60,38 @@ const ComponentError = {
   STATE_INVALID: 'Invalid component state'
 };
 
+/**
+ * Base UI component class that provides lifecycle management, DOM manipulation,
+ * and a parent-child component hierarchy. Components can be rendered into the DOM,
+ * manage their own children, and dispatch events to communicate with other components.
+ *
+ * @extends {EVT}
+ */
 export default class Component extends EVT {
 
   //----------------------------------------------------------------[ Static ]--
+  /**
+   * Returns the component event type code used for dispatching component events.
+   * @return {string} The COMP event type
+   */
   static compEventCode() {
     return UiEventType.COMP;
   }
 
+  /**
+   * Returns the component ready event type code.
+   * @return {string} The READY event type
+   */
   static compReadyCode() {
     return UiEventType.READY;
   }
 
+  /**
+   * Returns the component error enumeration object.
+   * @return {!Object<string, string>} The ComponentError enum
+   */
   static compErrors() {
-    return ComponentError
+    return ComponentError;
   }
 
   constructor() {
@@ -84,7 +103,7 @@ export default class Component extends EVT {
      * @private
      */
     this.makeDomFunc_ = () =>
-        /** @type {!HTMLElement} */(document.createElement('div'));
+    /** @type {!HTMLElement} */(document.createElement('div'));
 
 
     /**
@@ -183,7 +202,7 @@ export default class Component extends EVT {
    * @return {*}
    */
   get model() {
-    return this.model_
+    return this.model_;
   }
 
 
@@ -220,6 +239,12 @@ export default class Component extends EVT {
 
 
   //--------------------------------------------------------[ DOM Management ]--
+  /**
+   * Internal method to set the component's root element. Used primarily during
+   * rendering and re-rendering operations.
+   * @param {!Node} frag The DOM node to set as this component's element
+   * @private
+   */
   setElementInternal_(frag) {
     this.element_ = frag;
   }
@@ -238,10 +263,15 @@ export default class Component extends EVT {
    * implementation is to set this.element_ = div.
    */
   createDom() {
-    this.element_ = this.makeDomFunc_()
+    this.element_ = this.makeDomFunc_();
   };
 
-
+  /**
+   * Asserts that this component can be rendered asynchronously.
+   * Throws an error if the component has already been disposed.
+   * Used by async rendering methods to validate component state.
+   * @throws {Error} If the component is already disposed
+   */
   assertCanRenderAsync() {
     if (this.disposed) {
       throw new Error(ComponentError.ALREADY_DISPOSED);
@@ -333,12 +363,17 @@ export default class Component extends EVT {
    */
   hoist(el, targetParent = undefined) {
     if (!targetParent) {
-      targetParent = document.querySelector("body");
+      targetParent = document.querySelector('body');
     }
     targetParent.appendChild(el);
     this.outOfTreeElements.push(el);
   }
 
+  /**
+   * Executes the beforeReady callback function if one was set.
+   * Called automatically during enterDocument, before the READY event is dispatched.
+   * Allows components to perform final setup operations once they're in the DOM.
+   */
   executeBeforeReady() {
     this.beforeReadyFunc_();
   }
@@ -436,11 +471,17 @@ export default class Component extends EVT {
     super.disposeInternal();
   };
 
+  /**
+   * Disposes of the component and performs cleanup. Aborts any pending async
+   * operations, destroys Material Design Components if present, and calls the
+   * parent dispose method.
+   * After calling this method, the component should not be used.
+   */
   dispose() {
     this.abortController && this.abortController.abort();
     const me = this.getElement();
     if (me) {
-      const els = me.querySelectorAll("[data-mdc-auto-init]");
+      const els = me.querySelectorAll('[data-mdc-auto-init]');
       [...els].forEach(e => {
         try {
           e[e.getAttribute('data-mdc-auto-init')].destroy();

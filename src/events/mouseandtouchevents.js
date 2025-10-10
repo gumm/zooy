@@ -25,9 +25,9 @@ export const EV = {
 
   // Transitions
   TRANSITIONEND: 'transitionend',
-  
+
   // Animations
-  ANIMATIONEND: 'animationend',
+  ANIMATIONEND: 'animationend'
 };
 
 /**

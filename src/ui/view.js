@@ -1,10 +1,10 @@
 import EVT from './evt.js';
-import {UiEventType} from '../events/uieventtype.js'
+import {UiEventType} from '../events/uieventtype.js';
 import {enableClass, toggleClass} from '../dom/utils.js';
-import ZooyEventData from "../events/zooyeventdata.js";
-import UserManager from "../user/usermanager.js";
+import ZooyEventData from '../events/zooyeventdata.js';
+import UserManager from '../user/usermanager.js';
 import Panel from './panel.js';
-import {identity} from "badu";
+import {identity} from 'badu';
 
 
 /**
@@ -64,7 +64,7 @@ const needsToScroll = parent => {
   const bottomMustBeLessThan = parentRect.bottom;
   return elem => {
     const distance = elem.getBoundingClientRect();
-    return distance.bottom > bottomMustBeLessThan
+    return distance.bottom > bottomMustBeLessThan;
   };
 };
 
@@ -86,14 +86,29 @@ export const treeNodeSelect = panel => id => {
   }
 };
 
-
+/**
+ * A View orchestrates multiple panels and manages their interactions.
+ * Views handle panel events, coordinate with the split component for layout,
+ * manage navigation, and communicate with the Conductor for view switching.
+ * Each view represents a distinct application state or screen.
+ *
+ * @extends {EVT}
+ */
 export default class View extends EVT {
 
   //----------------------------------------------------------------[ Static ]--
+  /**
+   * Returns the view event type code used for dispatching view events.
+   * @return {string} The VIEW event type
+   */
   static viewEventCode() {
     return UiEventType.VIEW;
   }
 
+  /**
+   * Creates a new View instance. Initializes panel management, event handling,
+   * and metadata storage.
+   */
   constructor() {
     super();
 
@@ -179,7 +194,7 @@ export default class View extends EVT {
 
   get split() {
     if (!this.split_) {
-      throw 'No SPLIT component available'
+      throw new Error('No SPLIT component available');
     }
     return this.split_;
   }
@@ -298,21 +313,31 @@ export default class View extends EVT {
     return this.panelMap.get(name);
   };
 
-
+  /**
+   * Broadcasts data to all panels in this view. Each panel receives the data
+   * via its onViewDataBroadcast method.
+   * @param {*} data The data to broadcast to all panels
+   */
   broadcastToPanels(data) {
     [...this.panelMap.values()].forEach(p => p.onViewDataBroadcast(data));
   }
 
-
+  /**
+   * Initializes the internal panel event map with default event handlers.
+   * Sets up handlers for common panel events like navigation, search, filtering,
+   * tree toggling, and view switching.
+   * @return {!Map<string, !Function>} Map of event names to handler functions
+   * @private
+   */
   initPanelEventsInternal_() {
     return new Map()
       .set('toggle_tree', (eventData, ePanel) => {
-        toggleTree(eventData, ePanel)
+        toggleTree(eventData, ePanel);
       })
       .set('tree_toggle-children', (eventData, ePanel) => {
         toggleTreeChildren(
           ePanel,
-          /**@type {{trigger:!HTMLElement}}*/ (eventData))
+          /**@type {{trigger:!HTMLElement}}*/ (eventData));
       })
       .set('destroy_me', (eventData, ePanel) => {
         this.removePanel(ePanel);
@@ -326,9 +351,9 @@ export default class View extends EVT {
       .set('search_by_qdict', (eventData, ePanel) => {
         const qString = eventData.formData.q;
         if (qString !== '') {
-          ePanel.addToQParams("q", qString);
+          ePanel.addToQParams('q', qString);
         } else {
-          ePanel.removeFromQParams("q");
+          ePanel.removeFromQParams('q');
         }
         this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
           s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
@@ -339,7 +364,7 @@ export default class View extends EVT {
         const qString = eventData.formData.q;
         const qDict = eventData.targetval;
         if (qString !== '') {
-          href = `${href}?q=${qString}`
+          href = `${href}?q=${qString}`;
         }
         if (qDict !== '') {
           let newQDict = qDict;
@@ -391,6 +416,12 @@ export default class View extends EVT {
       });
   };
 
+  /**
+   * Maps a panel event name to a handler function. Allows dynamic registration
+   * of custom panel event handlers at runtime.
+   * @param {string} s The event name to map
+   * @param {!Function} func The handler function that receives (eventData, ePanel)
+   */
   mapPanEv(s, func) {
     this.panelEventMap_.set(s, func);
   }
@@ -415,7 +446,7 @@ export default class View extends EVT {
     const eventData = e.detail.getData();
     const ePanel = /** @type {Panel} */ (e.target);
     if (this.panelEventMap_.has(eventValue)) {
-      this.panelEventMap_.get(eventValue)(eventData, ePanel)
+      this.panelEventMap_.get(eventValue)(eventData, ePanel);
     } else {
       this.debugMe(`NO EVENT MATCH
           oPe: ${e}
@@ -484,22 +515,38 @@ export default class View extends EVT {
 
   // ------------------------------------------------------------------------------[ Meta Data ]--
   /**
-   * Returns the model associated with the UI component.
-   * @return {*}
+   * Returns the metadata map associated with this view.
+   * @return {!Map<string, *>} The metadata map
    */
   get metaData() {
-    return this.metaData_
+    return this.metaData_;
   }
 
+  /**
+   * Sets a metadata key-value pair for this view.
+   * @param {string} k The metadata key
+   * @param {*} v The metadata value
+   * @return {!Map<string, *>} The updated metadata map
+   */
   setMetaData(k, v) {
     this.metaData_.set(k, v);
     return this.metaData;
   }
 
+  /**
+   * Retrieves a metadata value by key.
+   * @param {string} k The metadata key
+   * @return {*} The metadata value, or undefined if not found
+   */
   getMetaData(k) {
     return this.metaData_.get(k);
   }
 
+  /**
+   * Checks if a metadata key exists.
+   * @param {string} k The metadata key
+   * @return {boolean} True if the key exists, false otherwise
+   */
   hasMetaData(k) {
     return this.metaData_.has(k);
   }

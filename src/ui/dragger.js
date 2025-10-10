@@ -34,10 +34,10 @@ const dragStartListener = (onStart, onMove, onEnd, degreesOfFreedom) =>
     }
 
     let didMove = false;
-    let df = (e) => {
+    const df = (e) => {
       didMove = true;
       dragFunc(e);
-    }
+    };
 
     const cancelFunc = e => {
       document.removeEventListener(EV.MOUSEMOVE, df, true);
@@ -90,6 +90,15 @@ const yMoveOnlyListener = (emit, target, xOrg, yOrg) => event => {
 };
 
 //------------------------------------------------------------------[ Event Emitters ]--
+/**
+ * Creates an event emitter function for drag events. Returns a curried function
+ * that captures initial position data and returns a final function that dispatches
+ * the event with calculated deltas.
+ * @param {!Component} comp The component that will dispatch the event
+ * @param {string} evType The event type to dispatch
+ * @return {function(number, number, number, number, !HTMLElement):function(!Event)}
+ *     A function that captures position data and returns an event handler
+ */
 const makeEmitter = (comp, evType) => (left, top, xOrg, yOrg, target) => ev => {
   comp.dispatchCompEvent(evType, {
     component: comp,
@@ -103,10 +112,15 @@ const makeEmitter = (comp, evType) => (left, top, xOrg, yOrg, target) => ev => {
     deltaX: ev.clientX - xOrg - left,
     deltaY: ev.clientY - yOrg - top,
     target: target
-  })
+  });
 };
 
-
+/**
+ * A draggable component that can be moved around the screen. Supports restricted
+ * movement in X, Y, or both directions. Dispatches drag start, move, and end events.
+ *
+ * @extends {Component}
+ */
 class Dragger extends Component {
 
   /**
@@ -147,6 +161,10 @@ class Dragger extends Component {
 
   };
 
+  /**
+   * Cancels the current drag operation in progress, if any.
+   * @param {!Event} event The event that triggered the cancel
+   */
   cancelDrag(event) {
     this.cancelDrag_(event);
   }
@@ -172,7 +190,7 @@ class Dragger extends Component {
    * @return {string}
    */
   get moveFreedom() {
-    return this.degreesOfFreedom_
+    return this.degreesOfFreedom_;
   }
 
 

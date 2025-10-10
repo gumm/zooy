@@ -1,4 +1,4 @@
-import { isDef, } from "badu";
+import { isDef } from 'badu';
 
 /*
 EVENT LISTENER LEAK DETECTOR
@@ -19,9 +19,21 @@ var listenerCount = 0;
 
  */
 
+/**
+ * Base class for event-driven components. Extends EventTarget with enhanced
+ * event listener management, automatic cleanup, and interval tracking.
+ * Provides a foundation for components that need to listen to and dispatch
+ * events while maintaining proper lifecycle management.
+ */
 export default class EVT extends EventTarget {
 
   //----------------------------------------------------------------[ Static ]--
+  /**
+   * Creates a CustomEvent with the given type and data payload.
+   * @param {string} event The event type
+   * @param {*} data The data to attach to the event's detail property
+   * @return {!CustomEvent} A new CustomEvent instance
+   */
   static makeEvent(event, data)  {
     return new CustomEvent(event, {detail: data});
   };
@@ -71,22 +83,40 @@ export default class EVT extends EventTarget {
     this.debugMode_ = false;
   };
 
-
+  /**
+   * Sets debug mode for this component. When enabled, debug messages
+   * will be logged to the console.
+   * @param {boolean} bool True to enable debug mode, false to disable
+   * @throws {Error} If the value is not a boolean
+   */
   set debugMode(bool) {
     if ((typeof bool) !== 'boolean') {
-      throw ('This must be a boolean')
+      throw new Error('This must be a boolean');
     }
     this.debugMode_ = bool;
   }
 
+  /**
+   * Returns whether this component has been disposed.
+   * @return {boolean} True if disposed, false otherwise
+   */
   get disposed() {
     return this.disposed_;
   }
-  
+
+  /**
+   * Returns the map of targets this component is listening to.
+   * @return {!Map<!EventTarget, !Object<string, !Function>>} Map of targets to their event handlers
+   */
   get listeningTo() {
     return this.listeningTo_;
   }
 
+  /**
+   * Logs debug messages to the console if debug mode is enabled.
+   * Automatically prepends the constructor name to the output.
+   * @param {...*} s Arguments to log
+   */
   debugMe(...s) {
     if (this.debugMode_) {
       console.log.apply(null, [this.constructor.name, 'DEBUG:', ...s]);
@@ -139,7 +169,7 @@ export default class EVT extends EventTarget {
    * @param {string=} opt_event
    */
   stopListeningTo(target, opt_event) {
-    if (!target) { return }
+    if (!target) { return; }
     if (this.listeningTo_.has(target)) {
 
       if (isDef(target.isObservedBy_)) {
@@ -148,12 +178,12 @@ export default class EVT extends EventTarget {
 
       if (isDef(opt_event)) {
         Object
-            .entries(this.listeningTo_.get(target))
-            .forEach(([key, value]) => {
-              if (key === opt_event) {
-                /** @type {!Function} */(value)();
-              }
-            });
+          .entries(this.listeningTo_.get(target))
+          .forEach(([key, value]) => {
+            if (key === opt_event) {
+              /** @type {!Function} */(value)();
+            }
+          });
         if (!Object.keys(this.listeningTo_.get(target)).length) {
           this.listeningTo_.delete(target);
         }
@@ -174,7 +204,11 @@ export default class EVT extends EventTarget {
       this.stopListeningTo(target);
     }
   }
-  
+
+  /**
+   * Clears all active intervals created by this component.
+   * Called automatically during disposal to prevent memory leaks.
+   */
   clearAllIntervals() {
     for (const interval of this.activeIntervals_) {
       clearInterval(interval);
@@ -182,11 +216,17 @@ export default class EVT extends EventTarget {
     }
   }
 
+  /**
+   * Executes a function repeatedly at a specified interval.
+   * The interval is tracked and will be automatically cleared on disposal.
+   * @param {!Function} f The function to execute on each interval
+   * @param {number} interval The interval in milliseconds
+   */
   doOnBeat(f, interval) {
     const clearInt = setInterval(f, interval);
     this.activeIntervals_.add(clearInt);
   }
-  
+
   /**
    * Disposes of the component.  Calls `exitDocument`, which is expected to
    * remove event handlers and clean up the component.  Propagates the call to
@@ -201,6 +241,11 @@ export default class EVT extends EventTarget {
     this.disposed_ = true;
   };
 
+  /**
+   * Public method to dispose of this component. Calls disposeInternal()
+   * to perform cleanup of event listeners, intervals, and observers.
+   * After calling this method, the component should not be used.
+   */
   dispose() {
     this.disposeInternal();
   }

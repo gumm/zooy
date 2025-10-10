@@ -148,10 +148,10 @@ const objectToUrlParms = obj => [...Object.entries(obj)].map(
   e => `${e[0]}=${e[1]}`).join('&');
 
 
-const isValidValue = t => t != null && t !== "";
+const isValidValue = t => t !== null && t !== undefined && t !== '';
 
 const queryDataToMap = qString => qString.split('&').reduce((p, c) => {
-  const [k, v] = c.split("=");
+  const [k, v] = c.split('=');
   if (isValidValue(k) && isValidValue(v)) {
     p.set(k,v);
   }
@@ -162,5 +162,5 @@ export {
   objectToUrlParms,
   getPath,
   getQueryData,
-  queryDataToMap,
-}
+  queryDataToMap
+};
