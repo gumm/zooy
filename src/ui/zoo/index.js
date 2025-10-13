@@ -1,70 +1,35 @@
 /**
- * Zooy UI Components
+ * Zooy Semantic Attributes System
  *
- * Custom Web Component wrappers around Carbon Design System components.
- * These provide a Zooy-specific API and make it easier to switch UI libraries
- * in the future without changing application templates.
+ * This module provides semantic attribute utilities for Carbon Design System components.
+ * Instead of wrapping Carbon components, we attach event listeners directly to them
+ * and use semantic attributes (event, record-id, endpoint) for configuration.
  *
- * Benefits:
- * - Cleaner, more semantic HTML (<zoo-button> vs <cds-button>)
- * - Abstraction layer for easier library migration
- * - Zooy-specific defaults and styling
- * - Automatic integration with Panel event system
+ * Benefits of this approach:
+ * - Zero maintenance overhead - Carbon updates don't break our code
+ * - Full Carbon API access - Developers use Carbon components directly
+ * - Future-proof - No wrapper components to maintain
+ * - Simpler codebase - Only event attachment logic
  *
  * Usage in templates:
- *   <zoo-button data-zv="event_name" kind="primary">Click Me</zoo-button>
- *   <zoo-text-input data-zv="input_changed" label="Username"></zoo-text-input>
- *   <zoo-dropdown data-zv="selection_changed" label="Choose option">
+ *   <cds-button event="save_record" record-id="123" kind="primary">Save</cds-button>
+ *   <cds-text-input event="search" placeholder="Search..."></cds-text-input>
+ *   <cds-dropdown event="filter_changed" label="Choose option">
  *     <cds-dropdown-item value="1">Option 1</cds-dropdown-item>
- *   </zoo-dropdown>
+ *   </cds-dropdown>
  *
- * All zoo-* components:
- * - Accept all standard Carbon component attributes
- * - Forward all data-* attributes for Zooy event system
- * - Expose .carbonElement property for Panel renderers
- * - Self-register as custom elements when imported
+ * Semantic Attributes:
+ * - event: Event name to dispatch on interaction
+ * - record-id: Record identifier/primary key
+ * - endpoint: API endpoint URL
+ * - action: Semantic action name
+ * - data-*: App-specific custom data
  *
- * @see /home/gumm/Workspace/zooy/src/ui/carbon/index.js for Carbon integration
+ * The renderers in src/ui/renderers/ handle attaching event listeners to Carbon
+ * components and dispatching panel events with the semantic attribute data.
+ *
+ * @see /home/gumm/Workspace/zooy/src/ui/renderers/ for component renderers
  */
 
-// Import components (they self-register via customElements.define)
-import { ZooButton } from './button.js';
-import { ZooTextInput } from './text-input.js';
-import { ZooDropdown } from './dropdown.js';
-import { ZooCheckbox } from './checkbox.js';
-import { ZooRadioButton, ZooRadioButtonGroup } from './radio-button.js';
-import { ZooModal } from './modal.js';
-
-// Export for programmatic access if needed
-export {
-  ZooButton,
-  ZooTextInput,
-  ZooDropdown,
-  ZooCheckbox,
-  ZooRadioButton,
-  ZooRadioButtonGroup,
-  ZooModal
-};
-
-/**
- * Ensure all Zooy components are registered.
- * This is called automatically when this module is imported.
- * Components register themselves, so this is mostly for documentation.
- *
- * Registered components:
- * - <zoo-button>
- * - <zoo-text-input>
- * - <zoo-dropdown>
- * - <zoo-checkbox>
- * - <zoo-radio-button>
- * - <zoo-radio-button-group>
- * - <zoo-modal>
- */
-export const registerZooComponents = () => {
-  // Components self-register via customElements.define() in their respective files
-  // This function exists for explicit initialization if needed
-  // console.log('[Zooy] Zoo components registered');
-};
-
-// Auto-register on import
-registerZooComponents();
+// Export semantic attributes utilities
+export * from './attributes.js';

@@ -2,10 +2,10 @@
  * Carbon Design System Integration
  *
  * This module provides integration between Zooy panels and IBM Carbon Design
- * System Web Components. Each component file exports a render function that:
- * 1. Finds Carbon Web Components in the panel DOM
- * 2. Attaches Zooy event listeners
- * 3. Manages component lifecycle
+ * System Web Components using a configuration-driven approach.
+ *
+ * The generic renderer in carbon.js handles all component types through
+ * a declarative configuration, eliminating the need for individual renderer files.
  *
  * Carbon Web Components auto-initialize, so we don't need to manually
  * instantiate them like we did with MDC.
@@ -17,27 +17,9 @@
  * @see https://web-components.carbondesignsystem.com/
  */
 
-import { renderButtons } from './button.js';
-import { renderTextInputs } from './text-input.js';
-import { renderDropdowns } from './dropdown.js';
-import { renderCheckboxes } from './checkbox.js';
-import { renderRadioButtons } from './radio-button.js';
-import { renderModals } from './modal.js';
+import { renderCarbonComponents } from './carbon.js';
 
-export {
-  renderButtons,
-  renderTextInputs,
-  renderDropdowns,
-  renderCheckboxes,
-  renderRadioButtons,
-  renderModals
-};
-
-// Additional components can be added here as we continue migration:
-// export { renderDataTables } from './data-table.js';
-// export { renderTabs } from './tabs.js';
-// export { renderToggles } from './toggle.js';
-// etc.
+export { renderCarbonComponents };
 
 /**
  * Loads Carbon Web Components dynamically.
@@ -54,12 +36,15 @@ export const loadCarbonComponents = async () => {
     await import('@carbon/web-components/es/components/checkbox/index.js');
     await import('@carbon/web-components/es/components/radio-button/index.js');
     await import('@carbon/web-components/es/components/modal/index.js');
-
-    // Future imports will be added here as we continue migration:
-    // await import('@carbon/web-components/es/components/data-table/index.js');
-    // await import('@carbon/web-components/es/components/tabs/index.js');
-    // await import('@carbon/web-components/es/components/toggle/index.js');
-    // etc.
+    await import('@carbon/web-components/es/components/data-table/index.js');
+    await import('@carbon/web-components/es/components/tabs/index.js');
+    await import('@carbon/web-components/es/components/overflow-menu/index.js');
+    await import('@carbon/web-components/es/components/structured-list/index.js');
+    await import('@carbon/web-components/es/components/toggle/index.js');
+    await import('@carbon/web-components/es/components/tag/index.js');
+    await import('@carbon/web-components/es/components/select/index.js');
+    await import('@carbon/web-components/es/components/slider/index.js');
+    await import('@carbon/web-components/es/components/progress-bar/index.js');
 
     // console.log('[Zooy] Carbon Web Components loaded successfully');
   } catch (error) {
@@ -81,19 +66,8 @@ export const initializeCarbonComponents = async function(panel) {
     // Load Carbon Web Components if not already loaded
     await loadCarbonComponents();
 
-    // Render each component type
-    renderButtons.call(this, panel);
-    renderTextInputs.call(this, panel);
-    renderDropdowns.call(this, panel);
-    renderCheckboxes.call(this, panel);
-    renderRadioButtons.call(this, panel);
-    renderModals.call(this, panel);
-
-    // Future component renderers will be called here as we continue migration:
-    // renderDataTables.call(this, panel);
-    // renderTabs.call(this, panel);
-    // renderToggles.call(this, panel);
-    // etc.
+    // Render all components using the generic configuration-driven renderer
+    renderCarbonComponents.call(this, panel);
 
     this.debugMe('Carbon components initialized in panel');
   } catch (error) {

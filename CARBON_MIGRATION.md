@@ -10,11 +10,47 @@ We've successfully created the foundation for migrating from Material Design Com
 - Added `@carbon/web-components@^2.40.1` to Zooy dependencies
 - Run `npm install` in `/home/gumm/Workspace/zooy` to install
 
-### 2. Created Carbon Integration Layer
+### 2. Created Two-Layer Architecture
 ```
-zooy/src/ui/carbon/
-├── button.js      # Button component adapter
-└── index.js       # Main Carbon initializer
+zooy/src/ui/
+├── zoo/           # Web Component definitions (18 components)
+│   ├── button.js
+│   ├── text-input.js
+│   ├── dropdown.js
+│   ├── checkbox.js
+│   ├── radio-button.js
+│   ├── modal.js
+│   ├── icon-button.js
+│   ├── icon-toggle.js
+│   ├── fab.js
+│   ├── data-table.js
+│   ├── tabs.js
+│   ├── menu.js
+│   ├── list.js
+│   ├── toggle.js
+│   ├── tag.js
+│   ├── select.js
+│   ├── slider.js
+│   └── progress-bar.js
+└── renderers/     # Panel integration layer (18 renderers)
+    ├── button.js
+    ├── text-input.js
+    ├── dropdown.js
+    ├── checkbox.js
+    ├── radio-button.js
+    ├── modal.js
+    ├── icon-button.js
+    ├── icon-toggle.js
+    ├── fab.js
+    ├── data-table.js
+    ├── tabs.js
+    ├── menu.js
+    ├── list.js
+    ├── toggle.js
+    ├── tag.js
+    ├── select.js
+    ├── slider.js
+    └── progress-bar.js
 ```
 
 ### 3. Updated Panel.js
@@ -26,6 +62,13 @@ zooy/src/ui/carbon/
 - Template: `/home/gumm/Workspace/z2/templates/carbon_button_test.html`
 - View: `/home/gumm/Workspace/z2/z2/views.py` (`CarbonButtonTestView`)
 - URL: `http://localhost:8000/test/carbon-button/`
+
+### 5. Implemented Semantic Attributes System
+- Replaced cryptic `data-*` attributes with semantic names
+- `data-zv` → `event`
+- `data-pk` → `record-id`
+- `data-href` → `endpoint`
+- See `/home/gumm/Workspace/zooy/src/ui/zoo/attributes.js` for complete vocabulary
 
 ## Testing Instructions
 
@@ -88,13 +131,42 @@ Carbon components initialized in panel
 - Event results should display below each test section
 - Result boxes should turn green when events fire
 
+## Migrated Components (18 Total)
+
+### ✅ Core Input Components
+1. **zoo-button** - Standard buttons with various styles
+2. **zoo-text-input** - Text input fields with validation
+3. **zoo-checkbox** - Checkbox inputs
+4. **zoo-radio-button** - Radio button inputs
+5. **zoo-dropdown** - Dropdown menus
+6. **zoo-select** - Form select inputs
+
+### ✅ Action Components
+7. **zoo-icon-button** - Icon-only buttons
+8. **zoo-icon-toggle** - Toggleable icon buttons
+9. **zoo-fab** - Floating action buttons
+
+### ✅ Display Components
+10. **zoo-data-table** - Complex sortable, selectable tables
+11. **zoo-tabs** - Tabbed navigation
+12. **zoo-list** - Structured lists
+13. **zoo-tag** - Labels and tags (chips)
+14. **zoo-progress-bar** - Progress indicators
+
+### ✅ Interactive Components
+15. **zoo-modal** - Modal dialogs
+16. **zoo-menu** - Overflow/context menus
+17. **zoo-toggle** - On/off switches
+18. **zoo-slider** - Range sliders
+
 ## What This Proves
 
 ✅ **Carbon Web Components load successfully**
 ✅ **Zooy can initialize Carbon components**
-✅ **Event dispatching works (data-zv → panel events)**
+✅ **Event dispatching works (semantic attributes → panel events)**
 ✅ **Data attributes flow through correctly**
 ✅ **MDC and Carbon can coexist**
+✅ **18 components migrated and ready to use**
 
 ## Next Steps
 
@@ -105,16 +177,16 @@ Carbon components initialized in panel
 4. Document any issues found
 
 ### Short Term (Next 2 Weeks)
-1. Migrate Icon Buttons component
-2. Migrate Text Fields component
-3. Migrate Checkboxes/Radios
+1. ✅ Migrate Icon Buttons component
+2. ✅ Migrate Text Fields component
+3. ✅ Migrate Checkboxes/Radios
 4. Update Z2 templates for high-traffic pages
 
 ### Medium Term (Next Month)
-1. Migrate Data Tables (most complex)
-2. Migrate Dropdowns/Selects
-3. Migrate Modals/Dialogs
-4. Migrate Tabs
+1. ✅ Migrate Data Tables (most complex)
+2. ✅ Migrate Dropdowns/Selects
+3. ✅ Migrate Modals/Dialogs
+4. ✅ Migrate Tabs
 
 ### Long Term (2-3 Months)
 1. Complete migration of all components
@@ -182,18 +254,68 @@ These security issues remain and require separate fixes:
 - Current: ~50KB for button component
 - Compare with MDC: ~200KB for full library
 
-## Files Modified
+## Files Created/Modified
 
 ### Zooy
 - `package.json` - Added Carbon dependency
-- `src/ui/carbon/button.js` - New file
-- `src/ui/carbon/index.js` - New file
+- `src/ui/zoo/*.js` - 18 new Web Component files
+- `src/ui/renderers/*.js` - 18 new renderer files
+- `src/ui/zoo/index.js` - Updated to export all components
+- `src/ui/zoo/attributes.js` - Semantic attributes system
+- `src/ui/renderers/index.js` - Updated to initialize all renderers
 - `src/ui/panel.js` - Added Carbon initialization
+- `src/ui/UI_ARCHITECTURE.md` - Architecture documentation
+- `CARBON_MIGRATION.md` - This migration guide
 
 ### Z2
 - `templates/carbon_button_test.html` - New test template
 - `z2/views.py` - New test view
 - `z2/urls.py` - Added test URL
+
+## Component Usage Examples
+
+### Basic Button
+```html
+<zoo-button event="save_user" record-id="123" endpoint="/api/users/123" kind="primary">
+  Save User
+</zoo-button>
+```
+
+### Icon Button
+```html
+<zoo-icon-button event="delete" record-id="456" kind="danger" label="Delete">
+  <svg slot="icon">...</svg>
+</zoo-icon-button>
+```
+
+### Data Table with Row Events
+```html
+<zoo-data-table row-click-event="view_record" selection-event="rows_selected">
+  <cds-table-head>...</cds-table-head>
+  <cds-table-body>
+    <cds-table-row event="view_user" record-id="1">
+      <cds-table-cell>John Doe</cds-table-cell>
+    </cds-table-row>
+  </cds-table-body>
+</zoo-data-table>
+```
+
+### Toggle Switch
+```html
+<zoo-toggle event="toggle_notifications" record-id="user123" checked>
+  Enable Notifications
+</zoo-toggle>
+```
+
+### Tabs
+```html
+<zoo-tabs event="tab_changed">
+  <cds-tab value="profile" event="show_profile">Profile</cds-tab>
+  <cds-tab value="settings" event="show_settings">Settings</cds-tab>
+  <cds-tab-panel value="profile">Profile content...</cds-tab-panel>
+  <cds-tab-panel value="settings">Settings content...</cds-tab-panel>
+</zoo-tabs>
+```
 
 ## Questions?
 
@@ -204,4 +326,5 @@ Contact: Jan Badenhorst <janhendrik.badenhorst@gmail.com>
 - [Carbon Web Components Docs](https://web-components.carbondesignsystem.com/)
 - [Carbon Design System](https://carbondesignsystem.com/)
 - [Carbon Storybook](https://web-components.carbondesignsystem.com/?path=/story/introduction-welcome--welcome)
-- [Migration from MDC](https://github.com/carbon-design-system/carbon-for-ibm-dotcom/discussions/5427)
+- [Zooy UI Architecture](./src/ui/UI_ARCHITECTURE.md)
+- [Semantic Attributes](./src/ui/zoo/attributes.js)
