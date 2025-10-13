@@ -61,7 +61,7 @@ export const loadCarbonComponents = async () => {
     // await import('@carbon/web-components/es/components/toggle/index.js');
     // etc.
 
-    console.log('[Zooy] Carbon Web Components loaded successfully');
+    // console.log('[Zooy] Carbon Web Components loaded successfully');
   } catch (error) {
     console.error('[Zooy] Failed to load Carbon Web Components:', error);
     throw error;

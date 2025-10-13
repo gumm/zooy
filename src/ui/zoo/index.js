@@ -63,7 +63,7 @@ export {
 export const registerZooComponents = () => {
   // Components self-register via customElements.define() in their respective files
   // This function exists for explicit initialization if needed
-  console.log('[Zooy] Zoo components registered');
+  // console.log('[Zooy] Zoo components registered');
 };
 
 // Auto-register on import
