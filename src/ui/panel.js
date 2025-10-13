@@ -1,5 +1,5 @@
 import Component from './component.js';
-import {identity, isDefAndNotNull, isNumber, isUndefined, toNumber} from 'badu';
+import {isDefAndNotNull, isNumber, isUndefined, toNumber} from 'badu';
 import {
   evalModules,
   evalScripts,
@@ -213,9 +213,12 @@ class Panel extends Component {
           }
         });
         return this;
-      }).catch(identity);
+      }).catch(err => {
+        console.error('Panel.renderWithTemplate fetch failed:', err);
+        throw err;
+      });
     } else {
-      return Promise.reject('No user');
+      return Promise.reject(new Error('No UserManager instance available for Panel.renderWithTemplate()'));
     }
   };
 
@@ -293,9 +296,12 @@ class Panel extends Component {
             opt_callback(json, this);
           }
           this.onRenderWithJSON(json);
-        }).catch(identity);
+        }).catch(err => {
+          console.error('Panel.renderWithJSON fetch failed:', err);
+          throw err;
+        });
     } else {
-      return Promise.reject('No user');
+      return Promise.reject(new Error('No UserManager instance available for Panel.renderWithJSON()'));
     }
 
   };

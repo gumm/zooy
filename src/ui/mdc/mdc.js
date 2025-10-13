@@ -465,10 +465,13 @@ export const renderSelectMenus = function (panel, panelComp) {
     try {
       mdcSelect.selectedIndex = htmSelectField.options.selectedIndex;
     } catch (e) {
-      console.log("Error:",
-        htmSelectField.options.selectedIndex,
-        htmSelectField, mdcSelect,
-        mdcSelect.selectedIndex, e);
+      console.error('MDC Select index sync error:', {
+        targetIndex: htmSelectField.options.selectedIndex,
+        htmSelectField,
+        mdcSelect,
+        currentIndex: mdcSelect.selectedIndex,
+        error: e
+      });
     }
   };
 

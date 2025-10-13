@@ -120,7 +120,7 @@ export default class Conductor extends EVT {
     if (this.viewEventMap_.has(eventValue)) {
       this.viewEventMap_.get(eventValue)(eventData, eView);
     } else {
-      console.log('Unhandled VIEW Event:', e, eventValue, eventData, eView);
+      console.warn('Unhandled VIEW Event:', e, eventValue, eventData, eView);
     }
   };
 

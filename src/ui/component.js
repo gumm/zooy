@@ -485,8 +485,9 @@ export default class Component extends EVT {
       [...els].forEach(e => {
         try {
           e[e.getAttribute('data-mdc-auto-init')].destroy();
-        } catch {
-          // do nothing...
+        } catch (error) {
+          // Intentionally ignoring MDC cleanup errors during disposal
+          console.debug('MDC cleanup error during component disposal (non-critical):', error);
         }
 
       });

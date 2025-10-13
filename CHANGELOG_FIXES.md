@@ -317,6 +317,213 @@ this.listen(el, EV.CLICK, e => e.target.classList.toggle('active'));
 
 **Result:** 0 ESLint errors, 0 warnings, cleaner memory profile, consistent event handling
 
+### Error Handling Standardization ✅
+
+**Major refactoring to improve error visibility, debugging, and proper error propagation**
+
+#### 1. Console Logging Improvements (HIGH PRIORITY)
+
+**Files:** `src/user/usermanager.js`, `src/ui/mdc/mdc.js`
+
+**Changes:**
+- `usermanager.js:239,241` - Changed `console.log` → `console.info` for AbortError, `console.error` for other errors in `genCatchClause`
+- `mdc.js:468-474` - Changed `console.log` → `console.error` with structured error logging
+- `conductor.js:123` - Changed `console.log` → `console.warn` for unhandled VIEW events
+
+**Before:**
+```javascript
+// usermanager.js
+if (err.name === 'AbortError') {
+  console.log(debugString, 'ABORTED!');
+} else {
+  console.log(debugString, err);
+}
+
+// mdc.js
+console.log("Error:", htmSelectField.options.selectedIndex, ...);
+
+// conductor.js
+console.log('Unhandled VIEW Event:', e, eventValue, eventData, eView);
+```
+
+**After:**
+```javascript
+// usermanager.js
+if (err.name === 'AbortError') {
+  console.info(debugString, 'ABORTED!');
+} else {
+  console.error(debugString, err);
+}
+
+// mdc.js
+console.error('MDC Select index sync error:', {
+  targetIndex: htmSelectField.options.selectedIndex,
+  htmSelectField,
+  mdcSelect,
+  currentIndex: mdcSelect.selectedIndex,
+  error: e
+});
+
+// conductor.js
+console.warn('Unhandled VIEW Event:', e, eventValue, eventData, eView);
+```
+
+**Impact:**
+- ✅ Errors now appear in browser console with proper severity
+- ✅ Better filtering and visibility in production monitoring
+- ✅ Easier debugging with structured error objects
+
+#### 2. Promise.reject Improvements (HIGH PRIORITY)
+
+**Files:** `src/user/usermanager.js`, `src/ui/panel.js`, `src/ui/form.js`
+
+Converted all string Promise rejections to Error objects for proper stack traces:
+
+**usermanager.js:**
+- Line 91: `Promise.reject('Could not get JSON from response: ...')` → `Promise.reject(new Error(...))`
+- Line 103: `Promise.reject('Could not get text from response: ...')` → `Promise.reject(new Error(...))`
+
+**panel.js:**
+- Line 218: `Promise.reject('No user')` → `Promise.reject(new Error('No UserManager instance available for Panel.renderWithTemplate()'))`
+- Line 298: `Promise.reject('No user')` → `Promise.reject(new Error('No UserManager instance available for Panel.renderWithJSON()'))`
+
+**form.js:**
+- Line 320: `Promise.reject('No user')` → `Promise.reject(new Error('No UserManager instance available for FormPanel.refreshFromFromServer()'))`
+- Line 396: `Promise.reject('Form has errors')` → Improved to `Promise.reject(new Error(\`Form validation failed: ${errorCount} error(s) found\`))`
+
+**Impact:**
+- ✅ All Promise rejections now include stack traces
+- ✅ Error messages include more context
+- ✅ Better debugging capability
+- ✅ Consistent error handling patterns
+
+#### 3. catch(identity) Pattern Removal (MEDIUM PRIORITY)
+
+**File:** `src/ui/panel.js`
+
+**Problem:** The `catch(identity)` pattern converts rejected promises into resolved promises with the error as the value, making errors invisible to calling code.
+
+**Fixed locations:**
+- `renderWithTemplate()` (line 216) - Replaced with proper error logging and re-throwing
+- `renderWithJSON()` (line 296) - Replaced with proper error logging and re-throwing
+
+**Before:**
+```javascript
+return usr.fetch(this.uri, this.abortController.signal)
+  .then(s => { /* ... */ })
+  .catch(identity);  // Silently swallows errors
+```
+
+**After:**
+```javascript
+return usr.fetch(this.uri, this.abortController.signal)
+  .then(s => { /* ... */ })
+  .catch(err => {
+    console.error('Panel.renderWithTemplate fetch failed:', err);
+    throw err;  // Properly propagates error
+  });
+```
+
+**Impact:**
+- ✅ Fetch errors are now properly logged
+- ✅ Errors propagate correctly to calling code
+- ✅ Calling code can handle or display errors appropriately
+
+#### 4. Empty Catch Block Improvement (MEDIUM PRIORITY)
+
+**File:** `src/ui/component.js`
+
+**Problem:** Silent catch block in `dispose()` method made debugging MDC cleanup errors difficult.
+
+**Before:**
+```javascript
+try {
+  e[e.getAttribute('data-mdc-auto-init')].destroy();
+} catch {
+  // do nothing...
+}
+```
+
+**After:**
+```javascript
+try {
+  e[e.getAttribute('data-mdc-auto-init')].destroy();
+} catch (error) {
+  // Intentionally ignoring MDC cleanup errors during disposal
+  console.debug('MDC cleanup error during component disposal (non-critical):', error);
+}
+```
+
+**Impact:**
+- ✅ MDC cleanup errors now visible in debug console
+- ✅ Documented as intentionally non-critical
+- ✅ Better debugging capability
+
+#### Error Handling Standards Established
+
+**Standard 1: Promise Rejections**
+```javascript
+// ❌ BAD
+return Promise.reject('Error message');
+
+// ✅ GOOD
+return Promise.reject(new Error('Error message with context'));
+```
+
+**Standard 2: Error Logging**
+```javascript
+// ❌ BAD
+console.log('Error:', error);
+
+// ✅ GOOD
+console.error('Operation failed:', error);  // For errors
+console.warn('Handled error:', error);      // For warnings
+console.info('Aborted operation:', reason); // For expected events
+console.debug('Non-critical:', error);      // For debugging
+```
+
+**Standard 3: Catch Blocks**
+```javascript
+// ❌ BAD - Silent swallowing
+.catch(() => {});
+
+// ✅ GOOD - Log and handle or rethrow
+.catch(error => {
+  console.error('Operation failed:', error);
+  throw error;  // or return fallback
+});
+```
+
+#### Documentation Created
+
+1. `ERROR_HANDLING_ANALYSIS.md` - Comprehensive analysis of all error handling patterns
+2. Updated `CHANGELOG_FIXES.md` (this file) - Summary of all fixes
+
+#### Summary Statistics
+
+**Files Modified:** 6
+- `src/user/usermanager.js`
+- `src/ui/panel.js`
+- `src/ui/form.js`
+- `src/ui/component.js`
+- `src/ui/mdc/mdc.js`
+- `src/ui/conductor.js`
+
+**Improvements:**
+- ✅ 3 console.log → console.error/warn/info conversions
+- ✅ 6 string Promise rejections → Error object rejections
+- ✅ 2 catch(identity) patterns removed
+- ✅ 1 empty catch block improved with logging
+- ✅ 100% ESLint compliance maintained (0 errors, 0 warnings)
+
+**Result:**
+- All errors now properly logged with correct severity levels
+- All Promise rejections include stack traces and context
+- Errors propagate correctly through promise chains
+- Better debugging and monitoring capabilities
+
+---
+
 ## Next Steps
 
 Continue with transformation roadmap:

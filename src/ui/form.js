@@ -317,7 +317,7 @@ class FormPanel extends Panel {
       return usr.fetch(uri, this.abortController.signal).then(
         s => this.replaceForm(s));
     } else {
-      return Promise.reject('No user');
+      return Promise.reject(new Error('No UserManager instance available for FormPanel.refreshFromFromServer()'));
     }
   };
 
@@ -393,7 +393,8 @@ class FormPanel extends Panel {
       SUCCESS: ${success}`);
       // 'success' flag is not set. The form probably has errors.
       // Reject the promise.
-      return Promise.reject('Form has errors');
+      const errorCount = this.form_?.querySelectorAll('.alert-error').length || 0;
+      return Promise.reject(new Error(`Form validation failed: ${errorCount} error(s) found`));
     }
   };
 }

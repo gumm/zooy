@@ -88,7 +88,7 @@ const getJson = response => {
   }
   return response.json().then(
     data => Promise.resolve(data),
-    err => Promise.reject(`Could not get JSON from response: ${err}`)
+    err => Promise.reject(new Error(`Could not get JSON from response: ${err}`))
   );
 };
 
@@ -100,7 +100,7 @@ const getJson = response => {
 const getText = response => {
   return response.text().then(
     text => Promise.resolve(text),
-    err => Promise.reject(`Could not get text from response: ${err}`)
+    err => Promise.reject(new Error(`Could not get text from response: ${err}`))
   );
 };
 
@@ -236,9 +236,9 @@ const putPostPatchNobody = (uri, init) => {
 const genCatchClause = (debugString, returnValue = void 0) => err => {
   stopSpin('').then(identity);
   if (err.name === 'AbortError') {
-    console.log(debugString, 'ABORTED!');
+    console.info(debugString, 'ABORTED!');
   } else {
-    console.log(debugString, err);
+    console.error(debugString, err);
   }
   return returnValue;
 };
