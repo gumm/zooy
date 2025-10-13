@@ -2,6 +2,7 @@ import Panel from './panel.js';
 import {UiEventType} from '../events/uieventtype.js';
 import {replaceNode, splitScripts} from '../dom/utils.js';
 import {isDefAndNotNull, whatType} from 'badu';
+import {EV} from '../events/mouseandtouchevents.js';
 
 
 /** @typedef {{
@@ -13,150 +14,12 @@ import {isDefAndNotNull, whatType} from 'badu';
 let _ServerFormSuccessJsonType;
 
 /**
- * A class for managing field-level error messages and validation on a form.
- * Handles HTML5 constraint validation, displays error messages, and provides
- * hooks for change and input events to clear/display validation errors.
- */
-class FieldErrs {
-
-  /**
-   * Creates a new FieldErrs instance.
-   * @param {!FormPanel} formPanel The parent form panel
-   */
-  constructor(formPanel) {
-    this.formPanel_ = formPanel;
-    this.fMap = new Map();
-    this.form_ = null;
-  }
-
-  /**
-   * Initializes the field error handler. Sets up event listeners on the form
-   * for change, input, and invalid events.
-   */
-  init() {
-    this.form_ = this.formPanel_.formEl;
-    if (this.form_) {
-      this.form_.addEventListener('change', e => {
-        this.validateOnChange(e);
-      }, {passive: true});
-      this.form_.addEventListener('input', e => {
-        this.clearAll();
-        this.validateOnChange(e);
-      });
-      this.form_.addEventListener('invalid', e => {
-        e.preventDefault();
-        const field = /** @type {HTMLInputElement} */ (e.target);
-        this.clearAlertOnField(field);
-        this.displayError(field);
-      }, {passive: true});
-    }
-  }
-
-  /**
-   * Checks all form fields for validity. Returns true if all fields are valid.
-   * Displays error messages for any invalid fields.
-   * @return {boolean} True if all fields are valid, false otherwise
-   */
-  checkAll() {
-    const arr = [...this.form_.elements]
-      .map(e => [this.checkValidationForField(e), e])
-      .filter(e => !e[0]);
-    arr.forEach(e => this.displayError(e[1]));
-    return arr.length === 0;
-  };
-
-  /**
-   * Clear all existing errors
-   */
-  clearAll() {
-    const fields = this.form_ ? this.form_.elements : [];
-    [...fields].forEach(field => this.clearAlertOnField(field));
-
-    const nonFieldErrs = this.form_.querySelectorAll(
-      '.non-field-errors');
-    [...nonFieldErrs].forEach(e => e.classList.remove('alert-error'));
-
-  };
-
-  /**
-   * Format the message dom object and insert it into the DOM
-   * @param {HTMLInputElement} field The field after which the
-   *    alert will be inserted.
-   * @param {string} msg The message in the alert.
-   * @param {string} _css A CSS class name to add to the alert div.
-   *      This will be formatted bold.
-   */
-  displayAlert(field, msg, _css) {
-    const alertDom = document.getElementById(`${field.id}-helper-text`) ||
-        document.createElement('p');
-    alertDom.textContent = msg;
-    this.fMap.set(field, alertDom);
-  };
-
-  /**
-   * @param {HTMLInputElement} field
-   */
-  checkValidationForField(field) {
-    this.clearAlertOnField(field);
-    let isValid = !field.willValidate;
-    if (field.willValidate) {
-      isValid = field.checkValidity();
-    }
-    return isValid;
-  };
-
-  /**
-   * @param {HTMLInputElement} field
-   */
-  clearAlertOnField(field) {
-    field.classList.remove('error');
-    if (this.fMap.has(field)) {
-      this.fMap.get(field).textContent = '';
-    }
-    this.fMap.delete(field);
-  };
-
-  /**
-   * Display the given error message on the given form field.
-   * @param {HTMLInputElement} field
-   * @param {string=} opt_msg
-   */
-  displayError(field, opt_msg) {
-    const message = opt_msg || field.validationMessage;
-    field.classList.add('error');
-    this.displayAlert(field, message, 'alert-error');
-  };
-
-  /**
-   * Display the given success message on the given form field.
-   * @param {HTMLInputElement} field
-   * @param {string} message
-   */
-  displaySuccess(field, message) {
-    this.displayAlert(field, message, 'alert-success');
-  };
-
-  /**
-   * Display the given information message on the given form field.
-   * @param {HTMLInputElement} field
-   * @param {string} message
-   */
-  displayInfo(field, message) {
-    this.displayAlert(field, message, 'alert-info');
-  };
-
-  /**
-   * @param {Event} e
-   */
-  validateOnChange(e) {
-    this.checkValidationForField(/** @type {HTMLInputElement} */ (e.target));
-  }
-}
-
-/**
  * A specialized Panel for handling forms with validation, submission interception,
  * and server response processing. Automatically intercepts form submissions to
  * enable AJAX-style form posting with validation and error handling.
+ *
+ * Field validation and error handling is integrated directly into FormPanel,
+ * managing HTML5 constraint validation, error messages, and form field events.
  *
  * @extends {Panel}
  */
@@ -176,10 +39,11 @@ class FormPanel extends Panel {
     this.form_ = null;
 
     /**
-     * @type {!FieldErrs}
+     * Map of form fields to their error message DOM elements
+     * @type {!Map<HTMLInputElement, Element>}
      * @private
      */
-    this.fieldErr_ = new FieldErrs(this);
+    this.fMap_ = new Map();
 
     // noinspection JSUnusedLocalSymbols
     /**
@@ -215,7 +79,7 @@ class FormPanel extends Panel {
   formIdElementToForm_() {
     this.form_ = this.getFormFromId();
     this.interceptFormSubmit(this.form_);
-    this.fieldErr_.init();
+    this.initFieldValidation_();
   };
 
 
@@ -235,6 +99,135 @@ class FormPanel extends Panel {
     return form;
   };
 
+  //---------------------------------------------[ Field Validation Methods ]--
+  /**
+   * Initializes field validation. Sets up event listeners on the form
+   * for change, input, and invalid events.
+   * @private
+   */
+  initFieldValidation_() {
+    if (this.form_) {
+      this.listen(this.form_, EV.CHANGE, e => {
+        this.validateOnChange_(e);
+      }, {passive: true});
+
+      this.listen(this.form_, EV.INPUT, e => {
+        this.clearAllValidationErrors();
+        this.validateOnChange_(e);
+      });
+
+      this.listen(this.form_, EV.INVALID, e => {
+        e.preventDefault();
+        const field = /** @type {HTMLInputElement} */ (e.target);
+        this.clearAlertOnField_(field);
+        this.displayFieldError(field);
+      }, {passive: true});
+    }
+  }
+
+  /**
+   * Checks all form fields for validity. Returns true if all fields are valid.
+   * Displays error messages for any invalid fields.
+   * @return {boolean} True if all fields are valid, false otherwise
+   */
+  checkAllFields() {
+    const arr = [...this.form_.elements]
+      .map(e => [this.checkValidationForField_(e), e])
+      .filter(e => !e[0]);
+    arr.forEach(e => this.displayFieldError(e[1]));
+    return arr.length === 0;
+  }
+
+  /**
+   * Clear all existing validation errors
+   */
+  clearAllValidationErrors() {
+    const fields = this.form_ ? this.form_.elements : [];
+    [...fields].forEach(field => this.clearAlertOnField_(field));
+
+    const nonFieldErrs = this.form_.querySelectorAll('.non-field-errors');
+    [...nonFieldErrs].forEach(e => e.classList.remove('alert-error'));
+  }
+
+  /**
+   * Format the message dom object and insert it into the DOM
+   * @param {HTMLInputElement} field The field after which the alert will be inserted.
+   * @param {string} msg The message in the alert.
+   * @param {string} _css A CSS class name to add to the alert div.
+   * @private
+   */
+  displayAlert_(field, msg, _css) {
+    const alertDom = document.getElementById(`${field.id}-helper-text`) ||
+        document.createElement('p');
+    alertDom.textContent = msg;
+    this.fMap_.set(field, alertDom);
+  }
+
+  /**
+   * Check validation for a single field
+   * @param {HTMLInputElement} field
+   * @return {boolean} True if field is valid
+   * @private
+   */
+  checkValidationForField_(field) {
+    this.clearAlertOnField_(field);
+    let isValid = !field.willValidate;
+    if (field.willValidate) {
+      isValid = field.checkValidity();
+    }
+    return isValid;
+  }
+
+  /**
+   * Clear alert for a single field
+   * @param {HTMLInputElement} field
+   * @private
+   */
+  clearAlertOnField_(field) {
+    field.classList.remove('error');
+    if (this.fMap_.has(field)) {
+      this.fMap_.get(field).textContent = '';
+    }
+    this.fMap_.delete(field);
+  }
+
+  /**
+   * Display the given error message on the given form field.
+   * @param {HTMLInputElement} field
+   * @param {string=} opt_msg
+   */
+  displayFieldError(field, opt_msg) {
+    const message = opt_msg || field.validationMessage;
+    field.classList.add('error');
+    this.displayAlert_(field, message, 'alert-error');
+  }
+
+  /**
+   * Display the given success message on the given form field.
+   * @param {HTMLInputElement} field
+   * @param {string} message
+   */
+  displayFieldSuccess(field, message) {
+    this.displayAlert_(field, message, 'alert-success');
+  }
+
+  /**
+   * Display the given information message on the given form field.
+   * @param {HTMLInputElement} field
+   * @param {string} message
+   */
+  displayFieldInfo(field, message) {
+    this.displayAlert_(field, message, 'alert-info');
+  }
+
+  /**
+   * Validate field on change event
+   * @param {Event} e
+   * @private
+   */
+  validateOnChange_(e) {
+    this.checkValidationForField_(/** @type {HTMLInputElement} */ (e.target));
+  }
 
   /**
    * Given a form id, get the form, and intercept and sterilise its submit.
@@ -251,10 +244,10 @@ class FormPanel extends Panel {
     if (form) {
       form.noValidate = true;
       const user = this.user;
-      this.listen(form, 'submit', e => {
+      this.listen(form, EV.SUBMIT, e => {
         e.preventDefault();
         this.debugMe('Intercepted from SUBMIT');
-        if (this.fieldErr_.checkAll()) {
+        if (this.checkAllFields()) {
           user && user.formSubmit(this);
         }
       });
@@ -334,7 +327,7 @@ class FormPanel extends Panel {
    */
   processSubmitReply(reply) {
 
-    this.fieldErr_.clearAll();
+    this.clearAllValidationErrors();
     let success = false;
 
     if (whatType(reply) === 'object' && reply['success']) {

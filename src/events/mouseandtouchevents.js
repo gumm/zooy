@@ -23,6 +23,21 @@ export const EV = {
   TOUCHEND: 'touchend',
   TOUCHCANCEL: 'touchcancel',
 
+  // Form events
+  SUBMIT: 'submit',
+  CHANGE: 'change',
+  INPUT: 'input',
+  INVALID: 'invalid',
+
+  // Drag and drop events
+  DRAGSTART: 'dragstart',
+  DRAGEND: 'dragend',
+  DRAGOVER: 'dragover',
+  DRAGENTER: 'dragenter',
+  DRAGEXIT: 'dragexit',
+  DRAGLEAVE: 'dragleave',
+  DROP: 'drop',
+
   // Transitions
   TRANSITIONEND: 'transitionend',
 

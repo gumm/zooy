@@ -11,6 +11,7 @@ import UserManager from '../user/usermanager.js';
 import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';
 import EVT from './evt.js';
+import {EV} from '../events/mouseandtouchevents.js';
 import {
   renderButtons,
   renderCheckBoxes,
@@ -376,7 +377,7 @@ class Panel extends Component {
     // .close_on_click class, then close myself on click.
     if (panel.classList.contains('zoo__modal-base') &&
       panel.classList.contains('close_on_click')) {
-      this.listen(panel, 'click', e => {
+      this.listen(panel, EV.CLICK, e => {
         if (e.target === panel) {
           this.dispatchPanelEvent('destroy_me');
         }
@@ -387,7 +388,7 @@ class Panel extends Component {
     [...panel.querySelectorAll(
       '.zoo__button:not(.external):not(.mdc-data-table__row)'
     )].forEach(el => {
-      this.listen(el, 'click', e => {
+      this.listen(el, EV.CLICK, e => {
         e.stopPropagation();
         const trg = e.currentTarget;
         const elDataMap = getElDataMap(trg);
@@ -403,7 +404,7 @@ class Panel extends Component {
     // Make them emit a 'href' event with the original
     // href or a href data attribute.
     [...panel.querySelectorAll('[href]:not(.external)')].forEach(el => {
-      this.listen(el, 'click', e => {
+      this.listen(el, EV.CLICK, e => {
         const trg = e.currentTarget;
         e.preventDefault();
         e.stopPropagation();
@@ -420,7 +421,7 @@ class Panel extends Component {
     // Hijack forms submit events for forms with a 'intercept_submit' class
     [...panel.querySelectorAll('form.intercept_submit')].forEach(el => {
       el.noValidate = true;
-      this.listen(el, 'submit', e => {
+      this.listen(el, EV.SUBMIT, e => {
         e.preventDefault();
         e.stopPropagation();
         const elDataMap = getElDataMap(el);
@@ -443,7 +444,7 @@ class Panel extends Component {
         const toggleClass = elDataMap['toggle_class'];
         const targetEl = panel.querySelector(`#${toggleTarget}`);
         if (targetEl && toggleClass) {
-          el.addEventListener('click', e => {
+          el.addEventListener(EV.CLICK, e => {
             e.stopPropagation();
             targetEl.classList.toggle(toggleClass);
           });
@@ -495,17 +496,17 @@ class Panel extends Component {
     };
 
     dropEls.forEach(el => {
-      el.addEventListener('dragover', onDragOver, false);
-      el.addEventListener('dragenter', activate, false);
-      el.addEventListener('dragexit', onDragExit, false);
-      el.addEventListener('dragleave', onDragLeave, false);
-      el.addEventListener('drop', onDrop, false);
-    }, false);
+      this.listen(el, EV.DRAGOVER, onDragOver);
+      this.listen(el, EV.DRAGENTER, activate);
+      this.listen(el, EV.DRAGEXIT, onDragExit);
+      this.listen(el, EV.DRAGLEAVE, onDragLeave);
+      this.listen(el, EV.DROP, onDrop);
+    });
 
     dragEls.forEach(el => {
-      el.addEventListener('dragstart', onDragStart, false);
-      el.addEventListener('dragend', onDragend, false);
-    }, false);
+      this.listen(el, EV.DRAGSTART, onDragStart);
+      this.listen(el, EV.DRAGEND, onDragend);
+    });
 
 
     //------------------------------------------------------[ Async Populate ]--

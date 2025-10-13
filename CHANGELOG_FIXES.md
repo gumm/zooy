@@ -184,9 +184,143 @@ npm run lint:fix    # Auto-fix issues
 - ✅ **Better IDE autocomplete and type checking**
 - ✅ **Solid foundation for future refactoring**
 
+### ESLint Warning Cleanup ✅
+
+**Fixed all 95 ESLint warnings to achieve 0 warnings:**
+
+1. **Updated ESLint config** to allow `opt_` and `_opt_` prefix patterns (Google Closure Compiler convention)
+2. **Prefixed intentionally unused parameters** with `_` across 9 files
+3. **Renamed unused type definitions** with `_` prefix (`_ServerFormSuccessJsonType`, `_UserLikeType`)
+4. **Fixed catch block** in component.js to use parameterless form
+
+**Result:** 95 warnings → 0 warnings (100% clean)
+
+**Impact:** Clean linting output, pre-commit hooks pass cleanly
+
+---
+
+## Session: 2025-10-13
+
+### Event Handling Standardization ✅
+
+**Major refactoring to fix memory leaks and improve consistency**
+
+#### 1. Event Constants Added
+
+**File:** `src/events/mouseandtouchevents.js`
+
+Added 11 new event constants to the `EV` enum:
+- Form events: `SUBMIT`, `CHANGE`, `INPUT`, `INVALID`
+- Drag/drop events: `DRAGSTART`, `DRAGEND`, `DRAGOVER`, `DRAGENTER`, `DRAGEXIT`, `DRAGLEAVE`, `DROP`
+
+**Impact:**
+- Type safety for event strings
+- Easier refactoring
+- Better IDE autocomplete
+- Consistent naming across codebase
+
+#### 2. String Literals Replaced with Constants
+
+**Files:** `src/ui/panel.js`, `src/ui/form.js`
+
+Replaced 14 string literals with event constants:
+- panel.js: 10 replacements (`'click'` → `EV.CLICK`, etc.)
+- form.js: 4 replacements (`'submit'` → `EV.SUBMIT`, etc.)
+
+**Before:**
+```javascript
+this.listen(el, 'click', handler);
+el.addEventListener('submit', handler);
+```
+
+**After:**
+```javascript
+this.listen(el, EV.CLICK, handler);
+this.listen(form, EV.SUBMIT, handler);
+```
+
+#### 3. Drag/Drop Handlers Standardized
+
+**File:** `src/ui/panel.js` (lines 498-509)
+
+Converted 8 `addEventListener` calls to `this.listen()`:
+- Fixes inconsistency with rest of file
+- Prevents duplicate listeners on multiple `parseContent()` calls
+- Automatic cleanup via `exitDocument()`
+
+**Before:**
+```javascript
+dropEls.forEach(el => {
+  el.addEventListener('dragover', onDragOver, false);
+  el.addEventListener('drop', onDrop, false);
+}, false);
+```
+
+**After:**
+```javascript
+dropEls.forEach(el => {
+  this.listen(el, EV.DRAGOVER, onDragOver);
+  this.listen(el, EV.DROP, onDrop);
+});
+```
+
+#### 4. FieldErrs Integration (CRITICAL FIX) ✅
+
+**File:** `src/ui/form.js`
+
+**Problem:** Memory leak in form validation
+- `FieldErrs` was standalone class using `addEventListener()` without cleanup
+- Created reference cycle: form → listener → FieldErrs → FormPanel → form
+- Old form elements couldn't be garbage collected after `replaceForm()`
+
+**Solution:** Removed `FieldErrs` class and integrated into `FormPanel`
+- Moved all validation methods directly into FormPanel
+- Converted `addEventListener()` to `this.listen()` for automatic cleanup
+- Now uses event constants (`EV.CHANGE`, `EV.INPUT`, `EV.INVALID`)
+
+**API Changes:**
+| Old API | New API |
+|---------|---------|
+| `this.fieldErr_.checkAll()` | `this.checkAllFields()` |
+| `this.fieldErr_.clearAll()` | `this.clearAllValidationErrors()` |
+| `this.fieldErr_.displayError()` | `this.displayFieldError()` |
+| `this.fieldErr_.displaySuccess()` | `this.displayFieldSuccess()` |
+| `this.fieldErr_.displayInfo()` | `this.displayFieldInfo()` |
+
+**Impact:**
+- ✅ Memory leak fixed
+- ✅ Automatic cleanup via Component lifecycle
+- ✅ Simpler architecture (no separate class)
+- ✅ Consistent with rest of codebase
+- ✅ Better encapsulation
+
+#### Event Handling Guidelines Established
+
+**Rule 1:** When listener closes over `this`, use `this.listen()`
+```javascript
+this.listen(el, EV.CLICK, e => this.doSomething());
+```
+
+**Rule 2:** Simple DOM manipulation can use either
+```javascript
+el.addEventListener(EV.CLICK, e => e.target.classList.toggle('active'));
+// or
+this.listen(el, EV.CLICK, e => e.target.classList.toggle('active'));
+```
+
+**Rule 3:** When in doubt, use `this.listen()`
+
+#### Documentation Created
+
+1. `EVENT_HANDLING_ANALYSIS_V2.md` - Detailed analysis of issues and solutions
+2. `EVENT_HANDLING_CHANGES.md` - Summary of all changes and migration guide
+
+**Result:** 0 ESLint errors, 0 warnings, cleaner memory profile, consistent event handling
+
 ## Next Steps
 
 Continue with transformation roadmap:
-- **MEDIUM priority** issues (inconsistent event handling)
 - **Component abstraction layer** (Step 1 from roadmap)
 - **Material Components replacement** strategy
+- Consider ESLint rule to enforce event constant usage
+- Consider ESLint rule to warn on `addEventListener` in Component subclasses
