@@ -6,7 +6,9 @@ import terser from "@rollup/plugin-terser";
 export default [{
   input: 'src/main.js',
   output: {
-    file: 'main.js',
+    dir: '.',
+    entryFileNames: 'main.js',
+    chunkFileNames: 'chunks/[name]-[hash].js',
     format: 'es',
     name: 'zooy',
   },

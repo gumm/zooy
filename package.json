@@ -12,8 +12,10 @@
     "Andries Niemandt <andries.niemandt91@gmail.com> (https://github.com/andriesniemandt)"
   ],
   "scripts": {
+    "clean": "rm -rf chunks && rm -f main.js",
     "build_css": "sass --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css",
     "rollup": "npx rollup -c",
+    "build": "npm run clean && npm run rollup",
     "dev_watch_sass": "sass --watch --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix",
@@ -25,6 +27,8 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
+    "@carbon/icons": "^11.49.0",
+    "@carbon/web-components": "^2.40.1",
     "badu": "^8.6.0",
     "timeago.js": "^4.0.2"
   },

@@ -13,7 +13,7 @@ import ZooyEventData from '../events/zooyeventdata.js';
 import EVT from './evt.js';
 import {EV} from '../events/mouseandtouchevents.js';
 import {
-  renderButtons,
+  renderButtons as renderMdcButtons,
   renderCheckBoxes,
   renderChips,
   renderDataTables,
@@ -34,6 +34,7 @@ import {
   renderTextFieldIcons,
   renderTextFields
 } from './mdc/mdc.js';
+import { initializeCarbonComponents } from './carbon/index.js';
 import {
   getPath,
   getQueryData,
@@ -351,14 +352,20 @@ class Panel extends Component {
    * @param {Element} panel
    */
   parseContent(panel) {
-    // If we are in an environment where MDC is used.
-
     this.debugMe('Enable interactions. Panel:', panel);
 
+    // Initialize Carbon Design System components (Web Components)
+    // This runs asynchronously and doesn't block MDC initialization
+    if (typeof window.customElements !== 'undefined') {
+      initializeCarbonComponents.call(this, panel)
+        .catch(err => console.error('[Zooy] Carbon initialization failed:', err));
+    }
+
+    // Legacy MDC support (will be removed after full Carbon migration)
     if (isDefAndNotNull(window.mdc) &&
       Object.prototype.hasOwnProperty.call(window.mdc, 'autoInit')) {
       renderRipples.call(this, panel);
-      renderButtons.call(this, panel);
+      renderMdcButtons.call(this, panel);
       renderFloatingActionButtons.call(this, panel);
       renderIconButtons.call(this, panel);
       renderIconToggleButtons.call(this, panel);
