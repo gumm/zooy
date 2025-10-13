@@ -32,9 +32,11 @@ import { SEMANTIC_ATTRIBUTES } from './attributes.js';
  * Wraps cds-button with Zooy-specific functionality
  */
 export class ZooButton extends HTMLElement {
+  #carbonButton;
+
   constructor() {
     super();
-    this._carbonButton = null;
+    this.#carbonButton = null;
   }
 
   /**
@@ -48,7 +50,7 @@ export class ZooButton extends HTMLElement {
    * Called when observed attributes change
    */
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._carbonButton) {
+    if (oldValue !== newValue && this.#carbonButton) {
       this.updateCarbonButton();
     }
   }
@@ -70,16 +72,16 @@ export class ZooButton extends HTMLElement {
    */
   render() {
     // Create Carbon button if it doesn't exist
-    if (!this._carbonButton) {
-      this._carbonButton = document.createElement('cds-button');
+    if (!this.#carbonButton) {
+      this.#carbonButton = document.createElement('cds-button');
 
       // Move all children into the Carbon button
       while (this.firstChild) {
-        this._carbonButton.appendChild(this.firstChild);
+        this.#carbonButton.appendChild(this.firstChild);
       }
 
       // Append Carbon button to this element
-      this.appendChild(this._carbonButton);
+      this.appendChild(this.#carbonButton);
     }
 
     this.updateCarbonButton();
@@ -92,15 +94,15 @@ export class ZooButton extends HTMLElement {
    * Panel renderers read semantic attributes from the wrapper element.
    */
   updateCarbonButton() {
-    if (!this._carbonButton) return;
+    if (!this.#carbonButton) return;
 
     // Forward only visual/functional attributes to Carbon button
     const visualAttrs = ['kind', 'size', 'disabled', 'href'];
     visualAttrs.forEach(attr => {
       if (this.hasAttribute(attr)) {
-        this._carbonButton.setAttribute(attr, this.getAttribute(attr));
+        this.#carbonButton.setAttribute(attr, this.getAttribute(attr));
       } else {
-        this._carbonButton.removeAttribute(attr);
+        this.#carbonButton.removeAttribute(attr);
       }
     });
 
@@ -113,7 +115,7 @@ export class ZooButton extends HTMLElement {
    * Used by Panel render functions to attach event listeners
    */
   get carbonElement() {
-    return this._carbonButton;
+    return this.#carbonButton;
   }
 }
 

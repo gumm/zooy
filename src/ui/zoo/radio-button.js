@@ -38,9 +38,11 @@ import { SEMANTIC_ATTRIBUTES } from './attributes.js';
  * Wraps cds-radio-button with Zooy-specific functionality
  */
 export class ZooRadioButton extends HTMLElement {
+  #carbonRadio;
+
   constructor() {
     super();
-    this._carbonRadio = null;
+    this.#carbonRadio = null;
   }
 
   connectedCallback() {
@@ -48,7 +50,7 @@ export class ZooRadioButton extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._carbonRadio) {
+    if (oldValue !== newValue && this.#carbonRadio) {
       this.updateCarbonRadio();
     }
   }
@@ -59,29 +61,29 @@ export class ZooRadioButton extends HTMLElement {
   }
 
   render() {
-    if (!this._carbonRadio) {
-      this._carbonRadio = document.createElement('cds-radio-button');
+    if (!this.#carbonRadio) {
+      this.#carbonRadio = document.createElement('cds-radio-button');
 
       // Move slot content into the Carbon radio button
       while (this.firstChild) {
-        this._carbonRadio.appendChild(this.firstChild);
+        this.#carbonRadio.appendChild(this.firstChild);
       }
 
-      this.appendChild(this._carbonRadio);
+      this.appendChild(this.#carbonRadio);
     }
     this.updateCarbonRadio();
   }
 
   updateCarbonRadio() {
-    if (!this._carbonRadio) return;
+    if (!this.#carbonRadio) return;
 
     // Forward only visual attributes to Carbon radio button
     const visualAttrs = ['checked', 'value', 'disabled', 'label-text'];
     visualAttrs.forEach(attr => {
       if (this.hasAttribute(attr)) {
-        this._carbonRadio.setAttribute(attr, this.getAttribute(attr));
+        this.#carbonRadio.setAttribute(attr, this.getAttribute(attr));
       } else {
-        this._carbonRadio.removeAttribute(attr);
+        this.#carbonRadio.removeAttribute(attr);
       }
     });
 
@@ -89,16 +91,16 @@ export class ZooRadioButton extends HTMLElement {
   }
 
   get carbonElement() {
-    return this._carbonRadio;
+    return this.#carbonRadio;
   }
 
   get checked() {
-    return this._carbonRadio?.checked || false;
+    return this.#carbonRadio?.checked || false;
   }
 
   set checked(val) {
-    if (this._carbonRadio) {
-      this._carbonRadio.checked = val;
+    if (this.#carbonRadio) {
+      this.#carbonRadio.checked = val;
     }
   }
 }
@@ -108,9 +110,11 @@ export class ZooRadioButton extends HTMLElement {
  * Wraps cds-radio-button-group with Zooy-specific functionality
  */
 export class ZooRadioButtonGroup extends HTMLElement {
+  #carbonGroup;
+
   constructor() {
     super();
-    this._carbonGroup = null;
+    this.#carbonGroup = null;
   }
 
   connectedCallback() {
@@ -118,7 +122,7 @@ export class ZooRadioButtonGroup extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._carbonGroup) {
+    if (oldValue !== newValue && this.#carbonGroup) {
       this.updateCarbonGroup();
     }
   }
@@ -129,29 +133,29 @@ export class ZooRadioButtonGroup extends HTMLElement {
   }
 
   render() {
-    if (!this._carbonGroup) {
-      this._carbonGroup = document.createElement('cds-radio-button-group');
+    if (!this.#carbonGroup) {
+      this.#carbonGroup = document.createElement('cds-radio-button-group');
 
       // Move all children into the Carbon group
       while (this.firstChild) {
-        this._carbonGroup.appendChild(this.firstChild);
+        this.#carbonGroup.appendChild(this.firstChild);
       }
 
-      this.appendChild(this._carbonGroup);
+      this.appendChild(this.#carbonGroup);
     }
     this.updateCarbonGroup();
   }
 
   updateCarbonGroup() {
-    if (!this._carbonGroup) return;
+    if (!this.#carbonGroup) return;
 
     // Forward only visual attributes to Carbon group
     const visualAttrs = ['legend', 'disabled', 'invalid', 'invalid-text'];
     visualAttrs.forEach(attr => {
       if (this.hasAttribute(attr)) {
-        this._carbonGroup.setAttribute(attr, this.getAttribute(attr));
+        this.#carbonGroup.setAttribute(attr, this.getAttribute(attr));
       } else {
-        this._carbonGroup.removeAttribute(attr);
+        this.#carbonGroup.removeAttribute(attr);
       }
     });
 
@@ -159,7 +163,7 @@ export class ZooRadioButtonGroup extends HTMLElement {
   }
 
   get carbonElement() {
-    return this._carbonGroup;
+    return this.#carbonGroup;
   }
 }
 

@@ -94,6 +94,15 @@ export default class Component extends EVT {
     return ComponentError;
   }
 
+  #makeDomFunc;
+  #inDocument;
+  #element;
+  #model;
+  #target;
+  #parent;
+  #children;
+  #beforeReadyFunc;
+
   constructor() {
     super();
 
@@ -102,7 +111,7 @@ export default class Component extends EVT {
      * @return {!HTMLElement|!Element|!DocumentFragment}
      * @private
      */
-    this.makeDomFunc_ = () =>
+    this.#makeDomFunc = () =>
     /** @type {!HTMLElement} */(document.createElement('div'));
 
 
@@ -110,33 +119,33 @@ export default class Component extends EVT {
      * Whether the component is in the document.
      * @private {boolean}
      */
-    this.inDocument_ = false;
+    this.#inDocument = false;
 
     /**
      * The DOM element for the component.
      * @private {!Node|undefined}
      */
-    this.element_ =  void 0;
+    this.#element =  void 0;
 
     /**
      * Arbitrary data object associated with the component.  Such as meta-data.
      * @private {*}
      */
-    this.model_ = void 0;
+    this.#model = void 0;
 
     /**
      * A DOM element where this component will be rendered to.
      * This does not need to be an element in this component's parent DOM.
      * @private {Element|undefined}
      */
-    this.target_ = void 0;
+    this.#target = void 0;
 
     /**
      * Parent component to which events will be propagated.  This property is
      * strictly private and must not be accessed directly outside of this class!
      * @private {Component|undefined}
      */
-    this.parent_ = void 0;
+    this.#parent = void 0;
 
     /**
      * A map of child components.  Lazily initialized on first use.  Must be
@@ -144,7 +153,7 @@ export default class Component extends EVT {
      * must not be accessed directly outside of this class!
      * @private {Map<string, Component>}
      */
-    this.children_ = new Map();
+    this.#children = new Map();
 
 
     /**
@@ -170,7 +179,7 @@ export default class Component extends EVT {
      * @type {!Function}
      * @private
      */
-    this.beforeReadyFunc_ = () => void 0;
+    this.#beforeReadyFunc = () => void 0;
 
   };
 
@@ -179,14 +188,14 @@ export default class Component extends EVT {
    * @param {Element|undefined} e
    */
   set target(e) {
-    this.target_ = e;
+    this.#target = e;
   }
 
   /**
    * @returns {Element|undefined}
    */
   get target() {
-    return this.target_;
+    return this.#target;
   }
 
   /**
@@ -194,7 +203,7 @@ export default class Component extends EVT {
    * @param {*} m
    */
   set model(m) {
-    this.model_ = m;
+    this.#model = m;
   }
 
   /**
@@ -202,7 +211,7 @@ export default class Component extends EVT {
    * @return {*}
    */
   get model() {
-    return this.model_;
+    return this.#model;
   }
 
 
@@ -210,14 +219,14 @@ export default class Component extends EVT {
    * @param {boolean} bool
    */
   set isInDocument(bool) {
-    this.inDocument_ = bool;
+    this.#inDocument = bool;
   }
 
   /**
    * @return {boolean}
    */
   get isInDocument() {
-    return this.inDocument_;
+    return this.#inDocument;
   }
 
   /**
@@ -225,7 +234,7 @@ export default class Component extends EVT {
    * @param {!function():(!HTMLElement|!Element|!DocumentFragment)} func
    */
   set domFunc(func) {
-    this.makeDomFunc_ = func;
+    this.#makeDomFunc = func;
   }
 
   /**
@@ -234,7 +243,7 @@ export default class Component extends EVT {
    * {@code UiEventType.READY} event is fired.
    */
   set readyFunc(func) {
-    this.beforeReadyFunc_ = func;
+    this.#beforeReadyFunc = func;
   }
 
 
@@ -246,7 +255,7 @@ export default class Component extends EVT {
    * @private
    */
   setElementInternal_(frag) {
-    this.element_ = frag;
+    this.#element = frag;
   }
 
   /**
@@ -255,7 +264,7 @@ export default class Component extends EVT {
    *    for the component.
    */
   getElement() {
-    return this.element_;
+    return this.#element;
   };
 
   /**
@@ -263,7 +272,7 @@ export default class Component extends EVT {
    * implementation is to set this.element_ = div.
    */
   createDom() {
-    this.element_ = this.makeDomFunc_();
+    this.#element = this.#makeDomFunc();
   };
 
   /**
@@ -324,20 +333,20 @@ export default class Component extends EVT {
       throw new Error(ComponentError.ALREADY_RENDERED);
     }
 
-    if (!this.element_) {
+    if (!this.#element) {
       this.createDom();
     }
-    const rootEl = /** @type {!Node} */(this.element_);
+    const rootEl = /** @type {!Node} */(this.#element);
 
     if (opt_target) {
-      this.target_ = opt_target;
+      this.#target = opt_target;
     }
 
     this.placeholderDom_ && removeNode(this.placeholderDom_);
 
-    if (this.target_) {
+    if (this.#target) {
       if (!isInPage(rootEl)) {
-        this.target_.insertBefore(rootEl, null);
+        this.#target.insertBefore(rootEl, null);
       }
     } else {
       if (!isInPage(/** @type {!Node} */(rootEl))) {
@@ -350,7 +359,7 @@ export default class Component extends EVT {
     // enters the document, the enterDocument() call will propagate to its
     // children, including this one.  If the component doesn't have a parent
     // or if the parent is already in the document, we call enterDocument().
-    if (!this.parent_ || this.parent_.isInDocument) {
+    if (!this.#parent || this.#parent.isInDocument) {
       this.enterDocument();
     }
   };
@@ -375,7 +384,7 @@ export default class Component extends EVT {
    * Allows components to perform final setup operations once they're in the DOM.
    */
   executeBeforeReady() {
-    this.beforeReadyFunc_();
+    this.#beforeReadyFunc();
   }
 
   /**
@@ -399,7 +408,7 @@ export default class Component extends EVT {
       // Propagate enterDocument to child components that have a DOM, if any.
       // If a child was decorated before entering the document its enterDocument
       // will be called here.
-      [...this.children_.values()].forEach(child => {
+      [...this.#children.values()].forEach(child => {
         if (!child.isInDocument && child.getElement()) {
           child.enterDocument();
         }
@@ -425,7 +434,7 @@ export default class Component extends EVT {
   exitDocument() {
     // Propagate exitDocument to child components that have been rendered, if any.
 
-    [...this.children_.values()].forEach(child => {
+    [...this.#children.values()].forEach(child => {
       if (child.isInDocument) {
         child.exitDocument();
       }
@@ -453,20 +462,20 @@ export default class Component extends EVT {
     }
 
     // Disposes of the component's children, if any.
-    if (this.children_) {
-      [...this.children_.values()].forEach(child => child.disposeInternal());
+    if (this.#children) {
+      [...this.#children.values()].forEach(child => child.disposeInternal());
     }
 
     this.outOfTreeElements.forEach(removeNode);
 
     // Detach the component's element from the DOM, unless it was decorated.
-    this.element_ && removeNode(this.element_);
+    this.#element && removeNode(this.#element);
     this.placeholderDom_ && removeNode(this.placeholderDom_);
 
-    this.children_ = null;
-    this.element_ = void 0;
-    this.model_ = null;
-    this.parent_ = null;
+    this.#children = null;
+    this.#element = void 0;
+    this.#model = null;
+    this.#parent = null;
 
     super.disposeInternal();
   };

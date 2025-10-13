@@ -24,6 +24,8 @@ let _ServerFormSuccessJsonType;
  * @extends {Panel}
  */
 class FormPanel extends Panel {
+  #form;
+  #fMap;
 
   /**
    * Creates a new FormPanel instance.
@@ -36,14 +38,14 @@ class FormPanel extends Panel {
      * @type {?HTMLFormElement}
      * @private
      */
-    this.form_ = null;
+    this.#form = null;
 
     /**
      * Map of form fields to their error message DOM elements
      * @type {!Map<HTMLInputElement, Element>}
      * @private
      */
-    this.fMap_ = new Map();
+    this.#fMap = new Map();
 
     // noinspection JSUnusedLocalSymbols
     /**
@@ -58,7 +60,7 @@ class FormPanel extends Panel {
    * @return {?HTMLFormElement} The form element, or null if not found
    */
   get formEl() {
-    return this.form_;
+    return this.#form;
   }
 
   /**
@@ -77,8 +79,8 @@ class FormPanel extends Panel {
    * @private
    */
   formIdElementToForm_() {
-    this.form_ = this.getFormFromId();
-    this.interceptFormSubmit(this.form_);
+    this.#form = this.getFormFromId();
+    this.interceptFormSubmit(this.#form);
     this.initFieldValidation_();
   };
 
@@ -106,17 +108,17 @@ class FormPanel extends Panel {
    * @private
    */
   initFieldValidation_() {
-    if (this.form_) {
-      this.listen(this.form_, EV.CHANGE, e => {
+    if (this.#form) {
+      this.listen(this.#form, EV.CHANGE, e => {
         this.validateOnChange_(e);
       }, {passive: true});
 
-      this.listen(this.form_, EV.INPUT, e => {
+      this.listen(this.#form, EV.INPUT, e => {
         this.clearAllValidationErrors();
         this.validateOnChange_(e);
       });
 
-      this.listen(this.form_, EV.INVALID, e => {
+      this.listen(this.#form, EV.INVALID, e => {
         e.preventDefault();
         const field = /** @type {HTMLInputElement} */ (e.target);
         this.clearAlertOnField_(field);
@@ -131,7 +133,7 @@ class FormPanel extends Panel {
    * @return {boolean} True if all fields are valid, false otherwise
    */
   checkAllFields() {
-    const arr = [...this.form_.elements]
+    const arr = [...this.#form.elements]
       .map(e => [this.checkValidationForField_(e), e])
       .filter(e => !e[0]);
     arr.forEach(e => this.displayFieldError(e[1]));
@@ -142,10 +144,10 @@ class FormPanel extends Panel {
    * Clear all existing validation errors
    */
   clearAllValidationErrors() {
-    const fields = this.form_ ? this.form_.elements : [];
+    const fields = this.#form ? this.#form.elements : [];
     [...fields].forEach(field => this.clearAlertOnField_(field));
 
-    const nonFieldErrs = this.form_.querySelectorAll('.non-field-errors');
+    const nonFieldErrs = this.#form.querySelectorAll('.non-field-errors');
     [...nonFieldErrs].forEach(e => e.classList.remove('alert-error'));
   }
 
@@ -160,7 +162,7 @@ class FormPanel extends Panel {
     const alertDom = document.getElementById(`${field.id}-helper-text`) ||
         document.createElement('p');
     alertDom.textContent = msg;
-    this.fMap_.set(field, alertDom);
+    this.#fMap.set(field, alertDom);
   }
 
   /**
@@ -185,10 +187,10 @@ class FormPanel extends Panel {
    */
   clearAlertOnField_(field) {
     field.classList.remove('error');
-    if (this.fMap_.has(field)) {
-      this.fMap_.get(field).textContent = '';
+    if (this.#fMap.has(field)) {
+      this.#fMap.get(field).textContent = '';
     }
-    this.fMap_.delete(field);
+    this.#fMap.delete(field);
   }
 
   /**
@@ -286,7 +288,7 @@ class FormPanel extends Panel {
         const newForm = /** @type {!Element} */ (this.responseObject.html)
           .querySelector('form');
         if (newForm) {
-          replaceNode(newForm, this.form_);
+          replaceNode(newForm, this.#form);
         }
 
         // Forms have randomIDs so the submit button must come along...
@@ -364,8 +366,8 @@ class FormPanel extends Panel {
 
       // We may not actually have a form element left after a redirect.
       let hasErrors = [];
-      if (isDefAndNotNull(this.form_)) {
-        hasErrors = this.form_.querySelectorAll('.alert-error');
+      if (isDefAndNotNull(this.#form)) {
+        hasErrors = this.#form.querySelectorAll('.alert-error');
       }
       success = !hasErrors.length;
     }
@@ -393,7 +395,7 @@ class FormPanel extends Panel {
       SUCCESS: ${success}`);
       // 'success' flag is not set. The form probably has errors.
       // Reject the promise.
-      const errorCount = this.form_?.querySelectorAll('.alert-error').length || 0;
+      const errorCount = this.#form?.querySelectorAll('.alert-error').length || 0;
       return Promise.reject(new Error(`Form validation failed: ${errorCount} error(s) found`));
     }
   };

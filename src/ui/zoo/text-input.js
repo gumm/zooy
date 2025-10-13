@@ -37,9 +37,11 @@ import { SEMANTIC_ATTRIBUTES } from './attributes.js';
  * Wraps cds-text-input with Zooy-specific functionality
  */
 export class ZooTextInput extends HTMLElement {
+  #carbonInput;
+
   constructor() {
     super();
-    this._carbonInput = null;
+    this.#carbonInput = null;
   }
 
   connectedCallback() {
@@ -47,7 +49,7 @@ export class ZooTextInput extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._carbonInput) {
+    if (oldValue !== newValue && this.#carbonInput) {
       this.updateCarbonInput();
     }
   }
@@ -59,24 +61,24 @@ export class ZooTextInput extends HTMLElement {
   }
 
   render() {
-    if (!this._carbonInput) {
-      this._carbonInput = document.createElement('cds-text-input');
-      this.appendChild(this._carbonInput);
+    if (!this.#carbonInput) {
+      this.#carbonInput = document.createElement('cds-text-input');
+      this.appendChild(this.#carbonInput);
     }
     this.updateCarbonInput();
   }
 
   updateCarbonInput() {
-    if (!this._carbonInput) return;
+    if (!this.#carbonInput) return;
 
     // Forward only visual attributes to Carbon input
     const visualAttrs = ['label', 'placeholder', 'value', 'disabled', 'invalid',
                          'invalid-text', 'helper-text', 'size', 'type'];
     visualAttrs.forEach(attr => {
       if (this.hasAttribute(attr)) {
-        this._carbonInput.setAttribute(attr, this.getAttribute(attr));
+        this.#carbonInput.setAttribute(attr, this.getAttribute(attr));
       } else {
-        this._carbonInput.removeAttribute(attr);
+        this.#carbonInput.removeAttribute(attr);
       }
     });
 
@@ -84,17 +86,17 @@ export class ZooTextInput extends HTMLElement {
   }
 
   get carbonElement() {
-    return this._carbonInput;
+    return this.#carbonInput;
   }
 
   // Convenience getters/setters
   get value() {
-    return this._carbonInput?.value || '';
+    return this.#carbonInput?.value || '';
   }
 
   set value(val) {
-    if (this._carbonInput) {
-      this._carbonInput.value = val;
+    if (this.#carbonInput) {
+      this.#carbonInput.value = val;
     }
   }
 }

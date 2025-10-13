@@ -34,7 +34,7 @@ import {
   renderTextFieldIcons,
   renderTextFields
 } from './mdc/mdc.js';
-import { initializeCarbonComponents } from './carbon/index.js';
+import { initializeCarbonComponents } from './renderers/index.js';
 import {
   getPath,
   getQueryData,
@@ -354,14 +354,14 @@ class Panel extends Component {
   parseContent(panel) {
     this.debugMe('Enable interactions. Panel:', panel);
 
-    // Initialize Carbon Design System components (Web Components)
+    // Initialize Zooy components (Web Components with Panel integration)
     // This runs asynchronously and doesn't block MDC initialization
     if (typeof window.customElements !== 'undefined') {
       initializeCarbonComponents.call(this, panel)
-        .catch(err => console.error('[Zooy] Carbon initialization failed:', err));
+        .catch(err => console.error('[Zooy] Component initialization failed:', err));
     }
 
-    // Legacy MDC support (will be removed after full Carbon migration)
+    // Legacy MDC support (will be removed after full migration to zoo components)
     if (isDefAndNotNull(window.mdc) &&
       Object.prototype.hasOwnProperty.call(window.mdc, 'autoInit')) {
       renderRipples.call(this, panel);

@@ -41,9 +41,11 @@ import { SEMANTIC_ATTRIBUTES } from './attributes.js';
  * Wraps cds-modal with Zooy-specific functionality
  */
 export class ZooModal extends HTMLElement {
+  #carbonModal;
+
   constructor() {
     super();
-    this._carbonModal = null;
+    this.#carbonModal = null;
   }
 
   connectedCallback() {
@@ -51,7 +53,7 @@ export class ZooModal extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._carbonModal) {
+    if (oldValue !== newValue && this.#carbonModal) {
       this.updateCarbonModal();
     }
   }
@@ -62,29 +64,29 @@ export class ZooModal extends HTMLElement {
   }
 
   render() {
-    if (!this._carbonModal) {
-      this._carbonModal = document.createElement('cds-modal');
+    if (!this.#carbonModal) {
+      this.#carbonModal = document.createElement('cds-modal');
 
       // Move all children into the Carbon modal
       while (this.firstChild) {
-        this._carbonModal.appendChild(this.firstChild);
+        this.#carbonModal.appendChild(this.firstChild);
       }
 
-      this.appendChild(this._carbonModal);
+      this.appendChild(this.#carbonModal);
     }
     this.updateCarbonModal();
   }
 
   updateCarbonModal() {
-    if (!this._carbonModal) return;
+    if (!this.#carbonModal) return;
 
     // Forward only visual attributes to Carbon modal
     const visualAttrs = ['open', 'size', 'danger', 'prevent-close-on-click-outside'];
     visualAttrs.forEach(attr => {
       if (this.hasAttribute(attr)) {
-        this._carbonModal.setAttribute(attr, this.getAttribute(attr));
+        this.#carbonModal.setAttribute(attr, this.getAttribute(attr));
       } else {
-        this._carbonModal.removeAttribute(attr);
+        this.#carbonModal.removeAttribute(attr);
       }
     });
 
@@ -92,20 +94,20 @@ export class ZooModal extends HTMLElement {
   }
 
   get carbonElement() {
-    return this._carbonModal;
+    return this.#carbonModal;
   }
 
   // Convenience methods
   get open() {
-    return this._carbonModal?.hasAttribute('open') || false;
+    return this.#carbonModal?.hasAttribute('open') || false;
   }
 
   set open(val) {
-    if (this._carbonModal) {
+    if (this.#carbonModal) {
       if (val) {
-        this._carbonModal.setAttribute('open', '');
+        this.#carbonModal.setAttribute('open', '');
       } else {
-        this._carbonModal.removeAttribute('open');
+        this.#carbonModal.removeAttribute('open');
       }
     }
   }

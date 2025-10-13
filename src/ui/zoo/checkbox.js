@@ -32,9 +32,11 @@ import { SEMANTIC_ATTRIBUTES } from './attributes.js';
  * Wraps cds-checkbox with Zooy-specific functionality
  */
 export class ZooCheckbox extends HTMLElement {
+  #carbonCheckbox;
+
   constructor() {
     super();
-    this._carbonCheckbox = null;
+    this.#carbonCheckbox = null;
   }
 
   connectedCallback() {
@@ -42,7 +44,7 @@ export class ZooCheckbox extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._carbonCheckbox) {
+    if (oldValue !== newValue && this.#carbonCheckbox) {
       this.updateCarbonCheckbox();
     }
   }
@@ -53,29 +55,29 @@ export class ZooCheckbox extends HTMLElement {
   }
 
   render() {
-    if (!this._carbonCheckbox) {
-      this._carbonCheckbox = document.createElement('cds-checkbox');
+    if (!this.#carbonCheckbox) {
+      this.#carbonCheckbox = document.createElement('cds-checkbox');
 
       // Move slot content into the Carbon checkbox
       while (this.firstChild) {
-        this._carbonCheckbox.appendChild(this.firstChild);
+        this.#carbonCheckbox.appendChild(this.firstChild);
       }
 
-      this.appendChild(this._carbonCheckbox);
+      this.appendChild(this.#carbonCheckbox);
     }
     this.updateCarbonCheckbox();
   }
 
   updateCarbonCheckbox() {
-    if (!this._carbonCheckbox) return;
+    if (!this.#carbonCheckbox) return;
 
     // Forward only visual attributes to Carbon checkbox
     const visualAttrs = ['checked', 'value', 'disabled', 'indeterminate', 'label-text'];
     visualAttrs.forEach(attr => {
       if (this.hasAttribute(attr)) {
-        this._carbonCheckbox.setAttribute(attr, this.getAttribute(attr));
+        this.#carbonCheckbox.setAttribute(attr, this.getAttribute(attr));
       } else {
-        this._carbonCheckbox.removeAttribute(attr);
+        this.#carbonCheckbox.removeAttribute(attr);
       }
     });
 
@@ -83,16 +85,16 @@ export class ZooCheckbox extends HTMLElement {
   }
 
   get carbonElement() {
-    return this._carbonCheckbox;
+    return this.#carbonCheckbox;
   }
 
   get checked() {
-    return this._carbonCheckbox?.checked || false;
+    return this.#carbonCheckbox?.checked || false;
   }
 
   set checked(val) {
-    if (this._carbonCheckbox) {
-      this._carbonCheckbox.checked = val;
+    if (this.#carbonCheckbox) {
+      this.#carbonCheckbox.checked = val;
     }
   }
 }

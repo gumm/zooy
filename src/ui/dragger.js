@@ -122,6 +122,10 @@ const makeEmitter = (comp, evType) => (left, top, xOrg, yOrg, target) => ev => {
  * @extends {Component}
  */
 class Dragger extends Component {
+  #degreesOfFreedom;
+  #dragHandle;
+  #isLocked;
+  #cancelDrag;
 
   /**
    * @param {string} freedom Restrict the directions in which the
@@ -134,7 +138,7 @@ class Dragger extends Component {
      * @type {string}
      * @private
      */
-    this.degreesOfFreedom_ = ['x', 'y', 'xy', 'ew', 'ns'].includes(freedom.toLowerCase())
+    this.#degreesOfFreedom = ['x', 'y', 'xy', 'ew', 'ns'].includes(freedom.toLowerCase())
       ? freedom.toLowerCase()
       : 'xy';
 
@@ -142,7 +146,7 @@ class Dragger extends Component {
      * @type {!Node|undefined}
      * @private
      */
-    this.dragHandle_ = void 0;
+    this.#dragHandle = void 0;
 
     /**
      * Track state. A dragger can either be locked (not draggable) or
@@ -153,11 +157,11 @@ class Dragger extends Component {
      * @type {boolean}
      * @private
      */
-    this.isLocked_ = true;
+    this.#isLocked = true;
 
 
     // noinspection JSUnusedLocalSymbols
-    this.cancelDrag_ = _e => null;
+    this.#cancelDrag = _e => null;
 
   };
 
@@ -166,7 +170,7 @@ class Dragger extends Component {
    * @param {!Event} event The event that triggered the cancel
    */
   cancelDrag(event) {
-    this.cancelDrag_(event);
+    this.#cancelDrag(event);
   }
 
   //-----------------------------------------------------------[ Getters and Setters ]--
@@ -177,9 +181,9 @@ class Dragger extends Component {
    * @param {string} axis
    */
   set moveFreedom(axis) {
-    this.degreesOfFreedom_ = axis;
+    this.#degreesOfFreedom = axis;
     // Make sure we update the existing movement.
-    if (!this.isLocked_) {
+    if (!this.#isLocked) {
       this.lock();
       this.unlock();
     }
@@ -190,7 +194,7 @@ class Dragger extends Component {
    * @return {string}
    */
   get moveFreedom() {
-    return this.degreesOfFreedom_;
+    return this.#degreesOfFreedom;
   }
 
 
@@ -209,20 +213,20 @@ class Dragger extends Component {
    */
   unlock() {
     const wrapperFunc = func => e => {
-      this.cancelDrag_ = func(e);
+      this.#cancelDrag = func(e);
     };
-    if (this.isInDocument && this.isLocked_) {
+    if (this.isInDocument && this.#isLocked) {
       const onMove = makeEmitter(this, UiEventType.COMP_DRAG_MOVE);
       const onStart = makeEmitter(this, UiEventType.COMP_DRAG_START);
       const onEnd = makeEmitter(this, UiEventType.COMP_DRAG_END);
       const dragFunc = dragStartListener(
-        onStart, onMove, onEnd, this.degreesOfFreedom_);
-      this.isLocked_ = false;
-      this.dragHandle_ = /** @type {!Node} */ (
-        this.dragHandle_ || this.getElement());
-      this.listen(this.dragHandle_, EV.MOUSEDOWN, wrapperFunc(dragFunc));
-      this.listen(this.dragHandle_, EV.TOUCHSTART, dragFunc);
-      this.dragHandle_.classList.remove('locked');
+        onStart, onMove, onEnd, this.#degreesOfFreedom);
+      this.#isLocked = false;
+      this.#dragHandle = /** @type {!Node} */ (
+        this.#dragHandle || this.getElement());
+      this.listen(this.#dragHandle, EV.MOUSEDOWN, wrapperFunc(dragFunc));
+      this.listen(this.#dragHandle, EV.TOUCHSTART, dragFunc);
+      this.#dragHandle.classList.remove('locked');
     }
   }
 
@@ -231,10 +235,10 @@ class Dragger extends Component {
    * Removes all the listeners added when it was made draggable.
    */
   lock() {
-    this.stopListeningTo(this.dragHandle_, EV.MOUSEDOWN);
-    this.stopListeningTo(this.dragHandle_, EV.TOUCHSTART);
-    this.isLocked_ = true;
-    this.dragHandle_.classList.add('locked');
+    this.stopListeningTo(this.#dragHandle, EV.MOUSEDOWN);
+    this.stopListeningTo(this.#dragHandle, EV.TOUCHSTART);
+    this.#isLocked = true;
+    this.#dragHandle.classList.add('locked');
   }
 }
 
