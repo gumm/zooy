@@ -255,7 +255,7 @@ const genCatchClause = (debugString, returnValue = void 0) => err => {
  *     is_superuser: (boolean|undefined)
  *     }}
  */
-let UserLikeType;
+let _UserLikeType;
 
 
 /**

@@ -485,7 +485,7 @@ export default class Component extends EVT {
       [...els].forEach(e => {
         try {
           e[e.getAttribute('data-mdc-auto-init')].destroy();
-        } catch (e) {
+        } catch {
           // do nothing...
         }
 

@@ -10,7 +10,7 @@ import {isDefAndNotNull, whatType} from 'badu';
 *     pk: (string|undefined),
 *     }}
  */
-let ServerFormSuccessJsonType;
+let _ServerFormSuccessJsonType;
 
 /**
  * A class for managing field-level error messages and validation on a form.
@@ -83,10 +83,10 @@ class FieldErrs {
    * @param {HTMLInputElement} field The field after which the
    *    alert will be inserted.
    * @param {string} msg The message in the alert.
-   * @param {string} css A CSS class name to add to the alert div.
+   * @param {string} _css A CSS class name to add to the alert div.
    *      This will be formatted bold.
    */
-  displayAlert(field, msg, css) {
+  displayAlert(field, msg, _css) {
     const alertDom = document.getElementById(`${field.id}-helper-text`) ||
         document.createElement('p');
     alertDom.textContent = msg;
@@ -185,7 +185,7 @@ class FormPanel extends Panel {
     /**
      * @type {function(!FormPanel, (string|!ServerFormSuccessJsonType)=): (?|null|Promise<?>)}
      */
-    this.onSubmitSucFunc = (panel, opt_data) => null;
+    this.onSubmitSucFunc = (_panel, _opt_data) => null;
 
   }
 

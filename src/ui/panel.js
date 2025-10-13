@@ -259,7 +259,7 @@ class Panel extends Component {
       [...panelEl.querySelectorAll(qs)]
         .filter(e => isDefAndNotNull(e.id))
         .map(e => [e, hyperText.querySelector(`#${e.id}`)])
-        .filter(([target, replace]) => isDefAndNotNull(replace))
+        .filter(([_target, replace]) => isDefAndNotNull(replace))
         .forEach(([target, replace]) => {
           target.parentNode.replaceChild(replace, target);
           this.parseContent(replace);
@@ -302,40 +302,40 @@ class Panel extends Component {
 
   /**
    * On reply from a GET call to the panel URI
-   * @param {Object} json The callback function
+   * @param {Object} _json The callback function
    *      that will receive the reply event.
    * @return {Promise}
    */
-  onRenderWithJSON(json) {
+  onRenderWithJSON(_json) {
     return Promise.resolve(this);
   };
 
 
   /**
-   * @param {Element} el
-   * @param {Object} elDataMap
-   * @param {Object} json
+   * @param {Element} _el
+   * @param {Object} _elDataMap
+   * @param {Object} _json
    */
-  onAsyncJsonReply(el, elDataMap, json) {
+  onAsyncJsonReply(_el, _elDataMap, _json) {
     // Stub
   };
 
   /**
    * Called on each async HTML response, after the content is in the DOM
    * and rendered.
-   * @param {Element} el
-   * @param {Object} elDataMap
+   * @param {Element} _el
+   * @param {Object} _elDataMap
    */
-  onAsyncHtmlReply(el, elDataMap) {
+  onAsyncHtmlReply(_el, _elDataMap) {
     // Stub
   };
 
   /**
    * Hook method called when the view broadcasts data to all its panels.
    * Override this method to handle broadcasted data in subclasses.
-   * @param {*} data The data broadcast from the view
+   * @param {*} _data The data broadcast from the view
    */
-  onViewDataBroadcast(data) {
+  onViewDataBroadcast(_data) {
     // Stub
   };
 

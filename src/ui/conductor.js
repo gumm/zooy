@@ -81,7 +81,7 @@ export default class Conductor extends EVT {
    */
   initViewEventsInternal_() {
     return new Map()
-      .set('switch_view', (eventData, eView) => {
+      .set('switch_view', (eventData, _eView) => {
         if (this.viewConstructorMap_.has(eventData.view)) {
           const view = this.viewConstructorMap_.get(eventData.view)(
             eventData.pk, eventData);

@@ -60,7 +60,7 @@ export default class Split extends Component {
    * @return {!Array<!Array<string, !Object>>} Array of [nestName, nestConfig] pairs
    */
   get nests() {
-    return [...this.nestMap_.entries()].filter(([k, {nestEl}]) => nestEl);
+    return [...this.nestMap_.entries()].filter(([_k, {nestEl}]) => nestEl);
   }
 
   /**
@@ -78,7 +78,7 @@ export default class Split extends Component {
    */
   get nestNames() {
     return [...this.nestMap_.entries()]
-      .filter(([k, v]) => !this.splitNests_.has(v))
+      .filter(([_k, v]) => !this.splitNests_.has(v))
       .map(([k]) => k);
   }
 
@@ -369,7 +369,7 @@ export default class Split extends Component {
     // Check we are splitting a element that is part of the component.
     let refN = '';
     if (opt_el) {
-      const match = [...this.nestMap_.entries()].find(([k, {nestEl}]) => nestEl === opt_el);
+      const match = [...this.nestMap_.entries()].find(([_k, {nestEl}]) => nestEl === opt_el);
       if (match) {
         refN = match[0];
       } else {

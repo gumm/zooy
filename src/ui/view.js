@@ -43,14 +43,14 @@ const toggleTreeChildren = (panel, eventData) => {
 
 /**
  * Open all the tree nodes from the given element up.
- * @param {!Panel} panel
+ * @param {!Panel} _panel
  * @param {!HTMLElement} n
  */
-const openTreeFromNodeUp = (panel, n) => {
+const _openTreeFromNodeUp = (_panel, n) => {
   const parentNode = n.parentElement;
   if (parentNode.classList.contains('children')) {
     enableClass(parentNode, 'zoo__tree-children__hidden', false);
-    openTreeFromNodeUp(panel, parentNode);
+    _openTreeFromNodeUp(_panel, parentNode);
   }
 };
 
@@ -297,7 +297,7 @@ export default class View extends EVT {
    * @param {Panel} panel
    */
   removePanel(panel) {
-    const [n, p] = [...this.panelMap.entries()].find(([k, v]) => v === panel);
+    const [n, p] = [...this.panelMap.entries()].find(([_k, v]) => v === panel);
     if (n && p) {
       p.dispose();
       this.panelMap.delete(n);
@@ -403,7 +403,7 @@ export default class View extends EVT {
         form.elements['q'].value = '';
         form.dispatchEvent(new Event('submit'));
       })
-      .set('nav_back', (eventData, eView) => history.back())
+      .set('nav_back', (_eventData, _eView) => history.back())
       .set('switch_view', (eventData, ePanel) => {
         this.debugMe('switch_view received: eventData', eventData);
 
@@ -460,33 +460,33 @@ export default class View extends EVT {
   /**
    * Triggered before a split will open.
    *
-   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   * @param {{nestName: !string, nestEl:!HTMLElement}} _data
    */
-  onSplitWillOpen(data) {
+  onSplitWillOpen(_data) {
   }
 
   /**
    * Triggered before a split will close.
    *
-   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   * @param {{nestName: !string, nestEl:!HTMLElement}} _data
    */
-  onSplitWillClose(data) {
+  onSplitWillClose(_data) {
   }
 
   /**
    * Triggered after a split closed.
    *
-   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   * @param {{nestName: !string, nestEl:!HTMLElement}} _data
    */
-  onSplitDidClose(data) {
+  onSplitDidClose(_data) {
   }
 
   /**
    * Triggered after a split opened.
    *
-   * @param {{nestName: !string, nestEl:!HTMLElement}} data
+   * @param {{nestName: !string, nestEl:!HTMLElement}} _data
    */
-  onSplitDidOpen(data) {
+  onSplitDidOpen(_data) {
   }
 
   //-------------------------------------------------------[ Built in events ]--

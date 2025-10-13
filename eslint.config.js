@@ -69,7 +69,7 @@ export default [
       'camelcase': ['warn', {
         properties: 'never',
         ignoreDestructuring: true,
-        allow: ['^[a-z]+_$']
+        allow: ['^[a-z]+_$', '^opt_', '^_opt_']  // Allow opt_ and _opt_ prefix (Google Closure Compiler convention)
       }]
     }
   },

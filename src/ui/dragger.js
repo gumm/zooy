@@ -75,7 +75,7 @@ const freeMoveListener = (emit, target, xOrg, yOrg) => event => {
 };
 
 // noinspection JSUnusedLocalSymbols
-const xMoveOnlyListener = (emit, target, xOrg, yOrg) => event => {
+const xMoveOnlyListener = (emit, target, xOrg, _yOrg) => event => {
   event.preventDefault();
   const ev = normalizeEvent(event);
   target.style.left = `${ev.clientX - xOrg}px`;
@@ -157,7 +157,7 @@ class Dragger extends Component {
 
 
     // noinspection JSUnusedLocalSymbols
-    this.cancelDrag_ = e => null;
+    this.cancelDrag_ = _e => null;
 
   };
 

@@ -1,12 +1,6 @@
 import {format} from 'timeago.js';
 import {
-  identity,
-  isArray,
-  isDefAndNotNull,
-  isNumber,
-  isString,
-  pathOr,
-  toNumber
+  identity, isArray, isDefAndNotNull, isNumber, isString, pathOr, toNumber
 } from 'badu';
 
 /**
@@ -27,9 +21,7 @@ const getInputChecked_ = function (el) {
  */
 const getSelectSingle_ = function (el) {
   const selectedIndex = /** @type {!HTMLSelectElement} */ (el).selectedIndex;
-  return selectedIndex >= 0 ?
-    /** @type {!HTMLSelectElement} */ (el).options[selectedIndex].value :
-    null;
+  return selectedIndex >= 0 ? /** @type {!HTMLSelectElement} */ (el).options[selectedIndex].value : null;
 };
 
 /**
@@ -40,8 +32,7 @@ const getSelectSingle_ = function (el) {
  */
 const getSelectMultiple_ = function (el) {
   const values = [];
-  for (let option, i = 0;
-    (option = /** @type {!HTMLSelectElement} */ (el).options[i]); i++) {
+  for (let option, i = 0; (option = /** @type {!HTMLSelectElement} */ (el).options[i]); i++) {
     if (option.selected) {
       values.push(option.value);
     }
@@ -291,22 +282,18 @@ const dtFormatter = {
 };
 
 const dFormatter = {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric'
+  year: 'numeric', month: 'short', day: 'numeric'
 };
 
-export const dtf = new Intl.DateTimeFormat(
-  'en', {
-    day: '2-digit',
-    month: 'short',
-    year: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    // hour12: false
-    hourCycle: 'h23'
-  });
+export const dtf = new Intl.DateTimeFormat('en', {
+  day: '2-digit',
+  month: 'short',
+  year: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit', // hour12: false
+  hourCycle: 'h23'
+});
 
 export const dateToZooyStdTimeString = d => {
   // [ { type: 'month', value: 'Aug' },
@@ -320,14 +307,7 @@ export const dateToZooyStdTimeString = d => {
   //   { type: 'minute', value: '16' },
   //   { type: 'literal', value: ':' },
   //   { type: 'second', value: '17' } ]
-  const [
-    {value: mo}, ,
-    {value: da}, ,
-    {value: ye}, ,
-    {value: hr}, ,
-    {value: mn}, ,
-    {value: sc}, ,
-  ] = dtf.formatToParts(d);
+  const [{value: mo}, , {value: da}, , {value: ye}, , {value: hr}, , {value: mn}, , {value: sc}, ,] = dtf.formatToParts(d);
   return `${da} ${mo} ${ye} ${hr}:${mn}:${sc}`;
 };
 
@@ -414,17 +394,17 @@ const parseObfuscated = v => {
  *   is successfully updated.
  */
 export const parseMap = new Map()
-  .set(undefined, (v, el, dataMap) => identity(v))
-  .set('', (v, el, dataMap) => identity(v))
-  .set('class_update_only', (v, el, dataMap) => identity(v))
-  .set('frac_100', (v, el, dataMap) => Math.round((v * 100) * 100) / 100)
-  .set('date_and_time', (v, el, dataMap) => new Date(v).toLocaleString(undefined, dtFormatter))
-  .set('date', (v, el, dataMap) => new Date(v).toLocaleString(undefined, dFormatter))
-  .set('moment_ago', (v, el, dataMap) => parseMomentAgo(v, 'both', dataMap['zdd_date_tz'] || void 0))
-  .set('moment_ago_only', (v, el, dataMap) => parseMomentAgo(v, 'ago', dataMap['zdd_date_tz'] || void 0))
-  .set('moment_ago_datetime', (v, el, dataMap) => parseMomentAgo(v, 'datetime', dataMap['zdd_date_tz'] || void 0))
-  .set('pretty-json', (v, el, dataMap) => JSON.stringify(v, null, 4))
-  .set('obfuscated', (v, el, dataMap) => parseObfuscated(v))
+  .set(undefined, (v, _el, _dataMap) => identity(v))
+  .set('', (v, _el, _dataMap) => identity(v))
+  .set('class_update_only', (v, _el, _dataMap) => identity(v))
+  .set('frac_100', (v, _el, _dataMap) => Math.round((v * 100) * 100) / 100)
+  .set('date_and_time', (v, _el, _dataMap) => new Date(v).toLocaleString(undefined, dtFormatter))
+  .set('date', (v, _el, _dataMap) => new Date(v).toLocaleString(undefined, dFormatter))
+  .set('moment_ago', (v, _el, dataMap) => parseMomentAgo(v, 'both', dataMap['zdd_date_tz'] || void 0))
+  .set('moment_ago_only', (v, _el, dataMap) => parseMomentAgo(v, 'ago', dataMap['zdd_date_tz'] || void 0))
+  .set('moment_ago_datetime', (v, _el, dataMap) => parseMomentAgo(v, 'datetime', dataMap['zdd_date_tz'] || void 0))
+  .set('pretty-json', (v, _el, _dataMap) => JSON.stringify(v, null, 4))
+  .set('obfuscated', (v, _el, _dataMap) => parseObfuscated(v))
   .set('linear-progress', (v, el, dataMap) => {
     const max = toNumber(dataMap.zpmax);
     const progress = el.linProg;
@@ -526,8 +506,7 @@ export const mapDataToEls = (rootEl, json, opt_extendedMap = new Map(), opt_loop
             const regex = /\{}/gi;
             const oldClassName = name.replace(regex, '');
             const newClass = name.replace(regex, v);
-            el.classList.remove(...[...el.classList].filter(
-              e => e.includes(oldClassName)));
+            el.classList.remove(...[...el.classList].filter(e => e.includes(oldClassName)));
             el.classList.add(newClass);
             break;
           }
