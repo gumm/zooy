@@ -34,7 +34,7 @@ import {
   renderTextFieldIcons,
   renderTextFields
 } from './mdc/mdc.js';
-import { initializeCarbonComponents } from './renderers/index.js';
+import { initializeCarbonComponents } from './carbon/index.js';
 import {
   getPath,
   getQueryData,

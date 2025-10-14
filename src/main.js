@@ -10,6 +10,8 @@ import {UiEventType} from './events/uieventtype.js';
 import Conductor from './ui/conductor.js';
 import * as domUtils from './dom/utils.js';
 import * as uriUtils from './uri/uri.js';
+import * as icons from './ui/carbon/icons-api.js';
+import { loadCarbonIcons } from './ui/carbon/icons.js';
 
 // Import Zooy UI components (auto-registers custom elements)
 import './ui/zoo/index.js';
@@ -28,6 +30,8 @@ const zooy = {
   treeNodeSelect,
   domUtils,
   uriUtils,
+  icons,
+  loadCarbonIcons,
 };
 
 export default zooy;
