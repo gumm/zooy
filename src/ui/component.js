@@ -2,6 +2,7 @@ import ZooyEventData from '../events/zooyeventdata.js';
 import EVT from './evt.js';
 import {UiEventType} from '../events/uieventtype.js';
 import {isInPage, removeNode} from '../dom/utils.js';
+import {ComponentLibraryRegistry} from './component-library-registry.js';
 
 
 /**
@@ -482,25 +483,29 @@ export default class Component extends EVT {
 
   /**
    * Disposes of the component and performs cleanup. Aborts any pending async
-   * operations, destroys Material Design Components if present, and calls the
-   * parent dispose method.
+   * operations, asks registered component libraries to cleanup their components,
+   * and calls the parent dispose method.
    * After calling this method, the component should not be used.
    */
   dispose() {
     this.abortController && this.abortController.abort();
     const me = this.getElement();
-    if (me) {
-      const els = me.querySelectorAll('[data-mdc-auto-init]');
-      [...els].forEach(e => {
-        try {
-          e[e.getAttribute('data-mdc-auto-init')].destroy();
-        } catch (error) {
-          // Intentionally ignoring MDC cleanup errors during disposal
-          console.debug('MDC cleanup error during component disposal (non-critical):', error);
-        }
 
-      });
+    if (me) {
+      // Ask each registered component library to cleanup
+      for (const libName of ComponentLibraryRegistry.getRegisteredLibraries()) {
+        try {
+          const lib = ComponentLibraryRegistry.get(libName);
+          if (lib.dispose) {
+            lib.dispose(me);
+          }
+        } catch (error) {
+          // Intentionally ignoring library cleanup errors during disposal
+          console.debug(`[${libName}] Cleanup error during component disposal (non-critical):`, error);
+        }
+      }
     }
+
     super.dispose();
   }
 

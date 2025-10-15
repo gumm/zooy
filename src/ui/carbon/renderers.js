@@ -1,3 +1,5 @@
+// noinspection JSFileReferences
+
 /**
  * Generic Carbon Design System Component Renderer
  *
@@ -5,8 +7,10 @@
  * This single renderer replaces 18 individual component renderers with a
  * declarative configuration.
  *
- * Benefits:
+ * Features:
  * - Single source of truth for all Carbon component integrations
+ * - Lazy loading - only imports components that are actually used in the panel
+ * - Automatic import caching - modules loaded once, shared across all panels
  * - Easy to add new components - just add configuration
  * - Consistent event handling patterns
  * - Reduced code duplication
@@ -16,6 +20,209 @@
  */
 
 import {getSemanticAttributes, getEventAttribute} from '../zoo/attributes.js';
+
+//--------------------------------------------------------------[ Lazy Imports ]--
+// Shared import functions for Carbon Web Components
+// These are referenced by COMPONENT_CONFIG and cached globally
+// Components from the same package share the same import function
+
+const headingImport = () => import('@carbon/web-components/es/components/heading/index.js');
+const iconImport = () => import('@carbon/web-components/es/components/icon/index.js');
+const iconButtonImport = () => import('@carbon/web-components/es/components/icon-button/index.js');
+const iconIndicatorImport = () => import('@carbon/web-components/es/components/icon-indicator/index.js');
+const linkImport = () => import('@carbon/web-components/es/components/link/index.js');
+const buttonImport = () => import('@carbon/web-components/es/components/button/index.js');
+const comboButtonImport = () => import('@carbon/web-components/es/components/combo-button/index.js');
+const copyButtonImport = () => import('@carbon/web-components/es/components/copy-button/index.js');
+const badgeIndicatorImport = () => import('@carbon/web-components/es/components/badge-indicator/index.js');
+
+const textInputImport = () => import('@carbon/web-components/es/components/text-input/index.js');
+const textareaImport = () => import('@carbon/web-components/es/components/textarea/index.js');
+const numberInputImport = () => import('@carbon/web-components/es/components/number-input/index.js');
+const passwordInputImport = () => import('@carbon/web-components/es/components/password-input/index.js');
+const searchImport = () => import('@carbon/web-components/es/components/search/index.js');
+const dropdownImport = () => import('@carbon/web-components/es/components/dropdown/index.js');
+const comboBoxImport = () => import('@carbon/web-components/es/components/combo-box/index.js');
+const multiSelectImport = () => import('@carbon/web-components/es/components/multi-select/index.js');
+const checkboxImport = () => import('@carbon/web-components/es/components/checkbox/index.js');
+const radioButtonImport = () => import('@carbon/web-components/es/components/radio-button/index.js');
+const selectImport = () => import('@carbon/web-components/es/components/select/index.js');
+const toggleImport = () => import('@carbon/web-components/es/components/toggle/index.js');
+const sliderImport = () => import('@carbon/web-components/es/components/slider/index.js');
+const datePickerImport = () => import('@carbon/web-components/es/components/date-picker/index.js');
+const timePickerImport = () => import('@carbon/web-components/es/components/time-picker/index.js');
+const fileUploaderImport = () => import('@carbon/web-components/es/components/file-uploader/index.js');
+
+const breadcrumbImport = () => import('@carbon/web-components/es/components/breadcrumb/index.js');
+const paginationImport = () => import('@carbon/web-components/es/components/pagination/index.js');
+const tabsImport = () => import('@carbon/web-components/es/components/tabs/index.js');
+const contentSwitcherImport = () => import('@carbon/web-components/es/components/content-switcher/index.js');
+const accordionImport = () => import('@carbon/web-components/es/components/accordion/index.js');
+
+const modalImport = () => import('@carbon/web-components/es/components/modal/index.js');
+const dataTableImport = () => import('@carbon/web-components/es/components/data-table/index.js');
+const overflowMenuImport = () => import('@carbon/web-components/es/components/overflow-menu/index.js');
+const structuredListImport = () => import('@carbon/web-components/es/components/structured-list/index.js');
+const tagImport = () => import('@carbon/web-components/es/components/tag/index.js');
+const progressBarImport = () => import('@carbon/web-components/es/components/progress-bar/index.js');
+
+const treeViewImport = () => import('@carbon/web-components/es/components/tree-view/index.js');
+const tooltipImport = () => import('@carbon/web-components/es/components/tooltip/index.js');
+const popoverImport = () => import('@carbon/web-components/es/components/popover/index.js');
+const notificationImport = () => import('@carbon/web-components/es/components/notification/index.js');
+const codeSnippetImport = () => import('@carbon/web-components/es/components/code-snippet/index.js');
+const loadingImport = () => import('@carbon/web-components/es/components/loading/index.js');
+const inlineLoadingImport = () => import('@carbon/web-components/es/components/inline-loading/index.js');
+const skeletonTextImport = () => import('@carbon/web-components/es/components/skeleton-text/index.js');
+const skeletonPlaceholderImport = () => import('@carbon/web-components/es/components/skeleton-placeholder/index.js');
+const tileImport = () => import('@carbon/web-components/es/components/tile/index.js');
+const progressIndicatorImport = () => import('@carbon/web-components/es/components/progress-indicator/index.js');
+const toggleTipImport = () => import('@carbon/web-components/es/components/toggle-tip/index.js');
+const menuImport = () => import('@carbon/web-components/es/components/menu/index.js');
+
+//-------------------------------------------------------[ Helper Functions ]--
+
+/**
+ * Scans panel DOM once and categorizes all Carbon elements by their config selector.
+ * This single-pass approach is much faster than calling querySelectorAll for each selector.
+ *
+ * @param {Element} panel - The panel element to scan
+ * @returns {Map<string, Element[]>} Map of selector → matching elements
+ * @export For unit testing
+ */
+export function scanForCarbonComponents(panel) {
+  const elementMap = new Map();
+
+  // Initialize map with all selectors
+  for (const selector of Object.keys(COMPONENT_CONFIG)) {
+    elementMap.set(selector, []);
+  }
+
+  // Single DOM traversal - categorize elements by matching selectors
+  const allElements = panel.querySelectorAll('*');
+  for (const element of allElements) {
+    for (const [selector, config] of Object.entries(COMPONENT_CONFIG)) {
+      if (element.matches(selector)) {
+        elementMap.get(selector).push(element);
+      }
+    }
+  }
+
+  // Remove empty entries
+  for (const [selector, elements] of elementMap.entries()) {
+    if (elements.length === 0) {
+      elementMap.delete(selector);
+    }
+  }
+
+  return elementMap;
+}
+
+/**
+ * Collects unique import functions needed based on scanned elements.
+ *
+ * @param {Map<string, Element[]>} elementMap - Map from scanForCarbonComponents
+ * @returns {Set<Function>} Set of unique import functions to load
+ * @export For unit testing
+ */
+export function collectImportsNeeded(elementMap) {
+  const importsNeeded = new Set();
+
+  for (const [selector, elements] of elementMap.entries()) {
+    const config = COMPONENT_CONFIG[selector];
+    if (config && config.import && elements.length > 0) {
+      importsNeeded.add(config.import);
+    }
+  }
+
+  return importsNeeded;
+}
+
+/**
+ * Loads component imports in parallel with caching.
+ *
+ * @param {Set<Function>} importFunctions - Set of import functions to load
+ * @param {Map<Function, Promise>} cache - External cache for imports (from Conductor)
+ * @returns {Promise<void>}
+ * @export For unit testing
+ */
+export async function loadComponentImports(importFunctions, cache) {
+  if (importFunctions.size === 0) {
+    return;
+  }
+
+  const loadPromises = Array.from(importFunctions).map(async (importFn) => {
+    // Check cache first
+    if (!cache.has(importFn)) {
+      // Not cached - load and cache the promise
+      cache.set(importFn, importFn());
+    }
+    // Return cached promise (may be in-flight or completed)
+    return cache.get(importFn);
+  });
+
+  await Promise.all(loadPromises);
+}
+
+/**
+ * Attaches event listeners to Carbon components based on their configuration.
+ *
+ * @param {Map<string, Element[]>} elementMap - Map of selector → elements
+ * @param {Panel} panel - The panel instance for event dispatching
+ * @returns {number} Total number of components initialized
+ * @export For unit testing
+ */
+export function attachEventListeners(elementMap, panel) {
+  let totalInitialized = 0;
+
+  for (const [selector, elements] of elementMap.entries()) {
+    const config = COMPONENT_CONFIG[selector];
+
+    elements.forEach(element => {
+      // Custom initialization (for complex components)
+      if (config.init) {
+        config.init.call(panel, element);
+        return;
+      }
+
+      // Multi-event components (e.g., text-input with input + change)
+      if (config.multiEvent) {
+        const attrs = getSemanticAttributes(element);
+        config.events.forEach(eventConfig => {
+          const eventName = getEventAttribute(element, eventConfig.attrName, 'event');
+          if (eventName) {
+            panel.listen(element, eventConfig.type, e => {
+              panel.dispatchPanelEvent(eventName, eventConfig.getData(e, attrs, element));
+            });
+          }
+        });
+        return;
+      }
+
+      // Standard single-event components
+      const attrs = getSemanticAttributes(element);
+      const eventName = attrs.event;
+
+      if (eventName) {
+        panel.listen(element, config.event, e => {
+          e.stopPropagation();
+          const data = config.getData(e, attrs, element);
+
+          // Handle event override (e.g., menu items with their own event names)
+          const finalEventName = data._eventOverride || eventName;
+          delete data._eventOverride;
+
+          panel.dispatchPanelEvent(finalEventName, data);
+        });
+      }
+    });
+
+    totalInitialized += elements.length;
+    panel.debugMe(`[Carbon] Initialized ${elements.length} ${selector} component(s)`);
+  }
+
+  return totalInitialized;
+}
 
 /**
  * Component configuration
@@ -30,23 +237,27 @@ import {getSemanticAttributes, getEventAttribute} from '../zoo/attributes.js';
 const COMPONENT_CONFIG = {
   // Buttons
   'cds-button': {
+    import: buttonImport,
     event: 'click',
     getData: (e, attrs) => attrs
   },
 
   'cds-icon-button': {
+    import: iconButtonImport,
     event: 'click',
     getData: (e, attrs) => attrs
   },
 
   // FAB (Floating Action Button) - just a styled button
   'cds-button[data-fab="true"]': {
+    import: buttonImport,
     event: 'click',
     getData: (e, attrs) => attrs
   },
 
   // Icon Toggle - manual state management with visual feedback
   'cds-icon-button[data-toggle="true"]': {
+    import: iconButtonImport,
     init: function (button) {
       const attrs = getSemanticAttributes(button);
 
@@ -98,6 +309,7 @@ const COMPONENT_CONFIG = {
 
   // Text Input
   'cds-text-input': {
+    import: textInputImport,
     multiEvent: true,
     events: [
       {
@@ -121,6 +333,7 @@ const COMPONENT_CONFIG = {
 
   // Text Area
   'cds-textarea': {
+    import: textareaImport,
     multiEvent: true,
     events: [
       {
@@ -144,6 +357,7 @@ const COMPONENT_CONFIG = {
 
   // Number Input
   'cds-number-input': {
+    import: numberInputImport,
     event: 'cds-number-input',
     getData: (e, attrs, element) => ({
       ...attrs,
@@ -154,6 +368,7 @@ const COMPONENT_CONFIG = {
 
   // Password Input
   'cds-password-input': {
+    import: passwordInputImport,
     multiEvent: true,
     events: [
       {
@@ -177,6 +392,7 @@ const COMPONENT_CONFIG = {
 
   // Search
   'cds-search': {
+    import: searchImport,
     event: 'cds-search-input',
     getData: (e, attrs, element) => ({
       ...attrs,
@@ -186,6 +402,7 @@ const COMPONENT_CONFIG = {
 
   // Combo Box
   'cds-combo-box': {
+    import: comboBoxImport,
     init: function (comboBox) {
       const attrs = getSemanticAttributes(comboBox);
 
@@ -216,6 +433,7 @@ const COMPONENT_CONFIG = {
 
   // Multi Select
   'cds-multi-select': {
+    import: multiSelectImport,
     init: function (multiSelect) {
       const attrs = getSemanticAttributes(multiSelect);
 
@@ -245,6 +463,7 @@ const COMPONENT_CONFIG = {
 
   // Date Picker
   'cds-date-picker': {
+    import: datePickerImport,
     init: function (datePicker) {
       const attrs = getSemanticAttributes(datePicker);
 
@@ -274,6 +493,7 @@ const COMPONENT_CONFIG = {
 
   // Time Picker
   'cds-time-picker': {
+    import: timePickerImport,
     event: 'cds-time-picker-changed',
     getData: (e, attrs, element) => ({
       ...attrs,
@@ -283,6 +503,7 @@ const COMPONENT_CONFIG = {
 
   // File Uploader
   'cds-file-uploader': {
+    import: fileUploaderImport,
     init: function (uploader) {
       const attrs = getSemanticAttributes(uploader);
 
@@ -317,6 +538,7 @@ const COMPONENT_CONFIG = {
 
   // Dropdown
   'cds-dropdown': {
+    import: dropdownImport,
     init: function (dropdown) {
       const attrs = getSemanticAttributes(dropdown);
 
@@ -348,6 +570,7 @@ const COMPONENT_CONFIG = {
 
   // Checkbox - Carbon uses custom event
   'cds-checkbox': {
+    import: checkboxImport,
     event: 'cds-checkbox-changed',
     getData: (e, attrs, element) => ({
       ...attrs,
@@ -358,6 +581,7 @@ const COMPONENT_CONFIG = {
 
   // Radio Button Group - only listen to the group, not individual buttons
   'cds-radio-button-group': {
+    import: radioButtonImport,
     event: 'cds-radio-button-group-changed',
     getData: (e, attrs) => ({
       ...attrs,
@@ -367,6 +591,7 @@ const COMPONENT_CONFIG = {
 
   // Toggle
   'cds-toggle': {
+    import: toggleImport,
     event: 'cds-toggle-changed',
     getData: (e, attrs) => ({
       ...attrs,
@@ -377,6 +602,7 @@ const COMPONENT_CONFIG = {
 
   // Select
   'cds-select': {
+    import: selectImport,
     event: 'cds-select-selected',
     getData: (e, attrs) => ({
       ...attrs,
@@ -386,6 +612,7 @@ const COMPONENT_CONFIG = {
 
   // Slider
   'cds-slider': {
+    import: sliderImport,
     init: function (slider) {
       const attrs = getSemanticAttributes(slider);
 
@@ -415,12 +642,14 @@ const COMPONENT_CONFIG = {
 
   // Tags - regular tags (click only, not closeable)
   'cds-tag': {
+    import: tagImport,
     event: 'click',
     getData: (e, attrs) => attrs
   },
 
   // Dismissible tags (closeable tags with X button)
   'cds-dismissible-tag': {
+    import: tagImport,
     init: function (tag) {
       const attrs = getSemanticAttributes(tag);
 
@@ -453,6 +682,7 @@ const COMPONENT_CONFIG = {
 
   // Filter tags (closeable tags used for filters)
   'cds-filter-tag': {
+    import: tagImport,
     event: 'cds-filter-tag-closed',
     getData: (e, attrs) => ({
       ...attrs,
@@ -462,6 +692,7 @@ const COMPONENT_CONFIG = {
 
   // Tabs
   'cds-tabs': {
+    import: tabsImport,
     init: function (tabs) {
       const attrs = getSemanticAttributes(tabs);
 
@@ -495,6 +726,7 @@ const COMPONENT_CONFIG = {
 
   // Data Table - uses custom init for multiple event types
   'cds-table': {
+    import: dataTableImport,
     init: function (table) {
       const attrs = getSemanticAttributes(table);
 
@@ -653,6 +885,7 @@ const COMPONENT_CONFIG = {
 
   // Overflow Menu
   'cds-overflow-menu': {
+    import: overflowMenuImport,
     // We collect the menu attributes from the menu, but we listen for the
     // events on the menu body.
     init: function (overflowMenu) {
@@ -674,6 +907,7 @@ const COMPONENT_CONFIG = {
 
   // Structured List
   'cds-structured-list': {
+    import: structuredListImport,
     init: function (list) {
       const listAttrs = getSemanticAttributes(list);
 
@@ -714,6 +948,7 @@ const COMPONENT_CONFIG = {
 
   // Progress Bar - monitors for completion
   'cds-progress-bar': {
+    import: progressBarImport,
     init: function (progressBar) {
       const attrs = getSemanticAttributes(progressBar);
 
@@ -743,6 +978,7 @@ const COMPONENT_CONFIG = {
 
   // Modal - multiple event types
   'cds-modal': {
+    import: modalImport,
     init: function (modal) {
       const attrs = getSemanticAttributes(modal);
 
@@ -843,6 +1079,7 @@ const COMPONENT_CONFIG = {
 
   // Pagination
   'cds-pagination': {
+    import: paginationImport,
     init: function (pagination) {
       const attrs = getSemanticAttributes(pagination);
 
@@ -876,6 +1113,7 @@ const COMPONENT_CONFIG = {
 
   // Accordion
   'cds-accordion': {
+    import: accordionImport,
     init: function (accordion) {
       const attrs = getSemanticAttributes(accordion);
 
@@ -900,6 +1138,7 @@ const COMPONENT_CONFIG = {
 
   // Content Switcher
   'cds-content-switcher': {
+    import: contentSwitcherImport,
     init: function (switcher) {
       const attrs = getSemanticAttributes(switcher);
 
@@ -933,6 +1172,7 @@ const COMPONENT_CONFIG = {
 
   // Link
   'cds-link': {
+    import: linkImport,
     event: 'click',
     getData: (e, attrs, element) => ({
       ...attrs,
@@ -942,6 +1182,7 @@ const COMPONENT_CONFIG = {
 
   // Tree View
   'cds-tree-view': {
+    import: treeViewImport,
     init: function (tree) {
       const attrs = getSemanticAttributes(tree);
 
@@ -977,6 +1218,7 @@ const COMPONENT_CONFIG = {
 
   // Tooltip
   'cds-tooltip': {
+    import: tooltipImport,
     init: function (tooltip) {
       const attrs = getSemanticAttributes(tooltip);
 
@@ -1005,6 +1247,7 @@ const COMPONENT_CONFIG = {
 
   // Popover
   'cds-popover': {
+    import: popoverImport,
     init: function (popover) {
       const attrs = getSemanticAttributes(popover);
 
@@ -1033,6 +1276,7 @@ const COMPONENT_CONFIG = {
 
   // Notification
   'cds-toast-notification': {
+    import: notificationImport,
     event: 'cds-notification-closed',
     getData: (e, attrs) => ({
       ...attrs,
@@ -1041,6 +1285,7 @@ const COMPONENT_CONFIG = {
   },
 
   'cds-inline-notification': {
+    import: notificationImport,
     event: 'cds-notification-closed',
     getData: (e, attrs) => ({
       ...attrs,
@@ -1049,6 +1294,7 @@ const COMPONENT_CONFIG = {
   },
 
   'cds-actionable-notification': {
+    import: notificationImport,
     init: function (notification) {
       const attrs = getSemanticAttributes(notification);
 
@@ -1078,6 +1324,7 @@ const COMPONENT_CONFIG = {
 
   // Code Snippet
   'cds-code-snippet': {
+    import: codeSnippetImport,
     event: 'cds-copy-button-clicked',
     getData: (e, attrs) => ({
       ...attrs,
@@ -1087,6 +1334,7 @@ const COMPONENT_CONFIG = {
 
   // Tiles
   'cds-clickable-tile': {
+    import: tileImport,
     event: 'click',
     getData: (e, attrs) => ({
       ...attrs,
@@ -1095,6 +1343,7 @@ const COMPONENT_CONFIG = {
   },
 
   'cds-expandable-tile': {
+    import: tileImport,
     init: function (tile) {
       const attrs = getSemanticAttributes(tile);
 
@@ -1124,6 +1373,7 @@ const COMPONENT_CONFIG = {
   },
 
   'cds-selectable-tile': {
+    import: tileImport,
     event: 'cds-selectable-tile-changed',
     getData: (e, attrs, element) => ({
       ...attrs,
@@ -1133,6 +1383,7 @@ const COMPONENT_CONFIG = {
   },
 
   'cds-radio-tile': {
+    import: tileImport,
     event: 'cds-selectable-tile-changed',
     getData: (e, attrs, element) => ({
       ...attrs,
@@ -1143,6 +1394,7 @@ const COMPONENT_CONFIG = {
 
   // Progress Indicator
   'cds-progress-indicator': {
+    import: progressIndicatorImport,
     init: function (indicator) {
       const attrs = getSemanticAttributes(indicator);
 
@@ -1167,6 +1419,7 @@ const COMPONENT_CONFIG = {
 
   // Combo Button - composed of button + menu
   'cds-combo-button': {
+    import: comboButtonImport,
     init: function (comboButton) {
       const attrs = getSemanticAttributes(comboButton);
 
@@ -1204,6 +1457,7 @@ const COMPONENT_CONFIG = {
 
   // Toggletip - tooltip that stays open until dismissed
   'cds-toggletip': {
+    import: toggleTipImport,
     init: function (toggletip) {
       const attrs = getSemanticAttributes(toggletip);
 
@@ -1234,6 +1488,7 @@ const COMPONENT_CONFIG = {
 
   // Menu
   'cds-menu': {
+    import: menuImport,
     init: function (menu) {
       const attrs = getSemanticAttributes(menu);
 
@@ -1294,6 +1549,7 @@ const COMPONENT_CONFIG = {
 
   // Menu Button - button that opens a menu
   'cds-menu-button': {
+    import: menuImport,
     init: function (menuButton) {
       const attrs = getSemanticAttributes(menuButton);
 
@@ -1320,66 +1576,49 @@ const COMPONENT_CONFIG = {
 };
 
 /**
- * Generic Carbon component renderer
- * Iterates through configuration and attaches event listeners to all components
+ * Generic Carbon component renderer with lazy loading.
+ * Orchestrates the scanning, loading, and initialization of Carbon components.
+ *
+ * Flow:
+ * 1. Scan panel DOM once for all Carbon components
+ * 2. Collect unique import functions needed
+ * 3. Load all imports in parallel (with caching)
+ * 4. Attach event listeners to components
  *
  * @param {Element} panel - The panel element to search for components
+ * @param {Map<Function, Promise>} cache - Import cache from Conductor
  * @this {Panel} - The panel instance (bound via .call())
+ * @returns {Promise<void>}
  */
-export const renderCarbonComponents = function (panel) {
-  let totalInitialized = 0;
+export const renderCarbonComponents = async function (panel, cache) {
+  // Step 1: Single DOM scan - categorize all Carbon elements
+  const elementMap = scanForCarbonComponents(panel);
 
-  Object.entries(COMPONENT_CONFIG).forEach(([selector, config]) => {
-    const elements = [...panel.querySelectorAll(selector)];
+  if (elementMap.size === 0) {
+    this.debugMe('[Carbon] No Carbon components found in panel');
+    return;
+  }
 
-    if (elements.length === 0) {
-      return;
+  // Step 2: Determine which imports are needed
+  const importsNeeded = collectImportsNeeded(elementMap);
+
+  // Step 3: Load all needed components in parallel (with caching)
+  if (importsNeeded.size > 0) {
+    this.debugMe(`[Carbon] Loading ${importsNeeded.size} component module(s)...`);
+
+    try {
+      await loadComponentImports(importsNeeded, cache);
+      this.debugMe('[Carbon] All component modules loaded successfully');
+    } catch (error) {
+      console.error('[Carbon] Failed to load some component modules:', error);
+      // Continue anyway - some components may have loaded successfully
     }
+  }
 
-    elements.forEach(element => {
-      // Custom initialization (for complex components)
-      if (config.init) {
-        config.init.call(this, element);
-        return;
-      }
-
-      // Multi-event components (e.g., text-input with input + change)
-      if (config.multiEvent) {
-        const attrs = getSemanticAttributes(element);
-        config.events.forEach(eventConfig => {
-          const eventName = getEventAttribute(element, eventConfig.attrName, 'event');
-          if (eventName) {
-            this.listen(element, eventConfig.type, e => {
-              this.dispatchPanelEvent(eventName, eventConfig.getData(e, attrs, element));
-            });
-          }
-        });
-        return;
-      }
-
-      // Standard single-event components
-      const attrs = getSemanticAttributes(element);
-      const eventName = attrs.event;
-
-      if (eventName) {
-        this.listen(element, config.event, e => {
-          e.stopPropagation();
-          const data = config.getData(e, attrs, element);
-
-          // Handle event override (e.g., menu items with their own event names)
-          const finalEventName = data._eventOverride || eventName;
-          delete data._eventOverride;
-
-          this.dispatchPanelEvent(finalEventName, data);
-        });
-      }
-    });
-
-    totalInitialized += elements.length;
-    this.debugMe(`Initialized ${elements.length} ${selector} component(s)`);
-  });
+  // Step 4: Attach event listeners using the scanned element map
+  const totalInitialized = attachEventListeners(elementMap, this);
 
   if (totalInitialized > 0) {
-    this.debugMe(`Total Carbon components initialized: ${totalInitialized}`);
+    this.debugMe(`[Carbon] Total components initialized: ${totalInitialized}`);
   }
 };

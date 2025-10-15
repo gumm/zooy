@@ -2,6 +2,17 @@
 
 A lightweight, event-driven JavaScript UI framework for building complex, interactive web applications. Zooy provides a component-based architecture with lifecycle management, declarative event handling, and powerful layout primitives.
 
+## Why "zooy"?
+
+Originally developed for **ThingZoo** (now marketed as **Connect**), an IoT platform designed to manage a "menagerie" of connected devices from around the world.
+
+The UI framework evolved from:
+- **zoo-ui** → The UI library for managing things
+- **zoo-youeye** → Phonetic play on pronunciation
+- **zooy** → Final form
+
+The name reflects the framework's core purpose: orchestrating diverse UI components (panels, views, splits) and managing different component libraries (MDC, Carbon, custom) — just as a zoo manages diverse creatures.
+
 ## Overview
 
 Zooy is a UI framework that emphasizes:
@@ -9,7 +20,8 @@ Zooy is a UI framework that emphasizes:
 - **Event-driven architecture** - Components communicate through a standardized event system
 - **Declarative UI patterns** - HTML-driven component initialization and interaction
 - **Progressive enhancement** - Works with server-rendered HTML
-- **Material Design integration** - Built-in support for Material Design Components
+- **Pluggable component libraries** - Support for multiple UI libraries (MDC, Carbon Design System, custom components)
+- **Lazy loading** - Dynamic imports reduce initial bundle size
 
 ## Architecture
 
@@ -26,6 +38,10 @@ EVT (Event Target)
 EVT
  ├─ View
  └─ Conductor
+
+ComponentLibraryRegistry (Static)
+ ├─ MDC Library (Material Design Components)
+ └─ Carbon Library (IBM Carbon Design System)
 ```
 
 ### Key Concepts
@@ -53,9 +69,18 @@ Specialized component for dynamic content:
 - Server-side HTML template rendering
 - Script and module evaluation
 - Form interception and AJAX submission
-- Material Design Component auto-initialization
+- Component library auto-initialization (pluggable)
 - Async content population with intervals
 - Partial DOM replacement for live updates
+
+#### **ComponentLibraryRegistry** - Pluggable UI Libraries
+Central registry system for component libraries:
+- Register multiple UI libraries (MDC, Carbon, custom)
+- Lazy-load libraries via dynamic imports
+- Automatic component initialization when panels render
+- Import caching for performance
+- Library-specific lifecycle hooks (render, dispose)
+- No library lock-in - use what fits your needs
 
 #### **FormPanel** - Form Management
 Enhanced panel for form handling:
@@ -205,14 +230,83 @@ conductor.switchView(new DashboardView());
 // Browser back/forward automatically handled
 ```
 
-### 8. Material Design Integration
-Automatic MDC component initialization:
+### 8. Component Library Registration
+Register UI libraries at application startup:
+```javascript
+import zooy from 'zooy';
+
+const entryFunc = async (user) => {
+  // Register component libraries (lazy-loaded)
+  await zooy.registerMdcLibrary();      // Material Design Components
+  await zooy.registerCarbonLibrary();   // IBM Carbon Design System
+
+  // Now render your application
+  const view = new MyView();
+  view.render();
+};
+```
+
+### 9. Material Design Components
+MDC components automatically initialize when panels render:
 ```html
 <button class="mdc-button">
   <span class="mdc-button__label">Click Me</span>
 </button>
-<!-- Panel.parseContent() automatically initializes MDC components -->
+
+<ul class="mdc-list mdc-tree">
+  <li class="mdc-list-item">Tree Item 1</li>
+  <li class="mdc-list-item">Tree Item 2</li>
+</ul>
+<!-- Panel.parseContent() automatically initializes all MDC components -->
 ```
+
+### 10. Carbon Design System
+Carbon Web Components load dynamically as needed:
+```html
+<!-- Use data-carbon-component to specify which component to load -->
+<div data-carbon-component="button">
+  <cds-button>Click Me</cds-button>
+</div>
+
+<div data-carbon-component="accordion">
+  <cds-accordion>
+    <cds-accordion-item title="Section 1">
+      Content here
+    </cds-accordion-item>
+  </cds-accordion>
+</div>
+<!-- Components are imported dynamically and cached for performance -->
+```
+
+## Why Pluggable Component Libraries?
+
+The ComponentLibraryRegistry architecture provides several key benefits:
+
+### 🎯 **No Library Lock-in**
+Use MDC, Carbon, or build custom components — zooy doesn't care. Mix and match as needed.
+
+### 📦 **Smaller Initial Bundles**
+Component libraries load on-demand via dynamic imports:
+- Core framework: ~50KB
+- MDC library: +240KB (only if registered)
+- Carbon library: +19KB (only if registered)
+- Individual Carbon components: Loaded as panels use them
+
+### 🔄 **Gradual Migration**
+Migrate from one component library to another incrementally:
+1. Register both libraries
+2. Existing panels continue using MDC
+3. New panels use Carbon
+4. Replace components one-by-one
+5. Eventually remove MDC registration
+
+### 🧩 **Framework Evolution**
+As component libraries evolve (MDC → Material Web Components), zooy's architecture remains stable. Just swap the registration module.
+
+### 🚀 **Performance**
+- Import caching prevents duplicate downloads
+- Only load components actually used in your app
+- Lazy loading reduces time-to-interactive
 
 ## Development
 
@@ -246,21 +340,36 @@ Husky is configured to run linting before each commit, ensuring code quality.
 ```
 zooy/
 ├── src/
-│   ├── ui/              # Core UI components
-│   │   ├── evt.js       # Event system base class
-│   │   ├── component.js # Component base class
-│   │   ├── panel.js     # Content panel
-│   │   ├── form.js      # Form panel with validation
-│   │   ├── view.js      # Panel orchestrator
-│   │   ├── conductor.js # Application controller
-│   │   ├── split.js     # Resizable layouts
-│   │   └── dragger.js   # Drag functionality
-│   ├── dom/             # DOM utilities
-│   ├── events/          # Event types and utilities
-│   ├── uri/             # URI parsing and manipulation
-│   └── user/            # User management
-├── eslint.config.js     # ESLint configuration
-└── package.json         # Project dependencies
+│   ├── ui/                          # Core UI components
+│   │   ├── evt.js                   # Event system base class
+│   │   ├── component.js             # Component base class
+│   │   ├── panel.js                 # Content panel (library-agnostic)
+│   │   ├── form.js                  # Form panel with validation
+│   │   ├── view.js                  # Panel orchestrator
+│   │   ├── conductor.js             # Application controller
+│   │   ├── split.js                 # Resizable layouts
+│   │   ├── dragger.js               # Drag functionality
+│   │   ├── component-library-registry.js  # Component library registry
+│   │   ├── mdc/                     # Material Design Components
+│   │   │   ├── register.js          # MDC registration (lazy-loaded)
+│   │   │   └── tree-utils.js        # MDC tree utilities
+│   │   └── carbon/                  # IBM Carbon Design System
+│   │       ├── register.js          # Carbon registration (lazy-loaded)
+│   │       ├── renderers.js         # Dynamic component loading
+│   │       ├── icons.js             # Icon sprite management
+│   │       └── icons-api.js         # Programmatic icon API
+│   ├── dom/                         # DOM utilities
+│   ├── events/                      # Event types and utilities
+│   ├── uri/                         # URI parsing and manipulation
+│   └── user/                        # User management
+├── chunks/                          # Rollup-generated chunks
+│   ├── main-[hash].js               # Main framework bundle
+│   ├── register-[hash].js           # MDC registration chunk (~240KB)
+│   └── register-[hash].js           # Carbon registration chunk (~19KB)
+├── main.js                          # Entry point (exports from chunks)
+├── rollup.config.js                 # Build configuration
+├── eslint.config.js                 # ESLint configuration
+└── package.json                     # Project dependencies
 ```
 
 ## Contributing

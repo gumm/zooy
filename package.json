@@ -4,6 +4,10 @@
   "version": "35.0.0",
   "main": "main.js",
   "type": "module",
+  "exports": {
+    ".": "./main.js",
+    "./main.js": "./main.js"
+  },
   "author": {
     "name": "Jan Badenhorst",
     "email": "janhendrik.badenhorst@gmail.com"

@@ -12,29 +12,7 @@ import {UiEventType} from '../events/uieventtype.js';
 import ZooyEventData from '../events/zooyeventdata.js';
 import EVT from './evt.js';
 import {EV} from '../events/mouseandtouchevents.js';
-import {
-  renderButtons as renderMdcButtons,
-  renderCheckBoxes,
-  renderChips,
-  renderDataTables,
-  renderFloatingActionButtons,
-  renderFormFields,
-  renderIconButtons,
-  renderIconToggleButtons,
-  renderLinearProgress,
-  renderLists,
-  renderMenus,
-  renderMenuSurfaces,
-  renderRadioButtons,
-  renderRipples,
-  renderSelectMenus,
-  renderSliders,
-  renderSwitches,
-  renderTabBars,
-  renderTextFieldIcons,
-  renderTextFields
-} from './mdc/mdc.js';
-import { initializeCarbonComponents } from './carbon/index.js';
+import {ComponentLibraryRegistry} from './component-library-registry.js';
 import {
   getPath,
   getQueryData,
@@ -354,36 +332,20 @@ class Panel extends Component {
   parseContent(panel) {
     this.debugMe('Enable interactions. Panel:', panel);
 
-    // Initialize Zooy components (Web Components with Panel integration)
-    // This runs asynchronously and doesn't block MDC initialization
+    // Initialize component libraries via pluggable architecture
+    // Carbon Web Components (lazy-loaded, async)
     if (typeof window.customElements !== 'undefined') {
-      initializeCarbonComponents.call(this, panel)
-        .catch(err => console.error('[Zooy] Component initialization failed:', err));
+      if (ComponentLibraryRegistry.has('carbon')) {
+        const carbonLib = ComponentLibraryRegistry.get('carbon');
+        carbonLib.render.call(this, panel, carbonLib.cache)
+          .catch(err => console.error('[Zooy] Carbon initialization failed:', err));
+      }
     }
 
-    // Legacy MDC support (will be removed after full migration to zoo components)
-    if (isDefAndNotNull(window.mdc) &&
-      Object.prototype.hasOwnProperty.call(window.mdc, 'autoInit')) {
-      renderRipples.call(this, panel);
-      renderMdcButtons.call(this, panel);
-      renderFloatingActionButtons.call(this, panel);
-      renderIconButtons.call(this, panel);
-      renderIconToggleButtons.call(this, panel);
-      renderTabBars.call(this, panel);
-      renderSwitches.call(this, panel);
-      renderChips.call(this, panel);
-      renderMenuSurfaces.call(this, panel);
-      renderMenus.call(this, panel);
-      renderLists.call(this, panel);
-      renderSliders.call(this, panel);
-      renderLinearProgress.call(this, panel);
-      renderFormFields.call(this, panel);
-      renderSelectMenus.call(this, panel, this);
-      renderTextFieldIcons.call(this, panel);
-      renderTextFields.call(this, panel);
-      renderRadioButtons.call(this, panel);
-      renderCheckBoxes.call(this, panel);
-      renderDataTables.call(this, panel);
+    // MDC (legacy, synchronous initialization)
+    if (ComponentLibraryRegistry.has('mdc')) {
+      const mdcLib = ComponentLibraryRegistry.get('mdc');
+      mdcLib.render.call(this, panel, mdcLib.cache);
     }
 
     // If I am a modal cover (.zoo__modal-base), and have the

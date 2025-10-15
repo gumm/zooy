@@ -1,90 +1,10 @@
 import EVT from './evt.js';
 import {UiEventType} from '../events/uieventtype.js';
-import {enableClass, toggleClass} from '../dom/utils.js';
 import ZooyEventData from '../events/zooyeventdata.js';
 import UserManager from '../user/usermanager.js';
 import Panel from './panel.js';
 import {identity} from 'badu';
-
-
-/**
- * Toggle the whole tree display either open or closed
- * @param {Panel} panel
- * @param {{isOn: boolean}} eventData
- */
-const toggleTree = (eventData, panel) => {
-  // The first level children. From a pure usability perspective
-  // it's nicer if we don't to close these. If we did, the tree *always* ends
-  // up with only one element revealed. So we keep the first level children
-  // open at all times.
-  const fc = panel.getElement().querySelector('.children');
-  const isOn = /**@type {boolean} */ (eventData.isOn);
-  const children = panel.getElement().querySelectorAll('.children');
-  const revealIcons = panel.getElement().querySelectorAll('.zoo__reveal_icon');
-  [...children].forEach(e => enableClass(
-    e, 'zoo__tree-children__hidden', e !== fc && !isOn));
-  [...revealIcons].forEach(e => enableClass(
-    e, 'zoo__icon_rotated', e !== fc && !isOn));
-};
-
-
-/**
- * @param {Panel} panel
- * @param {{trigger:!HTMLElement}} eventData
- */
-const toggleTreeChildren = (panel, eventData) => {
-  const revealIcon = eventData.trigger;
-  const elId = revealIcon.getAttribute('data-child-id');
-  const child = panel.getElement().querySelector(`#${elId}`);
-  toggleClass(child, 'zoo__tree-children__hidden');
-  toggleClass(revealIcon, 'zoo__icon_rotated');
-};
-
-
-/**
- * Open all the tree nodes from the given element up.
- * @param {!Panel} _panel
- * @param {!HTMLElement} n
- */
-const _openTreeFromNodeUp = (_panel, n) => {
-  const parentNode = n.parentElement;
-  if (parentNode.classList.contains('children')) {
-    enableClass(parentNode, 'zoo__tree-children__hidden', false);
-    _openTreeFromNodeUp(_panel, parentNode);
-  }
-};
-
-/**
- * Determine if an element is in the viewport
- * @param  {Node} parent The element
- * @return {Function} Returns true if element is in the viewport
- */
-const needsToScroll = parent => {
-  const parentRect = parent.getBoundingClientRect();
-  const bottomMustBeLessThan = parentRect.bottom;
-  return elem => {
-    const distance = elem.getBoundingClientRect();
-    return distance.bottom > bottomMustBeLessThan;
-  };
-};
-
-
-export const treeNodeSelect = panel => id => {
-  const treeContainer = panel.getElement().querySelector('.zv_tree_container');
-  const isHidden = needsToScroll(treeContainer);
-  const allNodes = panel.getElement().querySelectorAll('.tree-node');
-  let targetNode = undefined;
-  [...allNodes].forEach(n => {
-    enableClass(n, 'mdc-deprecated-list-item--activated', n.id === `tree-node_${id}`);
-    if (n.id === `tree-node_${id}`) {
-      targetNode = n;
-    }
-  });
-
-  if (targetNode && isHidden(targetNode)) {
-    targetNode.scrollIntoView(false);
-  }
-};
+import {toggleTree, toggleTreeChildren} from './mdc/tree-utils.js';
 
 /**
  * A View orchestrates multiple panels and manages their interactions.
