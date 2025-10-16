@@ -281,7 +281,3 @@ export const initializeCarbonComponents = async function(panel) {
 - **`renderers/`** = Panel integration (how they behave in Panels)
 - **Separation** = Clean architecture, testability, reusability
 - **Together** = Modern, maintainable UI system
-
----
-
-*Last updated: 2025-10-13*

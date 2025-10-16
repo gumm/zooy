@@ -1,28 +1,22 @@
-# Zooy Component Library Architecture - Migration Notes
+# Zooy Component Library Architecture
 
-**Date**: 2025-10-16
-**Status**: IN PROGRESS - Testing phase
+## Overview
 
----
+Zooy is a **component-library-agnostic** UI framework that supports multiple UI component libraries (MDC, Carbon Design System, custom components) simultaneously through a pluggable architecture.
 
-## Project Goal: Pluggable Component Library System
+## Goals
 
-### Vision
-Transform zooy from an MDC-only framework to a **component-library-agnostic** framework that can support multiple UI component libraries (MDC, Carbon Design System, custom components) simultaneously.
-
-### End Goal
 - ✅ Support **multiple component libraries** in the same application
 - ✅ **Lazy-load** component libraries on demand (reduce initial bundle size)
-- ✅ Allow **selective migration** from MDC to Carbon (or any other library)
-- ✅ Maintain **backward compatibility** with existing MDC-based applications
+- ✅ Allow **selective migration** between component libraries
+- ✅ Maintain **backward compatibility** with existing applications
 - ✅ Clean separation of concerns (framework vs. component libraries)
 
 ---
 
-## What We're Building
+## ComponentLibraryRegistry System
 
-### ComponentLibraryRegistry System
-**File**: `/home/gumm/Workspace/zooy/src/ui/component-library-registry.js`
+**File**: `src/ui/component-library-registry.js`
 
 A central registry that:
 1. Allows component libraries to register themselves
@@ -46,7 +40,7 @@ await library.render(panelElement, library.cache);
 
 ---
 
-## Architecture Changes
+## Architecture
 
 ### Before (MDC-only, tightly coupled)
 
@@ -87,15 +81,12 @@ async parseContent() {
 
 ---
 
-## Key Files and Their Roles
+## Core Files
 
-### Core Framework Files
+### Framework Core
 
-#### `/src/ui/component-library-registry.js`
-**Purpose**: Central registry for component libraries
-
-**Exports**:
-- `ComponentLibraryRegistry` class (static methods)
+#### `src/ui/component-library-registry.js`
+Central registry for component libraries.
 
 **Methods**:
 - `register(name, config)` - Register a library
@@ -104,18 +95,18 @@ async parseContent() {
 - `getRegisteredLibraries()` - Get all library names
 - `clearCache(name)` - Clear import cache for a library
 
-#### `/src/ui/panel.js`
-**Purpose**: Panel component (now library-agnostic)
+#### `src/ui/panel.js`
+Panel component (library-agnostic).
 
 **Key changes**:
-- `parseContent()` now iterates over registered libraries
-- No MDC-specific code
+- `parseContent()` iterates over registered libraries
+- No component library-specific code
 - Delegates rendering to ComponentLibraryRegistry
 
-#### `/src/main.js`
-**Purpose**: Main zooy export with lazy-loading functions
+#### `src/main.js`
+Main zooy export with lazy-loading functions.
 
-**Key exports**:
+**Exports**:
 ```javascript
 export default {
   // Core framework
@@ -127,27 +118,23 @@ export default {
   registerCarbonLibrary,  // async function (dynamic import)
   registerMdcLibrary,     // async function (dynamic import)
 
-  // Carbon utilities (for convenience)
+  // Carbon utilities
   icons, loadCarbonIcons
 };
 ```
 
 ---
 
-### MDC Library Files (Extracted)
+### MDC Library Files
 
-#### `/src/ui/mdc/register.js`
-**Purpose**: MDC library registration module (lazy-loaded)
+#### `src/ui/mdc/register.js`
+MDC library registration module (lazy-loaded).
 
-**Exports**:
-- `registerMdcLibrary()` - Registers MDC with ComponentLibraryRegistry
-
-**What it does**:
 ```javascript
 export function registerMdcLibrary() {
   ComponentLibraryRegistry.register('mdc', {
     render: function(panel, _cache) {
-      // All the MDC rendering logic that was in Panel.parseContent()
+      // All the MDC rendering logic
       renderButtons(panel);
       renderCheckBoxes(panel);
       renderTrees(panel);
@@ -155,13 +142,11 @@ export function registerMdcLibrary() {
     },
     config: { version: '14.0', description: 'Material Design Components' }
   });
-
-  console.debug('[Zooy] MDC library registered');
 }
 ```
 
-#### `/src/ui/mdc/tree-utils.js`
-**Purpose**: MDC tree utilities (extracted from Panel)
+#### `src/ui/mdc/tree-utils.js`
+MDC tree utilities (extracted from Panel).
 
 **Exports**:
 - `listElements(panel)` - Get all MDC list elements
@@ -170,33 +155,17 @@ export function registerMdcLibrary() {
 - `collapseTreeLeaf(el)` - Collapse tree node
 - `getListItemByIndex(list, index)` - Get tree item
 
-**Critical**: These were previously inline in `Panel.parseContent()`. Now separate, reusable module.
-
-#### `/src/ui/mdc/renderers.js` (if exists)
-**Purpose**: MDC component rendering functions
-
-Contains functions like:
-- `renderButtons(panel)`
-- `renderCheckBoxes(panel)`
-- `renderDataTables(panel)`
-- etc.
-
 ---
 
-### Carbon Library Files (New)
+### Carbon Library Files
 
-#### `/src/ui/carbon/register.js`
-**Purpose**: Carbon Design System registration module (lazy-loaded)
+#### `src/ui/carbon/register.js`
+Carbon Design System registration module (lazy-loaded).
 
-**Exports**:
-- `registerCarbonLibrary()` - Registers Carbon with ComponentLibraryRegistry
-
-**What it does**:
 ```javascript
 export function registerCarbonLibrary() {
   ComponentLibraryRegistry.register('carbon', {
     render: async function(panel, cache) {
-      // Scan for Carbon components, dynamically import them
       await renderCarbonComponents.call(this, panel, cache);
       await loadCarbonIcons();
     },
@@ -205,13 +174,11 @@ export function registerCarbonLibrary() {
     },
     config: { version: '2.0', description: 'IBM Carbon Design System Web Components' }
   });
-
-  console.debug('[Zooy] Carbon Design System library registered');
 }
 ```
 
-#### `/src/ui/carbon/renderers.js`
-**Purpose**: Carbon component dynamic loading
+#### `src/ui/carbon/renderers.js`
+Carbon component dynamic loading.
 
 **Key function**: `renderCarbonComponents(panel, cache)`
 - Scans panel for `data-carbon-component` attributes
@@ -226,14 +193,14 @@ export function registerCarbonLibrary() {
 // Caches: So subsequent panels don't re-import
 ```
 
-#### `/src/ui/carbon/icons.js`
-**Purpose**: Carbon icon sprite management
+#### `src/ui/carbon/icons.js`
+Carbon icon sprite management.
 
 **Exports**:
 - `loadCarbonIcons()` - Load icon sprite SVG
 
-#### `/src/ui/carbon/icons-api.js`
-**Purpose**: Programmatic icon usage (for JS-generated content)
+#### `src/ui/carbon/icons-api.js`
+Programmatic icon usage (for JS-generated content).
 
 **Exports**:
 - `makeIconElement(name, size)` - Create icon placeholders
@@ -241,7 +208,7 @@ export function registerCarbonLibrary() {
 
 ---
 
-## How It Works: Lazy Loading Flow
+## Lazy Loading Flow
 
 ### Application Startup
 
@@ -298,7 +265,7 @@ export function registerCarbonLibrary() {
 ## Bundling Strategy
 
 ### Rollup Configuration
-**File**: `/home/gumm/Workspace/zooy/rollup.config.js`
+**File**: `rollup.config.js`
 
 ```javascript
 {
@@ -324,7 +291,7 @@ zooy/
     └── [component]-[hash].js       # Individual Carbon components
 ```
 
-### Why This Matters
+### Bundle Sizes
 - **Initial bundle**: Only ~50KB (framework core)
 - **MDC loaded**: When `registerMdcLibrary()` called (+240KB)
 - **Carbon loaded**: When `registerCarbonLibrary()` called (+19KB)
@@ -334,18 +301,17 @@ zooy/
 
 ## Migration Strategy: MDC → Carbon
 
-### Phase 1: Coexistence (Current)
+### Phase 1: Coexistence
 - Both MDC and Carbon registered
 - Existing panels use MDC (no changes needed)
 - New panels can use Carbon components
-- **Status**: IN PROGRESS - Testing MDC still works
 
 ### Phase 2: Selective Replacement
 - Replace individual MDC components with Carbon equivalents
 - Example: Replace MDC buttons with Carbon buttons in specific panels
 - Test thoroughly before moving to next component
 
-### Phase 3: Full Migration (Future)
+### Phase 3: Full Migration
 - All panels using Carbon
 - Remove MDC registration from apps
 - MDC code no longer bundled
@@ -353,72 +319,9 @@ zooy/
 
 ---
 
-## Current Status & Testing
-
-### What's Done ✅
-- ComponentLibraryRegistry implemented
-- MDC extracted into register.js + tree-utils.js
-- Carbon registration module created
-- Dynamic import lazy-loading working
-- Production bundle builds successfully
-
-### What's Being Tested 🧪
-- **MDC functionality** in production app (z2)
-- Tree utilities work correctly
-- All MDC components still render/function
-- No regressions from architectural changes
-
-### What's Next 📋
-1. Verify all MDC components work (trees, buttons, tables, etc.)
-2. Test production bundle thoroughly
-3. Document Carbon component usage patterns
-4. Begin selective Carbon integration in z2
-5. Create migration guide for other apps
-
----
-
-## Critical Considerations
-
-### Tree Utilities (IMPORTANT!)
-**Why critical**: Trees are complex, stateful MDC components used heavily in production
-
-**What changed**:
-- Moved from `Panel.parseContent()` to `/src/ui/mdc/tree-utils.js`
-- Now imported by MDC registration module
-- Must be available when panels with trees render
-
-**Potential issues**:
-- Tree functions undefined (timing)
-- Tree state not preserved
-- Expand/collapse broken
-
-### Import Caching
-**Why needed**: Carbon components use dynamic imports
-
-**How it works**:
-```javascript
-const library = ComponentLibraryRegistry.get('carbon');
-const cache = library.cache;  // Map of component name → Promise
-
-if (!cache.has('button')) {
-  cache.set('button', import('@carbon/web-components/.../button'));
-}
-await cache.get('button');
-```
-
-**Benefit**: Multiple panels with same component don't re-import
-
-### Dispose/Cleanup
-**MDC**: Components need manual cleanup (event listeners, etc.)
-**Carbon**: Web Components auto-cleanup via `disconnectedCallback()`
-
-Both handled in respective `dispose()` functions.
-
----
-
 ## API for App Developers
 
-### Registering Libraries (in app entry point)
+### Registering Libraries
 ```javascript
 import zooy from 'zooy/main.js';
 
@@ -433,7 +336,7 @@ const entryFunc = async (user) => {
 };
 ```
 
-### Using MDC Components (unchanged)
+### Using MDC Components
 ```html
 <!-- Panel template with MDC components -->
 <button class="mdc-button">
@@ -445,7 +348,7 @@ const entryFunc = async (user) => {
 </ul>
 ```
 
-### Using Carbon Components (new)
+### Using Carbon Components
 ```html
 <!-- Panel template with Carbon components -->
 <div data-carbon-component="button">
@@ -463,12 +366,12 @@ const entryFunc = async (user) => {
 
 ---
 
-## Debugging Tips
+## Debugging
 
-### Check if libraries are registered
+### Check registered libraries
 ```javascript
 console.log(zooy.ComponentLibraryRegistry.getRegisteredLibraries());
-// Should show: ['carbon', 'mdc']
+// Shows: ['carbon', 'mdc']
 ```
 
 ### Check cache stats
@@ -484,7 +387,32 @@ zooy.ComponentLibraryRegistry.clearCache('carbon');
 
 ---
 
-## File Structure Summary
+## Critical Considerations
+
+### Import Caching
+Carbon components use dynamic imports with caching to avoid re-importing:
+
+```javascript
+const library = ComponentLibraryRegistry.get('carbon');
+const cache = library.cache;  // Map of component name → Promise
+
+if (!cache.has('button')) {
+  cache.set('button', import('@carbon/web-components/.../button'));
+}
+await cache.get('button');
+```
+
+**Benefit**: Multiple panels with same component don't re-import.
+
+### Dispose/Cleanup
+- **MDC**: Components need manual cleanup (event listeners, etc.)
+- **Carbon**: Web Components auto-cleanup via `disconnectedCallback()`
+
+Both handled in respective `dispose()` functions.
+
+---
+
+## File Structure
 
 ```
 zooy/
@@ -517,23 +445,8 @@ zooy/
 │   └── [component]-[hash].js             # Carbon component chunks
 ├── main.js                               # Entry point (re-exports chunks/main-*.js)
 ├── rollup.config.js                      # Build configuration
-└── package.json                          # Version: managed here
+└── package.json                          # Dependencies and version
 ```
-
----
-
-## Success Criteria
-
-Before considering this migration complete:
-
-- ✅ All existing MDC components work in z2 (production app)
-- ✅ Tree utilities function correctly
-- ✅ No performance regressions
-- ✅ Production bundle size acceptable
-- ✅ Development mode and production mode both work
-- ✅ Carbon components can be added without breaking MDC
-- ✅ Multiple apps can use this architecture
-- ✅ Documentation complete
 
 ---
 
@@ -550,9 +463,3 @@ Before considering this migration complete:
 - **Shoelace**: Modern, lightweight web components
 - **Lit**: Fast, small web component library
 - **Custom**: Build zooy-native components
-
----
-
-**Last Updated**: 2025-10-16
-**Status**: Testing MDC compatibility after architectural changes
-**Next Milestone**: All MDC tests passing, begin Carbon integration

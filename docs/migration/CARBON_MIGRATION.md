@@ -1,16 +1,21 @@
 # Carbon Design System Migration Guide
 
-## Current Status: Proof of Concept ✅
+## Overview
 
-We've successfully created the foundation for migrating from Material Design Components (MDC) to IBM Carbon Design System Web Components.
+This guide explains how to migrate from Material Design Components (MDC) to IBM Carbon Design System Web Components in Zooy applications.
 
-## What's Been Done
+Zooy includes a two-layer architecture that allows MDC and Carbon to coexist during migration, enabling a gradual, component-by-component transition.
 
-### 1. Installed Carbon Web Components
-- Added `@carbon/web-components@^2.40.1` to Zooy dependencies
-- Run `npm install` in `/home/gumm/Workspace/zooy` to install
+## Installation
 
-### 2. Created Two-Layer Architecture
+### 1. Install Carbon Web Components
+```bash
+npm install
+```
+
+Carbon is included as a dependency in Zooy (`@carbon/web-components@^2.40.1`)
+
+### 2. Two-Layer Architecture
 ```
 zooy/src/ui/
 ├── zoo/           # Web Component definitions (18 components)
@@ -131,9 +136,11 @@ Carbon components initialized in panel
 - Event results should display below each test section
 - Result boxes should turn green when events fire
 
-## Migrated Components (18 Total)
+## Available Components
 
-### ✅ Core Input Components
+Zooy provides 18 Carbon-wrapped components ready for use:
+
+### Core Input Components
 1. **zoo-button** - Standard buttons with various styles
 2. **zoo-text-input** - Text input fields with validation
 3. **zoo-checkbox** - Checkbox inputs
@@ -141,62 +148,53 @@ Carbon components initialized in panel
 5. **zoo-dropdown** - Dropdown menus
 6. **zoo-select** - Form select inputs
 
-### ✅ Action Components
+### Action Components
 7. **zoo-icon-button** - Icon-only buttons
 8. **zoo-icon-toggle** - Toggleable icon buttons
 9. **zoo-fab** - Floating action buttons
 
-### ✅ Display Components
+### Display Components
 10. **zoo-data-table** - Complex sortable, selectable tables
 11. **zoo-tabs** - Tabbed navigation
 12. **zoo-list** - Structured lists
 13. **zoo-tag** - Labels and tags (chips)
 14. **zoo-progress-bar** - Progress indicators
 
-### ✅ Interactive Components
+### Interactive Components
 15. **zoo-modal** - Modal dialogs
 16. **zoo-menu** - Overflow/context menus
 17. **zoo-toggle** - On/off switches
 18. **zoo-slider** - Range sliders
 
-## What This Proves
+## Migration Strategy
 
-✅ **Carbon Web Components load successfully**
-✅ **Zooy can initialize Carbon components**
-✅ **Event dispatching works (semantic attributes → panel events)**
-✅ **Data attributes flow through correctly**
-✅ **MDC and Carbon can coexist**
-✅ **18 components migrated and ready to use**
+### Gradual Component-by-Component Migration
 
-## Next Steps
+The architecture allows MDC and Carbon to coexist, enabling safe, incremental migration:
 
-### Immediate (This Week)
-1. ✅ Test the proof of concept
-2. Verify bundle size impact
-3. Test in production-like environment
-4. Document any issues found
+1. **Start with Simple Components** - Begin with buttons, text inputs, and checkboxes
+2. **Test Thoroughly** - Verify each component works before moving to the next
+3. **Update Templates** - Replace MDC markup with zoo components
+4. **Verify Integration** - Ensure events, validation, and data flow correctly
+5. **Move to Complex Components** - Migrate tables, modals, and tabs last
+6. **Remove MDC** - Once all components migrated, remove MDC dependency
 
-### Short Term (Next 2 Weeks)
-1. ✅ Migrate Icon Buttons component
-2. ✅ Migrate Text Fields component
-3. ✅ Migrate Checkboxes/Radios
-4. Update Z2 templates for high-traffic pages
+### Recommended Migration Order
 
-### Medium Term (Next Month)
-1. ✅ Migrate Data Tables (most complex)
-2. ✅ Migrate Dropdowns/Selects
-3. ✅ Migrate Modals/Dialogs
-4. ✅ Migrate Tabs
-
-### Long Term (2-3 Months)
-1. Complete migration of all components
-2. Remove MDC dependency entirely
-3. Update all Z2 templates
-4. Documentation and training
+1. Buttons and icon buttons
+2. Text inputs and text areas
+3. Checkboxes and radio buttons
+4. Dropdowns and selects
+5. Toggles and sliders
+6. Tags and progress bars
+7. Lists and menus
+8. Tabs
+9. Data tables (most complex)
+10. Modals and dialogs
 
 ## Security Improvements from Carbon
 
-### ✅ Immediate Benefits
+### Immediate Benefits
 1. **No more `eval()` for MDC initialization**
    - Web Components auto-initialize
    - No JavaScript execution from strings
@@ -207,10 +205,10 @@ Carbon components initialized in panel
 
 3. **Maintained Security Updates**
    - IBM actively patches vulnerabilities
-   - MDC is abandoned (last update 2022)
+   - MDC is no longer maintained
 
-### ⚠️ Still Needs Addressing
-These security issues remain and require separate fixes:
+### Remaining Security Considerations
+These security issues remain in the framework and require separate fixes:
 
 1. **`eval()` in dom/utils.js:174**
    ```javascript
@@ -251,26 +249,8 @@ These security issues remain and require separate fixes:
 ### Bundle size concerns
 - Carbon is tree-shakeable
 - Only imported components are bundled
-- Current: ~50KB for button component
+- Individual components are ~50KB
 - Compare with MDC: ~200KB for full library
-
-## Files Created/Modified
-
-### Zooy
-- `package.json` - Added Carbon dependency
-- `src/ui/zoo/*.js` - 18 new Web Component files
-- `src/ui/renderers/*.js` - 18 new renderer files
-- `src/ui/zoo/index.js` - Updated to export all components
-- `src/ui/zoo/attributes.js` - Semantic attributes system
-- `src/ui/renderers/index.js` - Updated to initialize all renderers
-- `src/ui/panel.js` - Added Carbon initialization
-- `src/ui/UI_ARCHITECTURE.md` - Architecture documentation
-- `CARBON_MIGRATION.md` - This migration guide
-
-### Z2
-- `templates/carbon_button_test.html` - New test template
-- `z2/views.py` - New test view
-- `z2/urls.py` - Added test URL
 
 ## Component Usage Examples
 
@@ -326,5 +306,6 @@ Contact: Jan Badenhorst <janhendrik.badenhorst@gmail.com>
 - [Carbon Web Components Docs](https://web-components.carbondesignsystem.com/)
 - [Carbon Design System](https://carbondesignsystem.com/)
 - [Carbon Storybook](https://web-components.carbondesignsystem.com/?path=/story/introduction-welcome--welcome)
-- [Zooy UI Architecture](./src/ui/UI_ARCHITECTURE.md)
-- [Semantic Attributes](./src/ui/zoo/attributes.js)
+- [Zooy UI Architecture](../architecture/UI_ARCHITECTURE.md)
+- [Carbon Icons Guide](../guides/CARBON_ICONS.md)
+- Semantic Attributes: `src/ui/zoo/attributes.js`

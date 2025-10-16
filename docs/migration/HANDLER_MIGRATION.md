@@ -256,6 +256,6 @@ Contact: Jan Badenhorst <janhendrik.badenhorst@gmail.com>
 
 ## Resources
 
-- [Handler Source Code](./src/ui/handlers/)
-- [View Architecture](./src/ui/view.js)
-- [Example Implementation](../z2/static/js/src/views/viewExtended.js)
+- Handler Source Code: `src/ui/handlers/`
+- View Architecture: `src/ui/view.js`
+- [Architecture Documentation](../architecture/ARCHITECTURE_NOTES.md)
