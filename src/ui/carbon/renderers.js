@@ -279,11 +279,20 @@ const COMPONENT_CONFIG = {
 
       // Submit buttons need special handling because Carbon button's native <button>
       // is inside shadow DOM, which breaks the form submission mechanism.
-      // We manually trigger form submission on the ancestor form.
+      // We manually trigger form submission on the associated form.
       if (buttonType === 'submit') {
         this.listen(button, 'click', e => {
-          // Find the ancestor form element
-          const form = button.closest('form');
+          // Find the form - either as ancestor or via HTML5 form attribute
+          let form = button.closest('form');
+
+          // If button is outside form (e.g., in modal footer), check form attribute
+          if (!form) {
+            const formId = button.getAttribute('form');
+            if (formId) {
+              form = document.getElementById(formId);
+            }
+          }
+
           if (form) {
             // Use requestSubmit() which properly triggers validation and submit event
             // FormPanel's interceptFormSubmit() will catch this and handle it
@@ -1140,8 +1149,45 @@ const COMPONENT_CONFIG = {
   },
 
   'cds-modal-footer-button': {
-    import: modalImport
-    // No event handling - buttons handle their own events
+    import: modalImport,
+    init: function (button) {
+      const attrs = getSemanticAttributes(button);
+      const buttonType = button.getAttribute('type');
+
+      // Submit buttons need special handling because Carbon button's native <button>
+      // is inside shadow DOM, which breaks the form submission mechanism.
+      // We manually trigger form submission on the associated form.
+      if (buttonType === 'submit') {
+        this.listen(button, 'click', e => {
+          // Find the form - either as ancestor or via HTML5 form attribute
+          let form = button.closest('form');
+
+          // If button is outside form (e.g., in modal footer), check form attribute
+          if (!form) {
+            const formId = button.getAttribute('form');
+            if (formId) {
+              form = document.getElementById(formId);
+            }
+          }
+
+          if (form) {
+            // Use requestSubmit() which properly triggers validation and submit event
+            // FormPanel's interceptFormSubmit() will catch this and handle it
+            form.requestSubmit();
+          }
+        });
+        return;
+      }
+
+      // Standard button event handling (for non-submit buttons)
+      const eventName = attrs.event;
+      if (eventName) {
+        this.listen(button, 'click', e => {
+          e.stopPropagation();
+          this.dispatchPanelEvent(eventName, attrs);
+        });
+      }
+    }
   },
 
   // Breadcrumb
