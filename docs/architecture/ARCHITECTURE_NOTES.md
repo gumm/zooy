@@ -351,18 +351,35 @@ const entryFunc = async (user) => {
 ### Using Carbon Components
 ```html
 <!-- Panel template with Carbon components -->
-<div data-carbon-component="button">
-  <cds-button>Click Me</cds-button>
-</div>
+<!-- Use Carbon Web Components directly with semantic attributes -->
 
-<div data-carbon-component="accordion">
-  <cds-accordion>
-    <cds-accordion-item title="Section 1">Content</cds-accordion-item>
-  </cds-accordion>
-</div>
+<cds-button event="save_user"
+            record-id="123"
+            endpoint="/api/users/123"
+            kind="primary">
+  Save User
+</cds-button>
+
+<cds-text-input event="search"
+                placeholder="Search...">
+</cds-text-input>
+
+<cds-accordion event="section_toggled">
+  <cds-accordion-item title="Section 1">Content</cds-accordion-item>
+</cds-accordion>
 ```
 
-**Note**: `data-carbon-component` attribute tells renderer which component to import.
+**How it works**:
+- Use `<cds-*>` components directly (no wrapper divs needed)
+- Add semantic attributes for Panel event integration:
+  - `event` - Event name to dispatch
+  - `record-id` - Record identifier
+  - `endpoint` - API endpoint
+  - `action` - Semantic action name
+- Carbon renderer automatically:
+  - Scans for all `<cds-*>` elements
+  - Dynamically imports only the components found
+  - Attaches event listeners for Panel integration
 
 ---
 

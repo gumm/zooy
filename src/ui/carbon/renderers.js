@@ -36,6 +36,10 @@ const comboButtonImport = () => import('@carbon/web-components/es/components/com
 const copyButtonImport = () => import('@carbon/web-components/es/components/copy-button/index.js');
 const badgeIndicatorImport = () => import('@carbon/web-components/es/components/badge-indicator/index.js');
 
+const formImport = () => import('@carbon/web-components/es/components/form/index.js');
+const formGroupImport = () => import('@carbon/web-components/es/components/form-group/index.js');
+const stackImport = () => import('@carbon/web-components/es/components/stack/index.js');
+
 const textInputImport = () => import('@carbon/web-components/es/components/text-input/index.js');
 const textareaImport = () => import('@carbon/web-components/es/components/textarea/index.js');
 const numberInputImport = () => import('@carbon/web-components/es/components/number-input/index.js');
@@ -98,7 +102,14 @@ export function scanForCarbonComponents(panel) {
     elementMap.set(selector, []);
   }
 
-  // Single DOM traversal - categorize elements by matching selectors
+  // Check the panel element itself first (it might be a Carbon component)
+  for (const [selector, config] of Object.entries(COMPONENT_CONFIG)) {
+    if (panel.matches(selector)) {
+      elementMap.get(selector).push(panel);
+    }
+  }
+
+  // Single DOM traversal - categorize descendant elements by matching selectors
   const allElements = panel.querySelectorAll('*');
   for (const element of allElements) {
     for (const [selector, config] of Object.entries(COMPONENT_CONFIG)) {
@@ -173,12 +184,15 @@ export async function loadComponentImports(importFunctions, cache) {
  * @export For unit testing
  */
 export function attachEventListeners(elementMap, panel) {
+  console.log('[Carbon] attachEventListeners called with', elementMap.size, 'component types');
   let totalInitialized = 0;
 
   for (const [selector, elements] of elementMap.entries()) {
+    console.log('[Carbon] Processing selector:', selector, 'with', elements.length, 'elements');
     const config = COMPONENT_CONFIG[selector];
 
     elements.forEach(element => {
+      console.log('[Carbon] Initializing element:', selector, element);
       // Custom initialization (for complex components)
       if (config.init) {
         config.init.call(panel, element);
@@ -235,11 +249,59 @@ export function attachEventListeners(elementMap, panel) {
  * - multiEvent: For components with multiple event types
  */
 const COMPONENT_CONFIG = {
+  // Form structure components (presentational only - no event handling needed)
+  'cds-form': {
+    import: formImport
+    // No event handling - wraps native <form> which works naturally
+  },
+
+  'cds-form-item': {
+    import: formImport
+    // No event handling - presentational wrapper for form fields
+  },
+
+  'cds-form-group': {
+    import: formGroupImport
+    // No event handling - presentational fieldset wrapper
+  },
+
+  'cds-stack': {
+    import: stackImport
+    // No event handling - layout utility for spacing items vertically or horizontally
+  },
+
   // Buttons
   'cds-button': {
     import: buttonImport,
-    event: 'click',
-    getData: (e, attrs) => attrs
+    init: function (button) {
+      const attrs = getSemanticAttributes(button);
+      const buttonType = button.getAttribute('type');
+
+      // Submit buttons need special handling because Carbon button's native <button>
+      // is inside shadow DOM, which breaks the form submission mechanism.
+      // We manually trigger form submission on the ancestor form.
+      if (buttonType === 'submit') {
+        this.listen(button, 'click', e => {
+          // Find the ancestor form element
+          const form = button.closest('form');
+          if (form) {
+            // Use requestSubmit() which properly triggers validation and submit event
+            // FormPanel's interceptFormSubmit() will catch this and handle it
+            form.requestSubmit();
+          }
+        });
+        return;
+      }
+
+      // Standard button event handling (for non-submit buttons)
+      const eventName = attrs.event;
+      if (eventName) {
+        this.listen(button, 'click', e => {
+          e.stopPropagation();
+          this.dispatchPanelEvent(eventName, attrs);
+        });
+      }
+    }
   },
 
   'cds-icon-button': {
@@ -980,7 +1042,9 @@ const COMPONENT_CONFIG = {
   'cds-modal': {
     import: modalImport,
     init: function (modal) {
+      console.log('[Carbon Modal] Initializing modal', modal);
       const attrs = getSemanticAttributes(modal);
+      console.log('[Carbon Modal] Semantic attributes:', attrs);
 
       // Open event
       const openEvent = getEventAttribute(modal, 'open-event', 'event');
@@ -1005,16 +1069,26 @@ const COMPONENT_CONFIG = {
         });
       }
 
-      // Close event
-      const closeEvent = getEventAttribute(modal, 'close-event', 'event');
-      if (closeEvent) {
-        this.listen(modal, 'cds-modal-closed', e => {
-          this.dispatchPanelEvent(closeEvent, {
-            ...attrs,
-            action: 'closed'
-          });
+      // Close event - Carbon's way of handling modal dismissal
+      // ALWAYS emit 'destroy_me' to integrate with zooy's panel destruction
+      // This is not configurable - modals MUST destroy their panel when closed
+      console.log('[Carbon Modal] Attaching cds-modal-closed listener to', modal);
+      this.listen(modal, 'cds-modal-closed', e => {
+        console.log('[Carbon Modal] cds-modal-closed event fired', {
+          triggeredBy: e.detail?.triggeredBy,
+          eventDetail: e.detail,
+          modal: modal
         });
-      }
+
+        this.dispatchPanelEvent('destroy_me', {
+          ...attrs,
+          action: 'closed',
+          triggeredBy: e.detail?.triggeredBy
+        });
+
+        console.log('[Carbon Modal] destroy_me event dispatched', attrs);
+      });
+      console.log('[Carbon Modal] Listener attached successfully');
 
       // Primary button event
       const primaryEvent = getEventAttribute(modal, 'primary-event', 'event');
@@ -1027,6 +1101,47 @@ const COMPONENT_CONFIG = {
         });
       }
     }
+  },
+
+  // Modal sub-components (presentational)
+  'cds-modal-header': {
+    import: modalImport
+    // No event handling - presentational header wrapper
+  },
+
+  'cds-modal-heading': {
+    import: modalImport
+    // No event handling - presentational heading element
+  },
+
+  'cds-modal-label': {
+    import: modalImport
+    // No event handling - presentational label element
+  },
+
+  'cds-modal-close-button': {
+    import: modalImport
+    // No event handling - close button handled by modal itself via data-modal-close
+  },
+
+  'cds-modal-body': {
+    import: modalImport
+    // No event handling - presentational body wrapper
+  },
+
+  'cds-modal-body-content': {
+    import: modalImport
+    // No event handling - presentational content wrapper
+  },
+
+  'cds-modal-footer': {
+    import: modalImport
+    // No event handling - presentational footer wrapper
+  },
+
+  'cds-modal-footer-button': {
+    import: modalImport
+    // No event handling - buttons handle their own events
   },
 
   // Breadcrumb
@@ -1591,13 +1706,19 @@ const COMPONENT_CONFIG = {
  * @returns {Promise<void>}
  */
 export const renderCarbonComponents = async function (panel, cache) {
+  console.log('[Carbon] renderCarbonComponents called with panel:', panel);
+
   // Step 1: Single DOM scan - categorize all Carbon elements
   const elementMap = scanForCarbonComponents(panel);
+  console.log('[Carbon] Scanned elements:', elementMap);
 
   if (elementMap.size === 0) {
+    console.log('[Carbon] No Carbon components found in panel');
     this.debugMe('[Carbon] No Carbon components found in panel');
     return;
   }
+
+  console.log('[Carbon] Found components:', Array.from(elementMap.keys()));
 
   // Step 2: Determine which imports are needed
   const importsNeeded = collectImportsNeeded(elementMap);
