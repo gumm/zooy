@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [35.2.0] - 2025-10-16
+
+### Fixed
+- **Carbon Modal Component Detection**: Fixed `scanForCarbonComponents()` to check the panel element itself, not just descendants. Previously, when a panel WAS a Carbon component (e.g., `<cds-modal>`), it would not be initialized because `querySelectorAll()` only finds descendants.
+- **Carbon Modal Close Events**: Carbon modals now properly emit `destroy_me` event on all close methods (close button, ESC key, backdrop click). Fixed by always emitting `destroy_me` regardless of template attributes.
+- **Form Submission with Footer Buttons**: Submit buttons can now be placed outside forms using HTML5 `form` attribute. Button renderer now checks both `button.closest('form')` and `button.getAttribute('form')` to find associated forms.
+
+### Added
+- **Carbon Modal Footer Support**: Added initialization for `cds-modal-footer-button` with same form submission handling as `cds-button`
+- **HTML5 Form Association**: Carbon buttons now support HTML5 `form="form-id"` attribute for buttons outside form elements
+- **Debug Logging**: Added comprehensive console logging for Carbon modal initialization and event handling (temporary, for development)
+
+### Changed
+- Carbon button renderer now handles buttons outside form boundaries via HTML5 form attribute
+- Modal close events are no longer configurable - modals MUST destroy their panel when closed
+
 ## [35.1.1] - 2025-10-16
 
 ### Removed
