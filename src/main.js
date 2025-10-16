@@ -13,6 +13,7 @@ import * as uriUtils from './uri/uri.js';
 import * as icons from './ui/carbon/icons-api.js';
 import { loadCarbonIcons } from './ui/carbon/icons.js';
 import { ComponentLibraryRegistry } from './ui/component-library-registry.js';
+import * as handlers from './ui/handlers/index.js';
 
 /**
  * Lazy-loads and registers the Carbon Design System library.
@@ -59,6 +60,7 @@ const zooy = {
   registerCarbonLibrary,
   registerMdcLibrary,
   ComponentLibraryRegistry,
+  handlers,
 };
 
 export default zooy;

@@ -4,7 +4,9 @@ import ZooyEventData from '../events/zooyeventdata.js';
 import UserManager from '../user/usermanager.js';
 import Panel from './panel.js';
 import {identity} from 'badu';
-import {toggleTree, toggleTreeChildren} from './mdc/tree-utils.js';
+// Temporary imports for backwards compatibility - will be removed as apps migrate
+import {SearchHandlers} from './handlers/search-handlers.js';
+import {QueryParamHandlers} from './handlers/query-param-handlers.js';
 
 /**
  * A View orchestrates multiple panels and manages their interactions.
@@ -244,96 +246,43 @@ export default class View extends EVT {
 
   /**
    * Initializes the internal panel event map with default event handlers.
-   * Sets up handlers for common panel events like navigation, search, filtering,
-   * tree toggling, and view switching.
+   * Sets up handlers for panel lifecycle and view coordination.
+   *
+   * Note: This method also registers application-specific handlers (search,
+   * pagination, etc.) for backwards compatibility. These will be removed in
+   * a future version - applications should explicitly register handlers they need.
+   *
    * @return {!Map<string, !Function>} Map of event names to handler functions
    * @private
    */
   initPanelEventsInternal_() {
-    return new Map()
-      .set('toggle_tree', (eventData, ePanel) => {
-        toggleTree(eventData, ePanel);
-      })
-      .set('tree_toggle-children', (eventData, ePanel) => {
-        toggleTreeChildren(
-          ePanel,
-          /**@type {{trigger:!HTMLElement}}*/ (eventData));
-      })
-      .set('destroy_me', (eventData, ePanel) => {
-        this.removePanel(ePanel);
-      })
-      .set('paginate', (eventData, ePanel) => {
-        const href = `${eventData.href}?${eventData.targetval}`;
-        this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
-          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-        );
-      })
-      .set('search_by_qdict', (eventData, ePanel) => {
-        const qString = eventData.formData.q;
-        if (qString !== '') {
-          ePanel.addToQParams('q', qString);
-        } else {
-          ePanel.removeFromQParams('q');
-        }
-        this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
-          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-        );
-      })
-      .set('search', (eventData, ePanel) => {
-        let href = `${eventData.href}`;
-        const qString = eventData.formData.q;
-        const qDict = eventData.targetval;
-        if (qString !== '') {
-          href = `${href}?q=${qString}`;
-        }
-        if (qDict !== '') {
-          let newQDict = qDict;
-          if (qDict.includes('page=')) {
-            newQDict = qDict.split('&').filter(e => !e.includes('page=')).join('&');
-          }
-          href = qString !== '' ? `${href}&${newQDict}` : `${href}?${newQDict}`;
-        }
-        this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
-          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-        );
-      })
-      .set('list_filter', (eventData, ePanel) => {
-        const href = `${eventData.href}?${eventData.targetval}`;
-        this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
-          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-        );
-      })
-      .set('add_q_dict_kv', (eventData, ePanel) => {
-        ePanel.addToQParams(eventData.zqdictkey, eventData.zqdictvalue);
-        this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
-          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-        );
-      })
-      .set('remove_q_dict_k', (eventData, ePanel) => {
-        ePanel.removeFromQParams(eventData.zqdictkey);
-        this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
-          s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-        );
-      })
-      .set('reset_search', (eventData, ePanel) => {
-        // Grab the closest form up the DOM, reset its 'q' field and make
-        // it use the normal submit logic.
-        const form = eventData.trigger.closest('form');
-        ePanel.removeFromQParams('q');
-        form.elements['q'].value = '';
-        form.dispatchEvent(new Event('submit'));
-      })
-      .set('nav_back', (_eventData, _eView) => history.back())
-      .set('switch_view', (eventData, ePanel) => {
-        this.debugMe('switch_view received: eventData', eventData);
+    const map = new Map();
 
-        const view = eventData.view;
-        if (this.switchViewMap_.has(view)) {
-          this.switchViewMap_.get(view)(eventData, ePanel);
-        } else {
-          this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
-        }
-      });
+    // Framework-level handlers (stay in View)
+    map.set('destroy_me', (eventData, ePanel) => {
+      this.removePanel(ePanel);
+    });
+
+    map.set('switch_view', (eventData, ePanel) => {
+      this.debugMe('switch_view received: eventData', eventData);
+      const view = eventData.view;
+      if (this.switchViewMap_.has(view)) {
+        this.switchViewMap_.get(view)(eventData, ePanel);
+      } else {
+        this.debugMe('NO VIEW FOUND FOR:', view, this.switchViewMap_);
+      }
+    });
+
+    // Temporary: Application-specific handlers for backwards compatibility
+    // These will be removed - applications should register these explicitly
+    Object.entries({
+      ...SearchHandlers,
+      ...QueryParamHandlers
+    }).forEach(([name, handler]) => {
+      map.set(name, handler.bind(this));
+    });
+
+    return map;
   };
 
   /**
