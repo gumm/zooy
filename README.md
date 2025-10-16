@@ -308,6 +308,41 @@ As component libraries evolve (MDC → Material Web Components), zooy's architec
 - Only load components actually used in your app
 - Lazy loading reduces time-to-interactive
 
+## Integration Notes
+
+### Carbon Design System Theming
+
+If your application imports `@carbon/styles` for theming (e.g., to customize Carbon component styles), you'll need to handle font path configuration:
+
+**The Issue**: Carbon's default configuration uses Webpack-style paths (`~@ibm/plex`) that don't work with vanilla Sass compilation.
+
+**Solution**: Override the font path when importing Carbon styles in your application's SCSS:
+
+```scss
+// In your application's theme file
+@use '@carbon/styles' as * with (
+  $font-path: '../path/to/node_modules/@ibm/plex'
+);
+```
+
+**Required Dependencies**: Your application's `package.json` should include:
+
+```json
+{
+  "dependencies": {
+    "@carbon/styles": "^1.x.x",
+    "@ibm/plex": "^6.x.x"
+  }
+}
+```
+
+**Path Calculation**: The `$font-path` should be relative from your CSS output location to the font files:
+- CSS output: `/static/css/theme.css`
+- Font files: `/static/js/node_modules/@ibm/plex/...`
+- Correct path: `../js/node_modules/@ibm/plex`
+
+**Note**: Zooy itself only imports Carbon Web Components (JavaScript), not the Carbon styles (CSS). CSS theming is the responsibility of the implementing application, allowing full control over design tokens, typography, and component styling.
+
 ## Development
 
 ### Prerequisites
