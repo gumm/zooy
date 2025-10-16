@@ -53,31 +53,5 @@ export const QueryParamHandlers = {
     this.user.fetchAndSplit(href, ePanel.abortController.signal).then(
       s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
     );
-  },
-
-  /**
-   * Add a key-value pair to the panel's query parameters and refresh content.
-   *
-   * @param {Object} eventData - Event data with zqdictkey and zqdictvalue
-   * @param {Panel} ePanel - The panel to update
-   */
-  'add_q_dict_kv': function(eventData, ePanel) {
-    ePanel.addToQParams(eventData.zqdictkey, eventData.zqdictvalue);
-    this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
-      s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-    );
-  },
-
-  /**
-   * Remove a key from the panel's query parameters and refresh content.
-   *
-   * @param {Object} eventData - Event data with zqdictkey to remove
-   * @param {Panel} ePanel - The panel to update
-   */
-  'remove_q_dict_k': function(eventData, ePanel) {
-    ePanel.removeFromQParams(eventData.zqdictkey);
-    this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
-      s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-    );
   }
 };

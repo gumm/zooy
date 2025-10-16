@@ -29,25 +29,6 @@
  */
 export const SearchHandlers = {
   /**
-   * Perform search with query parameter management.
-   * Updates panel query params and fetches new content.
-   *
-   * @param {Object} eventData - Event data with formData.q containing search query
-   * @param {Panel} ePanel - The panel to update
-   */
-  'search_by_qdict': function(eventData, ePanel) {
-    const qString = eventData.formData.q;
-    if (qString !== '') {
-      ePanel.addToQParams('q', qString);
-    } else {
-      ePanel.removeFromQParams('q');
-    }
-    this.user.fetchAndSplit(ePanel.uri, ePanel.abortController.signal).then(
-      s => ePanel.onReplacePartialDom(s, eventData.zvptarget)
-    );
-  },
-
-  /**
    * Perform search with query string construction.
    * Builds href with search query and additional query parameters.
    *
