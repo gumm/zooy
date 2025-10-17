@@ -214,7 +214,7 @@
   }
 }
 
-// ---------------------------------------------------------------------------[ Flex ]--
+//--[  Flex ]--
 
 .zoo__flex-container {
   display: flex;
@@ -411,7 +411,7 @@
 }
 
 
-// -------------------------------------------------------[ Button Positions ]--
+//--[  Button Positions ]--
 .zoo__actionbar > .zoo__tool_group > .mdc-menu-surface--anchor,
 .zoo__actionbar > .zoo__tool_group > .mdc-button {
   margin: 24px;
@@ -542,7 +542,7 @@
   flex-shrink: 0;
 }
 
-//----------------------------------------------------------------------[ Animations ]--
+//--[ Animations ]--
 .slide-in-top {
   -webkit-animation: slide-in-top .2s cubic-bezier(.25, .46, .45, .94) both;
   animation: slide-in-top .5s cubic-bezier(.25, .46, .45, .94) both

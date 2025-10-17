@@ -152,7 +152,7 @@ export default class Conductor extends EVT {
     return view;
   }
 
-  //-------------------------------------------------------[ Views Utilities ]--
+  //--[ Views Utilities ]--
   /**
    * @param {!View} view The view we want active.
    */
@@ -160,7 +160,7 @@ export default class Conductor extends EVT {
     this.setActiveView(this.initView(view));
   };
 
-  // -----------------------------------------------[ History and Navigation ]--
+  //--[ History and Navigation ]--
   /**
    * Records the given item in browser history. If item.init is true, replaces
    * the current history state. Otherwise, pushes a new history state unless
@@ -196,6 +196,4 @@ export default class Conductor extends EVT {
       this.switchView(targetView);
     }
   };
-
-
 };

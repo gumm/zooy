@@ -70,7 +70,7 @@ const ComponentError = {
  */
 export default class Component extends EVT {
 
-  //----------------------------------------------------------------[ Static ]--
+  //--[ Static ]--
   /**
    * Returns the component event type code used for dispatching component events.
    * @return {string} The COMP event type
@@ -184,7 +184,7 @@ export default class Component extends EVT {
 
   };
 
-  //---------------------------------------------------[ Getters and Setters ]--
+  //--[ Getters and Setters ]--
   /**
    * @param {Element|undefined} e
    */
@@ -248,7 +248,7 @@ export default class Component extends EVT {
   }
 
 
-  //--------------------------------------------------------[ DOM Management ]--
+  //--[ DOM Management ]--
   /**
    * Internal method to set the component's root element. Used primarily during
    * rendering and re-rendering operations.
@@ -366,7 +366,7 @@ export default class Component extends EVT {
   };
 
 
-  //------------------------------------------------------------[ Life-cycle ]--
+  //--[ Life-cycle ]--
   /**
    * @param {Node} el
    * @param {Node} targetParent
@@ -510,7 +510,7 @@ export default class Component extends EVT {
   }
 
 
-  //-------------------------------------------------------[ Built in events ]--
+  //--[ Built in events ]--
   /**
    * Dispatches a {@code UiEventType.COMP} event.
    * A shorthand method to get panels to dispatch uniform events.

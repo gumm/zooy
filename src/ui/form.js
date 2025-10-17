@@ -11,7 +11,7 @@ import {EV} from '../events/mouseandtouchevents.js';
 *     pk: (string|undefined),
 *     }}
  */
-let _ServerFormSuccessJsonType;
+let ServerFormSuccessJsonType;
 
 /**
  * A specialized Panel for handling forms with validation, submission interception,
@@ -101,7 +101,7 @@ class FormPanel extends Panel {
     return form;
   };
 
-  //---------------------------------------------[ Field Validation Methods ]--
+  //--[ Field Validation Methods ]--
   /**
    * Initializes field validation. Sets up event listeners on the form
    * for change, input, and invalid events.
@@ -234,7 +234,7 @@ class FormPanel extends Panel {
   /**
    * Given a form id, get the form, and intercept and sterilise its submit.
    * Forms that passed through here will not be able to be submitted with a
-   * normal submit button any more, but built in HTML5 Constraint Validation
+   * normal submit button anymore, but built in HTML5 Constraint Validation
    * will still function on the form. This way, we can still have a button with
    * type="submit", which will trigger the validation, and we can submit
    * valid forms with xhrio which allows us to add callbacks to them.
@@ -258,7 +258,7 @@ class FormPanel extends Panel {
   };
 
 
-  //------------------------------------------------------------[ Round Trip ]--
+  //--[ Round Trip ]--
   /**
    * @param {function(!FormPanel, (string|!ServerFormSuccessJsonType)=): (?|null|Promise<?>)} func
    */

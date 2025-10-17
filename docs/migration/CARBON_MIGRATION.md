@@ -119,7 +119,7 @@ The test page includes:
 
 Open browser DevTools (F12) and check:
 
-```javascript
+```
 // You should see:
 [Zooy] Carbon Web Components loaded successfully
 Carbon components initialized in panel

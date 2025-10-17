@@ -1,4 +1,4 @@
-// noinspection JSFileReferences
+// noinspection JSFileReferences,JSUnusedLocalSymbols
 
 /**
  * Generic Carbon Design System Component Renderer
@@ -19,9 +19,9 @@
  * @see https://web-components.carbondesignsystem.com/
  */
 
-import {getSemanticAttributes, getEventAttribute} from '../zoo/attributes.js';
+import {getSemanticAttributes, getEventAttribute} from '../zoo/index.js';
 
-//--------------------------------------------------------------[ Lazy Imports ]--
+//--[ Lazy Imports ]--
 // Shared import functions for Carbon Web Components
 // These are referenced by COMPONENT_CONFIG and cached globally
 // Components from the same package share the same import function
@@ -84,7 +84,7 @@ const progressIndicatorImport = () => import('@carbon/web-components/es/componen
 const toggleTipImport = () => import('@carbon/web-components/es/components/toggle-tip/index.js');
 const menuImport = () => import('@carbon/web-components/es/components/menu/index.js');
 
-//-------------------------------------------------------[ Helper Functions ]--
+//--[ Helper Functions ]--
 
 /**
  * Scans panel DOM once and categorizes all Carbon elements by their config selector.
@@ -281,7 +281,7 @@ const COMPONENT_CONFIG = {
       // is inside shadow DOM, which breaks the form submission mechanism.
       // We manually trigger form submission on the associated form.
       if (buttonType === 'submit') {
-        this.listen(button, 'click', e => {
+        this.listen(button, 'click', _ => {
           // Find the form - either as ancestor or via HTML5 form attribute
           let form = button.closest('form');
 
@@ -492,7 +492,7 @@ const COMPONENT_CONFIG = {
       // Toggle event (when combo box opens/closes)
       const toggleEvent = comboBox.getAttribute('toggle-event');
       if (toggleEvent) {
-        this.listen(comboBox, 'cds-combo-box-toggled', e => {
+        this.listen(comboBox, 'cds-combo-box-toggled', _ => {
           this.dispatchPanelEvent(toggleEvent, {
             ...attrs,
             open: comboBox.hasAttribute('open')
@@ -511,7 +511,7 @@ const COMPONENT_CONFIG = {
       // Selection event (when items are selected/deselected)
       const selectionEvent = attrs.event;
       if (selectionEvent) {
-        this.listen(multiSelect, 'cds-multi-select-selected', e => {
+        this.listen(multiSelect, 'cds-multi-select-selected', _ => {
           this.dispatchPanelEvent(selectionEvent, {
             ...attrs,
             selectedItems: multiSelect.value
@@ -522,7 +522,7 @@ const COMPONENT_CONFIG = {
       // Toggle event (when multi-select opens/closes)
       const toggleEvent = multiSelect.getAttribute('toggle-event');
       if (toggleEvent) {
-        this.listen(multiSelect, 'cds-multi-select-toggled', e => {
+        this.listen(multiSelect, 'cds-multi-select-toggled', _ => {
           this.dispatchPanelEvent(toggleEvent, {
             ...attrs,
             open: multiSelect.hasAttribute('open')
@@ -541,7 +541,7 @@ const COMPONENT_CONFIG = {
       // Value change event (when date is selected)
       const changeEvent = attrs.event;
       if (changeEvent) {
-        this.listen(datePicker, 'cds-date-picker-changed', e => {
+        this.listen(datePicker, 'cds-date-picker-changed', _ => {
           this.dispatchPanelEvent(changeEvent, {
             ...attrs,
             value: datePicker.value
@@ -629,7 +629,7 @@ const COMPONENT_CONFIG = {
       // Toggle event (when dropdown opens/closes)
       const toggleEvent = dropdown.getAttribute('toggle-event');
       if (toggleEvent) {
-        this.listen(dropdown, 'cds-dropdown-toggled', e => {
+        this.listen(dropdown, 'cds-dropdown-toggled', _ => {
           this.dispatchPanelEvent(toggleEvent, {
             ...attrs,
             open: dropdown.hasAttribute('open')
@@ -741,7 +741,7 @@ const COMPONENT_CONFIG = {
       // Close event (when X button is clicked)
       const closeEvent = attrs.event;
       if (closeEvent) {
-        this.listen(tag, 'cds-dismissible-tag-closed', e => {
+        this.listen(tag, 'cds-dismissible-tag-closed', _ => {
           this.dispatchPanelEvent(closeEvent, {
             ...attrs,
             action: 'closed'
@@ -908,7 +908,7 @@ const COMPONENT_CONFIG = {
       if (batchActionsElement) {
         const batchCancelEvent = table.getAttribute('batch-cancel-event');
         if (batchCancelEvent) {
-          this.listen(batchActionsElement, 'cds-table-batch-actions-cancel-clicked', e => {
+          this.listen(batchActionsElement, 'cds-table-batch-actions-cancel-clicked', _ => {
             this.dispatchPanelEvent(batchCancelEvent, {
               ...attrs,
               action: 'cancel'
@@ -918,7 +918,7 @@ const COMPONENT_CONFIG = {
 
         const batchSelectAllEvent = table.getAttribute('batch-select-all-event');
         if (batchSelectAllEvent) {
-          this.listen(batchActionsElement, 'cds-table-batch-actions-select-all-clicked', e => {
+          this.listen(batchActionsElement, 'cds-table-batch-actions-select-all-clicked', _ => {
             this.dispatchPanelEvent(batchSelectAllEvent, {
               ...attrs,
               action: 'select-all'
@@ -1058,7 +1058,7 @@ const COMPONENT_CONFIG = {
       // Open event
       const openEvent = getEventAttribute(modal, 'open-event', 'event');
       if (openEvent) {
-        this.listen(modal, 'cds-modal-beingopened', e => {
+        this.listen(modal, 'cds-modal-beingopened', _ => {
           this.dispatchPanelEvent(openEvent, {
             ...attrs,
             action: 'opened'
@@ -1069,7 +1069,7 @@ const COMPONENT_CONFIG = {
       // Before close event (cancelable)
       const beforeCloseEvent = modal.getAttribute('before-close-event');
       if (beforeCloseEvent) {
-        this.listen(modal, 'cds-modal-beingclosed', e => {
+        this.listen(modal, 'cds-modal-beingclosed', _ => {
           this.dispatchPanelEvent(beforeCloseEvent, {
             ...attrs,
             action: 'closing',
@@ -1102,7 +1102,7 @@ const COMPONENT_CONFIG = {
       // Primary button event
       const primaryEvent = getEventAttribute(modal, 'primary-event', 'event');
       if (primaryEvent) {
-        this.listen(modal, 'cds-modal-primary-focus', e => {
+        this.listen(modal, 'cds-modal-primary-focus', _ => {
           this.dispatchPanelEvent(primaryEvent, {
             ...attrs,
             action: 'primary'
@@ -1158,7 +1158,7 @@ const COMPONENT_CONFIG = {
       // is inside shadow DOM, which breaks the form submission mechanism.
       // We manually trigger form submission on the associated form.
       if (buttonType === 'submit') {
-        this.listen(button, 'click', e => {
+        this.listen(button, 'click', _ => {
           // Find the form - either as ancestor or via HTML5 form attribute
           let form = button.closest('form');
 
@@ -1386,7 +1386,7 @@ const COMPONENT_CONFIG = {
       // Listen for tooltip open/close
       const openEvent = getEventAttribute(tooltip, 'open-event');
       if (openEvent) {
-        this.listen(tooltip, 'cds-tooltip-beingopened', e => {
+        this.listen(tooltip, 'cds-tooltip-beingopened', _ => {
           this.dispatchPanelEvent(openEvent, {
             ...attrs,
             action: 'opened'
@@ -1396,7 +1396,7 @@ const COMPONENT_CONFIG = {
 
       const closeEvent = getEventAttribute(tooltip, 'close-event');
       if (closeEvent) {
-        this.listen(tooltip, 'cds-tooltip-closed', e => {
+        this.listen(tooltip, 'cds-tooltip-closed', _ => {
           this.dispatchPanelEvent(closeEvent, {
             ...attrs,
             action: 'closed'
@@ -1415,7 +1415,7 @@ const COMPONENT_CONFIG = {
       // Listen for popover open/close
       const openEvent = getEventAttribute(popover, 'open-event');
       if (openEvent) {
-        this.listen(popover, 'cds-popover-beingopened', e => {
+        this.listen(popover, 'cds-popover-beingopened', _ => {
           this.dispatchPanelEvent(openEvent, {
             ...attrs,
             action: 'opened'
@@ -1425,7 +1425,7 @@ const COMPONENT_CONFIG = {
 
       const closeEvent = getEventAttribute(popover, 'close-event');
       if (closeEvent) {
-        this.listen(popover, 'cds-popover-closed', e => {
+        this.listen(popover, 'cds-popover-closed', _ => {
           this.dispatchPanelEvent(closeEvent, {
             ...attrs,
             action: 'closed'
@@ -1462,7 +1462,7 @@ const COMPONENT_CONFIG = {
       // Close event
       const closeEvent = getEventAttribute(notification, 'close-event', 'event');
       if (closeEvent) {
-        this.listen(notification, 'cds-notification-closed', e => {
+        this.listen(notification, 'cds-notification-closed', _ => {
           this.dispatchPanelEvent(closeEvent, {
             ...attrs,
             action: 'closed'
@@ -1473,7 +1473,7 @@ const COMPONENT_CONFIG = {
       // Action button event
       const actionEvent = getEventAttribute(notification, 'action-event');
       if (actionEvent) {
-        this.listen(notification, 'cds-notification-actioned', e => {
+        this.listen(notification, 'cds-notification-actioned', _ => {
           this.dispatchPanelEvent(actionEvent, {
             ...attrs,
             action: 'actioned'
@@ -1587,7 +1587,7 @@ const COMPONENT_CONFIG = {
       // Listen for clicks on the primary button
       const primaryButton = comboButton.querySelector('cds-button');
       if (primaryButton && attrs.event) {
-        this.listen(primaryButton, 'click', e => {
+        this.listen(primaryButton, 'click', _ => {
           this.dispatchPanelEvent(attrs.event, {
             ...attrs,
             action: 'primary'
@@ -1656,7 +1656,7 @@ const COMPONENT_CONFIG = {
       // Menu open event
       const openEvent = getEventAttribute(menu, 'open-event');
       if (openEvent) {
-        this.listen(menu, 'cds-menu-opened', e => {
+        this.listen(menu, 'cds-menu-opened', _ => {
           this.dispatchPanelEvent(openEvent, {
             ...attrs,
             action: 'opened'
@@ -1667,7 +1667,7 @@ const COMPONENT_CONFIG = {
       // Menu close event
       const closeEvent = getEventAttribute(menu, 'close-event');
       if (closeEvent) {
-        this.listen(menu, 'cds-menu-closed', e => {
+        this.listen(menu, 'cds-menu-closed', _ => {
           this.dispatchPanelEvent(closeEvent, {
             ...attrs,
             action: 'closed'

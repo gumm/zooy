@@ -5,8 +5,7 @@ import UserManager from '../user/usermanager.js';
 import Panel from './panel.js';
 import {identity} from 'badu';
 // Temporary imports for backwards compatibility - will be removed as apps migrate
-import {SearchHandlers} from './handlers/search-handlers.js';
-import {QueryParamHandlers} from './handlers/query-param-handlers.js';
+import {SearchHandlers, QueryParamHandlers} from './handlers/index.js';
 
 /**
  * A View orchestrates multiple panels and manages their interactions.
@@ -18,7 +17,7 @@ import {QueryParamHandlers} from './handlers/query-param-handlers.js';
  */
 export default class View extends EVT {
 
-  //----------------------------------------------------------------[ Static ]--
+  //--[ Static ]--
   /**
    * Returns the view event type code used for dispatching view events.
    * @return {string} The VIEW event type
@@ -325,7 +324,7 @@ export default class View extends EVT {
     }
   };
 
-  //----------------------------------------------------------[ Split Events ]--
+  //--[ Split Events ]--
   /**
    * Triggered before a split will open.
    *
@@ -358,7 +357,7 @@ export default class View extends EVT {
   onSplitDidOpen(_data) {
   }
 
-  //-------------------------------------------------------[ Built in events ]--
+  //--[ Built in events ]--
   /**
    * Dispatches a {@code UiEventType.VIEW} event.
    * A shorthand method to get panels to dispatch uniform events.
@@ -382,7 +381,7 @@ export default class View extends EVT {
   };
 
 
-  // ------------------------------------------------------------------------------[ Meta Data ]--
+  //--[  Meta Data ]--
   /**
    * Returns the metadata map associated with this view.
    * @return {!Map<string, *>} The metadata map

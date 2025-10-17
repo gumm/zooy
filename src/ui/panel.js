@@ -97,7 +97,7 @@ class Panel extends Component {
 
   };
 
-  //---------------------------------------------------[ Getters and Setters ]--
+  //--[ Getters and Setters ]--
   get uri() {
     const params = this.qParamMap_.size > 0
       ? '?' + objectToUrlParms(Object.fromEntries(this.qParamMap_))
@@ -157,7 +157,7 @@ class Panel extends Component {
   }
 
 
-  //----------------------------------------------------[ Template Render ]-----
+  //--[ Template Render ]-----
   /**
    * Temporarily render placeholder DOM
    * @param {Node!} placeholder
@@ -258,7 +258,7 @@ class Panel extends Component {
     this.evalModules(content.modules);
   }
 
-  //--------------------------------------------------------[ JSON Render ]-----
+  //--[ JSON Render ]-----
   /**
    * Equivalent to the @code{renderWithTemplate} method in that it is guaranteed
    * that a reply from the callback is received before @code{render} is called.
@@ -325,7 +325,7 @@ class Panel extends Component {
     // Stub
   };
 
-  //--------------------------------------------------------[ JSON Render ]-----
+  //--[ JSON Render ]-----
   /**
    * @param {Element} panel
    */
@@ -426,7 +426,7 @@ class Panel extends Component {
         }
       });
 
-    //-----------------------------------------------------------[ Drag Drop ]--
+    //--[ Drag Drop ]--
     const dropEls = Array.from(panel.querySelectorAll('.folder_drop_zone'));
     const dragEls = Array.from(panel.querySelectorAll('[draggable]'));
 
@@ -484,7 +484,7 @@ class Panel extends Component {
     });
 
 
-    //------------------------------------------------------[ Async Populate ]--
+    //--[ Async Populate ]--
     // Grab all elements with a 'zoo_async_json' class.
     // Call the given url, and then dispatch a panel event with the results.
     [...panel.querySelectorAll('.zoo_async_json')].forEach(el => {
@@ -582,7 +582,7 @@ class Panel extends Component {
     }
   };
 
-  //-------------------------------------------------------[ Built in events ]--
+  //--[ Built in events ]--
   /**
    * Dispatches a @code{UiEventType.PANEL} event.
    * A shorthand method to get panels to dispatch uniform events.

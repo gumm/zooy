@@ -89,7 +89,7 @@ const yMoveOnlyListener = (emit, target, xOrg, yOrg) => event => {
   emit(ev);
 };
 
-//------------------------------------------------------------------[ Event Emitters ]--
+//--[ Event Emitters ]--
 /**
  * Creates an event emitter function for drag events. Returns a curried function
  * that captures initial position data and returns a final function that dispatches
@@ -173,7 +173,7 @@ class Dragger extends Component {
     this.#cancelDrag(event);
   }
 
-  //-----------------------------------------------------------[ Getters and Setters ]--
+  //--[ Getters and Setters ]--
   /**
    * Sets the direction in which the component can be dragged.
    * Only 'x' or 'y' will lock the movements to those directions.
@@ -198,7 +198,7 @@ class Dragger extends Component {
   }
 
 
-  //----------------------------------------------------------------------[ Override ]--
+  //--[ Override ]--
   /**
    * @inheritDoc
    */
@@ -207,7 +207,7 @@ class Dragger extends Component {
     super.executeBeforeReady();
   }
 
-  //--------------------------------------------------------------[ Dragger Specific ]--
+  //--[ Dragger Specific ]--
   /**
    * Make the component draggable
    */

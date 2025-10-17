@@ -27,7 +27,7 @@ var listenerCount = 0;
  */
 export default class EVT extends EventTarget {
 
-  //----------------------------------------------------------------[ Static ]--
+  //--[ Static ]--
   /**
    * Creates a CustomEvent with the given type and data payload.
    * @param {string} event The event type
@@ -124,7 +124,7 @@ export default class EVT extends EventTarget {
   }
 
 
-  //-----------------------------------------------[ Listeners and Listening ]--
+  //--[ Listeners and Listening ]--
   /**
    * @param {!EventTarget|!EVT} comp
    */

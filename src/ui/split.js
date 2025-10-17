@@ -7,7 +7,7 @@ import ZooyEventData from '../events/zooyeventdata.js';
 import {EV} from '../events/mouseandtouchevents.js';
 
 
-//--------------------------------------------------------------[ Main Class ]--
+//--[ Main Class ]--
 /**
  * A Split component divides an element into resizable sections ("nests") separated
  * by draggable dividers. Supports horizontal (EW) and vertical (NS) splits, nested
@@ -470,7 +470,7 @@ export default class Split extends Component {
     });
   }
 
-  //-------------------------------------------------------[ Built in events ]--
+  //--[ Built in events ]--
   /**
    * Dispatches a {@code UiEventType.SPLIT} event.
    * Views may listen just to this event, and act on the supplied value or
@@ -488,7 +488,7 @@ export default class Split extends Component {
 
 }
 
-//--------------------------------------------------------------[ DOM Makers ]--
+//--[ DOM Makers ]--
 /**
  * @param {!Element} el
  * @param {!string} orientation
