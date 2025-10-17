@@ -170,9 +170,8 @@ export default class Component extends EVT {
 
     /**
      * The DOM element for the component.
-     * @private {!Node|undefined}
      */
-    this.placeholderDom_ = void 0;
+    this.placeholderDom = void 0;
 
     /**
      * A function guaranteed to be called before the component ready
@@ -343,7 +342,7 @@ export default class Component extends EVT {
       this.#target = opt_target;
     }
 
-    this.placeholderDom_ && removeNode(this.placeholderDom_);
+    this.placeholderDom && removeNode(this.placeholderDom);
 
     if (this.#target) {
       if (!isInPage(rootEl)) {
@@ -445,7 +444,7 @@ export default class Component extends EVT {
     this.removeAllListener();
     this.isInDocument = false;
     removeNode(this.getElement());
-    this.placeholderDom_ && removeNode(this.placeholderDom_);
+    this.placeholderDom && removeNode(this.placeholderDom);
   };
 
 
@@ -471,7 +470,7 @@ export default class Component extends EVT {
 
     // Detach the component's element from the DOM, unless it was decorated.
     this.#element && removeNode(this.#element);
-    this.placeholderDom_ && removeNode(this.placeholderDom_);
+    this.placeholderDom && removeNode(this.placeholderDom);
 
     this.#children = null;
     this.#element = void 0;

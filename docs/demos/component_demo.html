@@ -71,7 +71,7 @@
     b.listen(a, 'hello', e => console.log('B got hello', e));
     c.listen(a, 'hello', e => console.log('C got hello', e));
 
-    a.listen(button, 'click', e => console.log('click - click'));
+    a.listen(button, 'click', _ => console.log('click - click'));
     a.listen(root, 'mouseenter', e => console.log(e.type));
 
     console.log('A is dispatching');

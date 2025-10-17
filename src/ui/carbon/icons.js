@@ -11,6 +11,8 @@
  * This script will replace it with the actual Carbon icon SVG.
  */
 
+import {identity} from "badu";
+
 /**
  * Load all Carbon icons on the page
  */
@@ -105,6 +107,6 @@ if (typeof window !== 'undefined' && window.zooyAutoLoadIcons !== false) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadCarbonIcons);
   } else {
-    loadCarbonIcons();
+    loadCarbonIcons().then(identity);
   }
 }

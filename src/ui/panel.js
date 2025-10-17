@@ -1,5 +1,5 @@
 import Component from './component.js';
-import {isDefAndNotNull, isNumber, isUndefined, toNumber} from 'badu';
+import {identity, isDefAndNotNull, isNumber, isUndefined, toNumber} from 'badu';
 import {
   evalModules,
   evalScripts,
@@ -164,8 +164,8 @@ class Panel extends Component {
    */
   renderPlaceHolder(placeholder) {
     if (this.target) {
-      this.placeholderDom_ = placeholder;
-      this.target.insertBefore(this.placeholderDom_, null);
+      this.placeholderDom = placeholder;
+      this.target.insertBefore(this.placeholderDom, null);
     }
   };
 
@@ -274,7 +274,7 @@ class Panel extends Component {
           if (opt_callback) {
             opt_callback(json, this);
           }
-          this.onRenderWithJSON(json);
+          this.onRenderWithJSON(json).then(identity);
         }).catch(err => {
           console.error('Panel.renderWithJSON fetch failed:', err);
           throw err;

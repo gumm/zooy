@@ -68,7 +68,7 @@ export const renderIconButtons = function (panel) {
       const trg = e.currentTarget;
       const elDataMap = getElDataMap(trg);
       const zValue = elDataMap['zv'];
-      
+
       // We only stop propagation and issue the Panel event if there is a given
       // zv to the button.
       // This propagates the normal events, and skips the issuing of
@@ -123,11 +123,11 @@ export const renderDataTables = function (panel) {
     // all across all pages.
     dataTable.selectedAllAcrossPages = false;
 
-    dataTable.onSomeSelected = (selectedRowCount) => {
+    dataTable.onSomeSelected = _ => {
     };
-    dataTable.onNoneSelected = (selectedRowCount) => {
+    dataTable.onNoneSelected = _ => {
     };
-    dataTable.onAllSelected = (selectedRowCount) => {
+    dataTable.onAllSelected = _ => {
     };
     dataTable.toggleSelectAcrossPages = () => {
       dataTable.selectedAllAcrossPages = !dataTable.selectedAllAcrossPages;
