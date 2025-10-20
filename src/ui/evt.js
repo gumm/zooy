@@ -1,4 +1,4 @@
-import { isDef } from 'badu';
+import {isDef} from 'badu';
 
 /*
 EVENT LISTENER LEAK DETECTOR
@@ -27,6 +27,49 @@ var listenerCount = 0;
  */
 export default class EVT extends EventTarget {
 
+  /**
+   * Set this to true to get some debug in the console.
+   * @type {boolean}
+   * @private
+   */
+  #debugMode = false;
+
+  /**
+   * True if this is disposed.
+   * @type {boolean}
+   * @private
+   */
+  #disposed = false;
+
+
+  /**
+   * A map of listener targets to an object of event: functions
+   * When adding a listener, immediately also create the un-listen functions
+   * and store those in an object keyed with the event.
+   * Store these objects against the target in a map
+   * @type {Map<!EventTarget, !Object<string, !Function>>}
+   * @private
+   */
+  #listeningTo = new Map();
+
+  /**
+   * A set of components that are currently listening to this component
+   * @type {!Set<!EventTarget>}
+   * @private
+   */
+  #isObservedBy = new Set();
+
+
+  /**
+   * A set of interval timers as defined by setInterval.
+   * Use this to store the timers created particular to this component.
+   * On destruction, these timers will be cleared.
+   * @type {Set<any>}
+   * @private
+   */
+  #activeIntervals = new Set();
+
+
   //--[ Static ]--
   /**
    * Creates a CustomEvent with the given type and data payload.
@@ -34,53 +77,8 @@ export default class EVT extends EventTarget {
    * @param {*} data The data to attach to the event's detail property
    * @return {!CustomEvent} A new CustomEvent instance
    */
-  static makeEvent(event, data)  {
+  static makeEvent(event, data) {
     return new CustomEvent(event, {detail: data});
-  };
-
-  constructor() {
-    super();
-
-    /**
-     * A map of listener targets to an object of event: functions
-     * When adding a listener, immediately also create the un-listen functions
-     * and store those in an object keyed with the event.
-     * Store these objects against the target in a map
-     * @type {Map<!EventTarget, !Object<string, !Function>>}
-     * @private
-     */
-    this.listeningTo_ = new Map();
-
-    /**
-     * A set of components that are currently listening to this component
-     * @type {!Set<!EventTarget>}
-     * @private
-     */
-    this.isObservedBy_ = new Set();
-
-
-    /**
-     * A set of interval timers as defined by setInterval.
-     * Use this to store the timers created particular to this component.
-     * On destruction, these timers will be cleared.
-     * @type {Set<any>}
-     * @private
-     */
-    this.activeIntervals_ = new Set();
-
-    /**
-     * True if this is disposed.
-     * @type {boolean}
-     * @private
-     */
-    this.disposed_ = false;
-
-    /**
-     * Set this to true to get some debug in the console.
-     * @type {boolean}
-     * @private
-     */
-    this.debugMode_ = false;
   };
 
   /**
@@ -93,7 +91,11 @@ export default class EVT extends EventTarget {
     if ((typeof bool) !== 'boolean') {
       throw new Error('This must be a boolean');
     }
-    this.debugMode_ = bool;
+    this.#debugMode = bool;
+  }
+
+  get debugMode() {
+    return this.#debugMode;
   }
 
   /**
@@ -101,7 +103,7 @@ export default class EVT extends EventTarget {
    * @return {boolean} True if disposed, false otherwise
    */
   get disposed() {
-    return this.disposed_;
+    return this.#disposed;
   }
 
   /**
@@ -109,7 +111,15 @@ export default class EVT extends EventTarget {
    * @return {!Map<!EventTarget, !Object<string, !Function>>} Map of targets to their event handlers
    */
   get listeningTo() {
-    return this.listeningTo_;
+    return this.#listeningTo;
+  }
+
+  get isObservedBy() {
+    return this.#isObservedBy;
+  }
+
+  get activeIntervals() {
+    return this.#activeIntervals;
   }
 
   /**
@@ -118,7 +128,7 @@ export default class EVT extends EventTarget {
    * @param {...*} s Arguments to log
    */
   debugMe(...s) {
-    if (this.debugMode_) {
+    if (this.#debugMode) {
       console.log.apply(null, [this.constructor.name, 'DEBUG:', ...s]);
     }
   }
@@ -129,7 +139,7 @@ export default class EVT extends EventTarget {
    * @param {!EventTarget|!EVT} comp
    */
   isListenedToBy(comp) {
-    this.isObservedBy_.add(comp);
+    this.#isObservedBy.add(comp);
   }
 
   /**
@@ -142,11 +152,11 @@ export default class EVT extends EventTarget {
    * @param {!Function} action
    * @param {boolean|!Object} options
    */
-  listen(target, event, action, options=false) {
+  listen(target, event, action, options = false) {
     target.addEventListener(event, action, options);
-    const currVal = this.listeningTo_.get(target) || {};
+    const currVal = this.listeningTo.get(target) || {};
     currVal[event] = () => target.removeEventListener(event, action, options);
-    this.listeningTo_.set(target, currVal);
+    this.listeningTo.set(target, currVal);
 
     if (isDef(target.isListenedToBy)) {
       target.isListenedToBy(this);
@@ -157,9 +167,9 @@ export default class EVT extends EventTarget {
    * Remove self from all components tt are listening to me.
    */
   stopBeingListenedTo() {
-    for (const observer of this.isObservedBy_) {
+    for (const observer of this.isObservedBy) {
       observer.stopListeningTo(this);
-      this.isObservedBy_.delete(observer);
+      this.isObservedBy.delete(observer);
     }
   }
 
@@ -169,27 +179,29 @@ export default class EVT extends EventTarget {
    * @param {string=} opt_event
    */
   stopListeningTo(target, opt_event) {
-    if (!target) { return; }
-    if (this.listeningTo_.has(target)) {
+    if (!target) {
+      return;
+    }
+    if (this.listeningTo.has(target)) {
 
-      if (isDef(target.isObservedBy_)) {
-        target.isObservedBy_.delete(this);
+      if (isDef(target.isObservedBy)) {
+        target.isObservedBy.delete(this);
       }
 
       if (isDef(opt_event)) {
         Object
-          .entries(this.listeningTo_.get(target))
+          .entries(this.listeningTo.get(target))
           .forEach(([key, value]) => {
             if (key === opt_event) {
               /** @type {!Function} */(value)();
             }
           });
-        if (!Object.keys(this.listeningTo_.get(target)).length) {
-          this.listeningTo_.delete(target);
+        if (!Object.keys(this.listeningTo.get(target)).length) {
+          this.listeningTo.delete(target);
         }
       } else {
-        Object.values(this.listeningTo_.get(target)).forEach(e => e());
-        this.listeningTo_.delete(target);
+        Object.values(this.listeningTo.get(target)).forEach(e => e());
+        this.listeningTo.delete(target);
       }
 
     }
@@ -200,7 +212,7 @@ export default class EVT extends EventTarget {
    * component.
    */
   removeAllListener() {
-    for (const target of this.listeningTo_.keys()) {
+    for (const target of this.listeningTo.keys()) {
       this.stopListeningTo(target);
     }
   }
@@ -210,9 +222,9 @@ export default class EVT extends EventTarget {
    * Called automatically during disposal to prevent memory leaks.
    */
   clearAllIntervals() {
-    for (const interval of this.activeIntervals_) {
+    for (const interval of this.activeIntervals) {
       clearInterval(interval);
-      this.activeIntervals_.delete(interval);
+      this.activeIntervals.delete(interval);
     }
   }
 
@@ -224,7 +236,7 @@ export default class EVT extends EventTarget {
    */
   doOnBeat(f, interval) {
     const clearInt = setInterval(f, interval);
-    this.activeIntervals_.add(clearInt);
+    this.activeIntervals.add(clearInt);
   }
 
   /**
@@ -238,7 +250,7 @@ export default class EVT extends EventTarget {
     this.stopBeingListenedTo();
     this.removeAllListener();
     this.clearAllIntervals();
-    this.disposed_ = true;
+    this.#disposed = true;
   };
 
   /**

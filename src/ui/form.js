@@ -6,10 +6,10 @@ import {EV} from '../events/mouseandtouchevents.js';
 
 
 /** @typedef {{
-*     href: (string|undefined),
-*     success: (boolean|undefined),
-*     pk: (string|undefined),
-*     }}
+ *     href: (string|undefined),
+ *     success: (boolean|undefined),
+ *     pk: (string|undefined),
+ *     }}
  */
 let ServerFormSuccessJsonType;
 
@@ -21,37 +21,96 @@ let ServerFormSuccessJsonType;
  * Field validation and error handling is integrated directly into FormPanel,
  * managing HTML5 constraint validation, error messages, and form field events.
  *
+ * CURRENT CAPABILITIES:
+ * ✓ HTML5 constraint validation (native browser validation)
+ * ✓ Field-level error display (shows validation messages)
+ * ✓ Server-side error handling (displays Django form errors)
+ * ✓ AJAX form submission via UserManager
+ * ✓ Success callbacks via onSubmitSuccess()
+ * ✓ Form replacement on validation errors
+ *
+ * MISSING FEATURES (TODO):
+ * ☐ Change tracking - Detect unsaved changes and warn on navigation
+ * ☐ Conditional fields - Show/hide fields based on other field values
+ * ☐ Custom validation hooks - Easy way to add client-side validation beyond HTML5
+ * ☐ Loading states - Built-in loading indicators during submission
+ * ☐ Network error handling - Distinguish between network failures vs validation errors
+ * ☐ Optimistic updates - Show changes immediately, revert on error
+ * ☐ Multi-step forms - Wizard pattern support
+ * ☐ Auto-save - Periodic saving of form state
+ * ☐ Field dependencies - Field B validates based on Field A's value
+ *
  * @extends {Panel}
  */
 class FormPanel extends Panel {
-  #form;
-  #fMap;
+  /**
+   * @type {?HTMLFormElement}
+   * @private
+   */
+  #form = null;
+
+  /**
+   * Map of form fields to their error message DOM elements
+   * @type {!Map<HTMLInputElement, Element>}
+   * @private
+   */
+  #fMap = new Map();
+
+
+  #intercept = true;
 
   /**
    * Creates a new FormPanel instance.
    * @param {string=} uri Optional URI for fetching form content
+   * @param {boolean} intercept If false, we do not try and intercept the forms
    */
-  constructor(uri) {
+  constructor(uri, intercept = true) {
     super(uri);
 
-    /**
-     * @type {?HTMLFormElement}
-     * @private
-     */
-    this.#form = null;
+    this.#intercept = intercept;
 
-    /**
-     * Map of form fields to their error message DOM elements
-     * @type {!Map<HTMLInputElement, Element>}
-     * @private
-     */
-    this.#fMap = new Map();
+    this.debugMode = true;
 
     // noinspection JSUnusedLocalSymbols
     /**
      * @type {function(!FormPanel, (string|!ServerFormSuccessJsonType)=): (?|null|Promise<?>)}
      */
     this.onSubmitSucFunc = (_panel, _opt_data) => null;
+
+    // TODO: Add change tracking
+    // /**
+    //  * Whether to track form changes and warn on navigation
+    //  * @type {boolean}
+    //  */
+    // this.trackChanges = true;
+    //
+    // /**
+    //  * Original form data snapshot for change detection
+    //  * @type {?Object}
+    //  * @private
+    //  */
+    // this.#originalFormData = null;
+    //
+    // /**
+    //  * Whether the form has unsaved changes
+    //  * @type {boolean}
+    //  * @private
+    //  */
+    // this.#isDirty = false;
+
+    // TODO: Add loading state management
+    // /**
+    //  * Loading state: 'none' | 'spinner' | 'skeleton'
+    //  * @type {string}
+    //  */
+    // this.loadingState = 'spinner';
+
+    // TODO: Add custom validation hooks
+    // /**
+    //  * Custom validation function called before form submission
+    //  * @type {?function(!FormPanel): (boolean|Promise<boolean>)}
+    //  */
+    // this.customValidation = null;
 
   }
 
@@ -71,6 +130,12 @@ class FormPanel extends Panel {
   enterDocument() {
     super.enterDocument();
     this.formIdElementToForm_();
+
+    // TODO: Initialize change tracking
+    // if (this.trackChanges) {
+    //   this.#captureOriginalFormData();
+    //   this.#setupChangeTracking();
+    // }
   };
 
 
@@ -80,8 +145,10 @@ class FormPanel extends Panel {
    */
   formIdElementToForm_() {
     this.#form = this.getFormFromId();
-    this.interceptFormSubmit(this.#form);
-    this.initFieldValidation_();
+    if (this.#form) {
+      this.#interceptFormSubmit(this.#form);
+      this.#initFieldValidation();
+    }
   };
 
 
@@ -107,21 +174,22 @@ class FormPanel extends Panel {
    * for change, input, and invalid events.
    * @private
    */
-  initFieldValidation_() {
+  #initFieldValidation() {
     if (this.#form) {
+
       this.listen(this.#form, EV.CHANGE, e => {
-        this.validateOnChange_(e);
+        this.#validateOnChange(e);
       }, {passive: true});
 
       this.listen(this.#form, EV.INPUT, e => {
         this.clearAllValidationErrors();
-        this.validateOnChange_(e);
+        this.#validateOnChange(e);
       });
 
       this.listen(this.#form, EV.INVALID, e => {
         e.preventDefault();
         const field = /** @type {HTMLInputElement} */ (e.target);
-        this.clearAlertOnField_(field);
+        this.#clearAlertOnField(field);
         this.displayFieldError(field);
       }, {passive: true});
     }
@@ -133,8 +201,9 @@ class FormPanel extends Panel {
    * @return {boolean} True if all fields are valid, false otherwise
    */
   checkAllFields() {
+
     const arr = [...this.#form.elements]
-      .map(e => [this.checkValidationForField_(e), e])
+      .map(e => [this.#checkValidationForField(e), e])
       .filter(e => !e[0]);
     arr.forEach(e => this.displayFieldError(e[1]));
     return arr.length === 0;
@@ -145,7 +214,7 @@ class FormPanel extends Panel {
    */
   clearAllValidationErrors() {
     const fields = this.#form ? this.#form.elements : [];
-    [...fields].forEach(field => this.clearAlertOnField_(field));
+    [...fields].forEach(field => this.#clearAlertOnField(field));
 
     const nonFieldErrs = this.#form.querySelectorAll('.non-field-errors');
     [...nonFieldErrs].forEach(e => e.classList.remove('alert-error'));
@@ -160,7 +229,7 @@ class FormPanel extends Panel {
    */
   displayAlert_(field, msg, _css) {
     const alertDom = document.getElementById(`${field.id}-helper-text`) ||
-        document.createElement('p');
+      document.createElement('p');
     alertDom.textContent = msg;
     this.#fMap.set(field, alertDom);
   }
@@ -171,8 +240,8 @@ class FormPanel extends Panel {
    * @return {boolean} True if field is valid
    * @private
    */
-  checkValidationForField_(field) {
-    this.clearAlertOnField_(field);
+  #checkValidationForField(field) {
+    this.#clearAlertOnField(field);
     let isValid = !field.willValidate;
     if (field.willValidate) {
       isValid = field.checkValidity();
@@ -185,7 +254,7 @@ class FormPanel extends Panel {
    * @param {HTMLInputElement} field
    * @private
    */
-  clearAlertOnField_(field) {
+  #clearAlertOnField(field) {
     field.classList.remove('error');
     if (this.#fMap.has(field)) {
       this.#fMap.get(field).textContent = '';
@@ -227,8 +296,8 @@ class FormPanel extends Panel {
    * @param {Event} e
    * @private
    */
-  validateOnChange_(e) {
-    this.checkValidationForField_(/** @type {HTMLInputElement} */ (e.target));
+  #validateOnChange(e) {
+    this.#checkValidationForField(/** @type {HTMLInputElement} */ (e.target));
   }
 
   /**
@@ -239,18 +308,41 @@ class FormPanel extends Panel {
    * type="submit", which will trigger the validation, and we can submit
    * valid forms with xhrio which allows us to add callbacks to them.
    *
-   * @param {?HTMLFormElement} form The form we want to sterilise.
-   * @return {?HTMLFormElement}
+   * @param {HTMLFormElement} form The form we want to sterilise.
+   * @return {HTMLFormElement}
    */
-  interceptFormSubmit(form) {
-    if (form) {
+  #interceptFormSubmit(form) {
+    if (form && this.#intercept) {
       form.noValidate = true;
+
       const user = this.user;
       this.listen(form, EV.SUBMIT, e => {
         e.preventDefault();
         this.debugMe('Intercepted from SUBMIT');
+
+        // TODO: Add custom validation hook
+        // if (this.customValidation) {
+        //   const isValid = await this.customValidation(this);
+        //   if (!isValid) return;
+        // }
+
         if (this.checkAllFields()) {
+          // TODO: Show loading state
+          // if (this.loadingState === 'spinner') {
+          //   this.#showLoadingSpinner();
+          // }
+
           user && user.formSubmit(this);
+
+          // TODO: Handle network errors specifically
+          // .catch(error => {
+          //   this.#hideLoadingSpinner();
+          //   if (error.name === 'NetworkError') {
+          //     this.#showNetworkError();
+          //   } else {
+          //     // Server validation error - already handled by processSubmitReply
+          //   }
+          // });
         }
       });
     }

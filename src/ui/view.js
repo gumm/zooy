@@ -34,13 +34,6 @@ export default class View extends EVT {
     super();
 
     /**
-     * Set this to true to get some debug in the console.
-     * @type {boolean}
-     * @private
-     */
-    this.debugMode_ = false;
-
-    /**
      * @type {Map<string, !Panel>}
      */
     this.panelMap = new Map();
@@ -50,7 +43,6 @@ export default class View extends EVT {
      * @private
      */
     this.user_ = void 0;
-
 
     this.split_ = void 0;
 
