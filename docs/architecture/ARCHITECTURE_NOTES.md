@@ -186,28 +186,6 @@ Carbon component dynamic loading.
 - Dynamically imports only the needed components
 - Attaches components to DOM
 
-**Example**:
-```javascript
-// Finds: <div data-carbon-component="button"></div>
-// Imports: import('@carbon/web-components/es/components/button/index.js')
-// Caches: So subsequent panels don't re-import
-```
-
-#### `src/ui/carbon/icons.js`
-Carbon icon sprite management.
-
-**Exports**:
-- `loadCarbonIcons()` - Load icon sprite SVG
-
-#### `src/ui/carbon/icons-api.js`
-Programmatic icon usage (for JS-generated content).
-
-**Exports**:
-- `makeIconElement(name, size)` - Create icon placeholders
-- `makeIconElementAsync(name, size)` - Dynamic import icons
-
----
-
 ## Lazy Loading Flow
 
 ### Application Startup
@@ -449,7 +427,6 @@ zooy/
 │   │   └── carbon/
 │   │       ├── register.js               # Carbon registration (lazy-loaded)
 │   │       ├── renderers.js              # Carbon dynamic loading
-│   │       ├── icons.js                  # Carbon icon sprites
 │   │       └── icons-api.js              # Programmatic icon API
 │   ├── dom/
 │   │   └── utils.js                      # DOM utilities

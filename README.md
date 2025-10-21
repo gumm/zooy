@@ -424,7 +424,6 @@ zooy/
 │   │   └── carbon/                  # IBM Carbon Design System
 │   │       ├── register.js          # Carbon registration (lazy-loaded)
 │   │       ├── renderers.js         # Dynamic component loading
-│   │       ├── icons.js             # DEPRECATED (use server-side rendering)
 │   │       └── icons-api.js         # Programmatic icon API
 │   ├── dom/                         # DOM utilities
 │   ├── events/                      # Event types and utilities

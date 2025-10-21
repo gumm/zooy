@@ -7,9 +7,15 @@
  *
  * The internal MDC code remains unchanged - this just wraps it for the registry.
  *
+ * Features:
+ * - Dynamically loads material-components-web.js (no script tags needed!)
+ * - Self-contained plugin (all dependencies loaded by the plugin itself)
+ * - Promise-based loading with caching (loads once, shared globally)
+ * - Configurable CDN URL via window.__MDC_CDN_URL__
+ *
  * Usage:
  *   import { registerMdcLibrary } from './ui/mdc/register.js';
- *   registerMdcLibrary();
+ *   await registerMdcLibrary();  // Now async!
  */
 
 import { ComponentLibraryRegistry } from '../component-library-registry.js';
@@ -39,16 +45,84 @@ import {
 import * as treeUtils from './tree-utils.js';
 
 /**
+ * Cached promise for loading material-components-web.js
+ * Ensures we only load the library once, even if registerMdcLibrary() is called multiple times
+ * @type {Promise<void>|null}
+ */
+let mdcLoadPromise = null;
+
+/**
+ * Dynamically loads material-components-web.js and waits for window.mdc to be available.
+ * Uses a cached promise to ensure the library is only loaded once.
+ *
+ * @returns {Promise<void>} Resolves when window.mdc is ready
+ */
+function loadMdcLibrary() {
+  console.debug('[MDC Plugin] loadMdcLibrary() called');
+
+  // Return cached promise if already loading/loaded
+  if (mdcLoadPromise) {
+    return mdcLoadPromise;
+  }
+
+  // Check if already loaded (e.g., via script tag in template)
+  if (isDefAndNotNull(window.mdc) &&
+      Object.prototype.hasOwnProperty.call(window.mdc, 'autoInit')) {
+    mdcLoadPromise = Promise.resolve();
+    return mdcLoadPromise;
+  }
+
+  // Create and cache the loading promise
+  mdcLoadPromise = new Promise((resolve, reject) => {
+    // Allow customization of CDN URL via global variable (useful for local development)
+    const cdnUrl = window.__MDC_CDN_URL__ ||
+                   'https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.js';
+
+    const script = document.createElement('script');
+    script.src = cdnUrl;
+    script.async = true;
+
+    script.onload = () => {
+      // Verify window.mdc is available
+      if (isDefAndNotNull(window.mdc) &&
+          Object.prototype.hasOwnProperty.call(window.mdc, 'autoInit')) {
+        resolve();
+      } else {
+        reject(new Error('MDC library loaded but window.mdc is not available'));
+      }
+    };
+
+    script.onerror = () => {
+      reject(new Error(`Failed to load MDC library from ${cdnUrl}`));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return mdcLoadPromise;
+}
+
+/**
  * Registers the MDC library with the ComponentLibraryRegistry.
  * This enables MDC components to be initialized in panels.
  *
  * Call this once at application startup if you need MDC support.
  *
+ * @returns {Promise<void>} Resolves when MDC library is loaded and registered
+ *
  * @example
  * import { registerMdcLibrary } from './ui/mdc/register.js';
- * registerMdcLibrary();
+ * await registerMdcLibrary();  // Now async - waits for library to load
  */
-export function registerMdcLibrary() {
+export async function registerMdcLibrary() {
+
+  // Load the MDC library before registering
+  try {
+    await loadMdcLibrary();
+  } catch (error) {
+    throw error;
+  }
+
   ComponentLibraryRegistry.register('mdc', {
     /**
      * Renders all MDC components in a panel.

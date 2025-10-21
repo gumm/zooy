@@ -8,8 +8,6 @@
  * - https://www.ibm.com/design/language/iconography/ui-icons/library/
  *
  * Usage:
- *   import { createIcon, getIconSVG } from './icons.js';
- *
  *   // For web components (returns DOM element)
  *   const iconElement = createIcon('edit', 16);
  *   iconElement.setAttribute('slot', 'icon');
