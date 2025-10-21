@@ -457,11 +457,11 @@ class FormPanel extends Panel {
       this.replaceForm(reply);
 
       // We may not actually have a form element left after a redirect.
-      let hasErrors = [];
-      if (isDefAndNotNull(this.#form)) {
-        hasErrors = this.#form.querySelectorAll('.alert-error');
-      }
-      success = !hasErrors.length;
+      // let hasErrors = [];
+      // if (isDefAndNotNull(this.#form)) {
+      //   hasErrors = this.#form.querySelectorAll('.alert-error');
+      // }
+      // success = !hasErrors.length;
     }
 
     if (success && this.redirected) {
@@ -482,13 +482,13 @@ class FormPanel extends Panel {
         this.dispatchCompEvent(UiEventType.FORM_SUBMIT_SUCCESS);
       });
     } else {
-      this.debugMe(`
-      6.REDIRECTED: ${this.redirected}
-      SUCCESS: ${success}`);
-      // 'success' flag is not set. The form probably has errors.
-      // Reject the promise.
-      const errorCount = this.#form?.querySelectorAll('.alert-error').length || 0;
-      return Promise.reject(new Error(`Form validation failed: ${errorCount} error(s) found`));
+      // this.debugMe(`
+      // 6.REDIRECTED: ${this.redirected}
+      // SUCCESS: ${success}`);
+      // // 'success' flag is not set. The form probably has errors.
+      // // Reject the promise.
+      // const errorCount = this.#form?.querySelectorAll('.alert-error').length || 0;
+      // return Promise.reject(new Error(`Form validation failed: ${errorCount} error(s) found`));
     }
   };
 }

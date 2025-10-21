@@ -184,15 +184,12 @@ export async function loadComponentImports(importFunctions, cache) {
  * @export For unit testing
  */
 export function attachEventListeners(elementMap, panel) {
-  console.log('[Carbon] attachEventListeners called with', elementMap.size, 'component types');
   let totalInitialized = 0;
 
   for (const [selector, elements] of elementMap.entries()) {
-    console.log('[Carbon] Processing selector:', selector, 'with', elements.length, 'elements');
     const config = COMPONENT_CONFIG[selector];
 
     elements.forEach(element => {
-      console.log('[Carbon] Initializing element:', selector, element);
       // Custom initialization (for complex components)
       if (config.init) {
         config.init.call(panel, element);
@@ -232,7 +229,6 @@ export function attachEventListeners(elementMap, panel) {
     });
 
     totalInitialized += elements.length;
-    panel.debugMe(`[Carbon] Initialized ${elements.length} ${selector} component(s)`);
   }
 
   return totalInitialized;
@@ -1051,9 +1047,7 @@ const COMPONENT_CONFIG = {
   'cds-modal': {
     import: modalImport,
     init: function (modal) {
-      console.log('[Carbon Modal] Initializing modal', modal);
       const attrs = getSemanticAttributes(modal);
-      console.log('[Carbon Modal] Semantic attributes:', attrs);
 
       // Open event
       const openEvent = getEventAttribute(modal, 'open-event', 'event');
@@ -1081,23 +1075,14 @@ const COMPONENT_CONFIG = {
       // Close event - Carbon's way of handling modal dismissal
       // ALWAYS emit 'destroy_me' to integrate with zooy's panel destruction
       // This is not configurable - modals MUST destroy their panel when closed
-      console.log('[Carbon Modal] Attaching cds-modal-closed listener to', modal);
       this.listen(modal, 'cds-modal-closed', e => {
-        console.log('[Carbon Modal] cds-modal-closed event fired', {
-          triggeredBy: e.detail?.triggeredBy,
-          eventDetail: e.detail,
-          modal: modal
-        });
-
         this.dispatchPanelEvent('destroy_me', {
           ...attrs,
           action: 'closed',
           triggeredBy: e.detail?.triggeredBy
         });
 
-        console.log('[Carbon Modal] destroy_me event dispatched', attrs);
       });
-      console.log('[Carbon Modal] Listener attached successfully');
 
       // Primary button event
       const primaryEvent = getEventAttribute(modal, 'primary-event', 'event');
@@ -1752,30 +1737,22 @@ const COMPONENT_CONFIG = {
  * @returns {Promise<void>}
  */
 export const renderCarbonComponents = async function (panel, cache) {
-  console.log('[Carbon] renderCarbonComponents called with panel:', panel);
 
-  // Step 1: Single DOM scan - categorize all Carbon elements
   const elementMap = scanForCarbonComponents(panel);
-  console.log('[Carbon] Scanned elements:', elementMap);
 
   if (elementMap.size === 0) {
-    console.log('[Carbon] No Carbon components found in panel');
     this.debugMe('[Carbon] No Carbon components found in panel');
     return;
   }
 
-  console.log('[Carbon] Found components:', Array.from(elementMap.keys()));
 
   // Step 2: Determine which imports are needed
   const importsNeeded = collectImportsNeeded(elementMap);
 
   // Step 3: Load all needed components in parallel (with caching)
   if (importsNeeded.size > 0) {
-    this.debugMe(`[Carbon] Loading ${importsNeeded.size} component module(s)...`);
-
     try {
       await loadComponentImports(importsNeeded, cache);
-      this.debugMe('[Carbon] All component modules loaded successfully');
     } catch (error) {
       console.error('[Carbon] Failed to load some component modules:', error);
       // Continue anyway - some components may have loaded successfully
