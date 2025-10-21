@@ -343,6 +343,39 @@ If your application imports `@carbon/styles` for theming (e.g., to customize Car
 
 **Note**: Zooy itself only imports Carbon Web Components (JavaScript), not the Carbon styles (CSS). CSS theming is the responsibility of the implementing application, allowing full control over design tokens, typography, and component styling.
 
+### Carbon Icons
+
+**⚠️ Deprecated: Client-side placeholder loading has been removed.**
+
+Zooy previously supported client-side icon placeholder loading (`[data-carbon-icon]`), but this has been removed in favor of server-side rendering for better performance and simplicity.
+
+**For Django applications**: Use [django-zooy](https://github.com/trinity-telecomms/django-zooy) which provides server-side icon rendering:
+
+```django
+{% load carbon %}
+{% carbon_icon "add" 16 slot="icon" %}
+<!-- Renders: <svg xmlns="..."><path d="..."/></svg> -->
+```
+
+**Benefits of server-side rendering**:
+- ✅ No JavaScript required
+- ✅ No network requests
+- ✅ No placeholders or flicker
+- ✅ Works without JS (progressive enhancement)
+- ✅ Instant rendering
+
+**For non-Django applications**: The programmatic icon API (`icons-api.js`) is still available for runtime icon generation if needed:
+
+```javascript
+import zooy from 'zooy';
+
+// Create icon programmatically
+const iconSvg = await zooy.icons.createIcon('add', 16, { slot: 'icon' });
+document.body.appendChild(iconSvg);
+```
+
+However, server-side rendering (in templates/build step) is strongly recommended over runtime generation.
+
 ## Development
 
 ### Prerequisites
@@ -391,7 +424,7 @@ zooy/
 │   │   └── carbon/                  # IBM Carbon Design System
 │   │       ├── register.js          # Carbon registration (lazy-loaded)
 │   │       ├── renderers.js         # Dynamic component loading
-│   │       ├── icons.js             # Icon sprite management
+│   │       ├── icons.js             # DEPRECATED (use server-side rendering)
 │   │       └── icons-api.js         # Programmatic icon API
 │   ├── dom/                         # DOM utilities
 │   ├── events/                      # Event types and utilities

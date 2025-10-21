@@ -11,7 +11,6 @@ import Conductor from './ui/conductor.js';
 import * as domUtils from './dom/utils.js';
 import * as uriUtils from './uri/uri.js';
 import * as icons from './ui/carbon/icons-api.js';
-import { loadCarbonIcons } from './ui/carbon/icons.js';
 import { ComponentLibraryRegistry } from './ui/component-library-registry.js';
 import * as handlers from './ui/handlers/index.js';
 
@@ -56,7 +55,6 @@ const zooy = {
   domUtils,
   uriUtils,
   icons,
-  loadCarbonIcons,
   registerCarbonLibrary,
   registerMdcLibrary,
   ComponentLibraryRegistry,

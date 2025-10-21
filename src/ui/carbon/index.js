@@ -17,13 +17,15 @@
  * - MDC used imperative JS initialization: new mdc.button.MDCButton(el)
  * - Carbon uses declarative Web Components: <cds-button> (auto-initializes)
  *
+ * Icons: Use server-side rendering (django-zooy {% carbon_icon %}) instead
+ * of client-side placeholder loading.
+ *
  * @see https://web-components.carbondesignsystem.com/
  */
 
 import { renderCarbonComponents } from './renderers.js';
-import { loadCarbonIcons } from './icons.js';
 
-export { renderCarbonComponents, loadCarbonIcons };
+export { renderCarbonComponents };
 
 /**
  * Initialize all Carbon components in a panel with lazy loading.
@@ -33,7 +35,6 @@ export { renderCarbonComponents, loadCarbonIcons };
  * 1. Scan panel DOM for Carbon components
  * 2. Dynamically import only the components detected
  * 3. Attach Zooy event listeners to components
- * 4. Load Carbon icon sprites
  *
  * @param {Element} panel - The panel element
  * @this {Panel} - The panel instance (bound via .call())
@@ -42,13 +43,7 @@ export { renderCarbonComponents, loadCarbonIcons };
 export const initializeCarbonComponents = async function(panel) {
   try {
     // Lazy load components and attach event listeners
-    // renderCarbonComponents now handles import detection and loading
     await renderCarbonComponents.call(this, panel);
-
-    // Load Carbon icons (replaces placeholders with actual SVG icons)
-    await loadCarbonIcons();
-
-    this.debugMe('[Carbon] Components initialized in panel');
   } catch (error) {
     console.error('[Zooy] Error initializing Carbon components:', error);
     // Don't throw - fail gracefully, panel should still work

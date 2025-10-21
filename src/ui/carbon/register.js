@@ -11,7 +11,6 @@
 
 import { ComponentLibraryRegistry } from '../component-library-registry.js';
 import { renderCarbonComponents } from './renderers.js';
-import { loadCarbonIcons } from './icons.js';
 
 /**
  * Registers the Carbon Design System library with the ComponentLibraryRegistry.
@@ -35,14 +34,8 @@ export function registerCarbonLibrary() {
      */
     render: async function(panel, cache) {
       try {
-        // Step 1-4: Scan, collect, load, and attach
-        // renderCarbonComponents handles the complete flow internally
+        // Scan, collect, load, and attach Carbon Web Components
         await renderCarbonComponents.call(this, panel, cache);
-
-        // Load Carbon icon sprites (replaces placeholders with actual SVG icons)
-        await loadCarbonIcons();
-
-        this.debugMe('[Carbon] Components initialized successfully');
       } catch (error) {
         console.error('[Carbon] Initialization error:', error);
         // Fail gracefully - panel should still work without Carbon components
