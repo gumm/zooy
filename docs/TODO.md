@@ -1,10 +1,17 @@
 # TODO - Next Steps
 
-Last updated: 2025-10-16
+Last updated: 2025-10-22
 
 ## Current Status
 
-✅ **Completed Today (v35.2.0):**
+✅ **Completed in v35.3.0:**
+- Migrated build system from Rollup to Vite
+- Replaced Terser with esbuild for faster builds (44% improvement)
+- Modernized project structure (dist/ output directory)
+- Updated package.json with dual ES/CJS exports
+- Cleaned up documentation and removed obsolete build scripts
+
+✅ **Completed in v35.2.0:**
 - Fixed Carbon modal component detection bug
 - Implemented proper modal close event handling (destroy_me)
 - Added HTML5 form attribute support for buttons outside forms
@@ -61,9 +68,8 @@ None currently. Modal and form submission working perfectly.
 ## Branch Status
 
 - Branch: `documentation_and_refactor`
-- Status: Ready to merge to master
-- Commits: 3 new commits since last merge
-- All tests: Passing
+- Status: Active development
+- Recent changes: Build system modernization (v35.3.0)
 - Working tree: Clean
 
 ## Quick Reference

@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [35.3.0] - 2025-10-22
+
+### Changed
+- **Build System Migration**: Migrated from Rollup to Vite for faster builds and better DX
+  - Build time improved by 44% (2.91s → 1.63s)
+  - Simplified configuration with modern defaults
+- **Minification**: Replaced Terser with esbuild
+  - Faster minification with better tree-shaking
+  - Bundle sizes reduced by 14-27% across all outputs
+  - Removed 10 unnecessary dependencies
+- **Project Structure**: Modernized output directory structure
+  - Build outputs now go to `dist/` directory (not committed to git)
+  - Dual format support: `dist/zooy.es.js` (ES modules) and `dist/zooy.cjs.js` (CommonJS)
+  - Updated `package.json` with proper `exports` field for Node.js compatibility
+  - Added `files` field to control npm package contents
+- **Documentation**: Updated all documentation to reflect new build system
+  - Updated README.md with correct paths and bundle sizes
+  - Cleaned up project structure documentation
+  - Removed obsolete build scripts
+
+### Removed
+- Rollup and related plugins (`@rollup/plugin-*`)
+- Terser minifier (replaced by esbuild)
+- `build/` directory containing obsolete linting scripts
+- `rollup.config.js` (replaced by `vite.config.js`)
+
+### Added
+- Vite build system with library mode configuration
+- Modern package.json exports for better module resolution
+- Updated bundle size metrics:
+  - Core framework: ~101KB (~27KB gzipped)
+  - MDC library: ~463KB (~62KB gzipped)
+  - Carbon library: ~34KB (~7KB gzipped)
+
 ## [35.2.0] - 2025-10-16
 
 ### Fixed

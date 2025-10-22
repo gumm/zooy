@@ -1,13 +1,19 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "35.2.0",
-  "main": "main.js",
+  "version": "35.3.0",
+  "main": "./dist/zooy.cjs.js",
+  "module": "./dist/zooy.es.js",
   "type": "module",
   "exports": {
-    ".": "./main.js",
-    "./main.js": "./main.js"
+    ".": {
+      "import": "./dist/zooy.es.js",
+      "require": "./dist/zooy.cjs.js"
+    }
   },
+  "files": [
+    "dist"
+  ],
   "author": {
     "name": "Jan Badenhorst",
     "email": "janhendrik.badenhorst@gmail.com"
@@ -16,10 +22,9 @@
     "Andries Niemandt <andries.niemandt91@gmail.com> (https://github.com/andriesniemandt)"
   ],
   "scripts": {
-    "clean": "rm -rf chunks && rm -f main.js",
+    "clean": "rm -rf dist",
     "build_css": "sass --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css",
-    "rollup": "npx rollup -c",
-    "build": "npm run clean && npm run rollup",
+    "build": "npm run clean && vite build",
     "dev_watch_sass": "sass --watch --load-path=node_modules --style=compressed src/sass/main.scss src/css/main.css",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix",
@@ -31,22 +36,19 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "badu": "^8.6.0",
-    "timeago.js": "^4.0.2",
-    "@ibm/plex": "^6.4.1",
     "@carbon/icons": "^11.69.0",
     "@carbon/web-components": "2.40.1",
-    "material-components-web": "^14.0.0"
+    "@ibm/plex": "^6.4.1",
+    "badu": "^8.6.0",
+    "material-components-web": "^14.0.0",
+    "timeago.js": "^4.0.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
     "eslint": "^9.37.0",
     "esm": "^3.2.25",
     "husky": "^9.1.7",
     "ramda": "^0.30.1",
-    "rollup": "4.22.4",
-    "sass": "^1.93.2"
+    "sass": "^1.93.2",
+    "vite": "^7.1.11"
   }
 }

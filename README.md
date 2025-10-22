@@ -287,9 +287,9 @@ Use MDC, Carbon, or build custom components — zooy doesn't care. Mix and match
 
 ### 📦 **Smaller Initial Bundles**
 Component libraries load on-demand via dynamic imports:
-- Core framework: ~50KB
-- MDC library: +240KB (only if registered)
-- Carbon library: +19KB (only if registered)
+- Core framework: ~101KB (~27KB gzipped)
+- MDC library: +463KB (~62KB gzipped, only if registered)
+- Carbon library: +34KB (~7KB gzipped, only if registered)
 - Individual Carbon components: Loaded as panels use them
 
 ### 🔄 **Gradual Migration**
@@ -418,23 +418,31 @@ zooy/
 │   │   ├── split.js                 # Resizable layouts
 │   │   ├── dragger.js               # Drag functionality
 │   │   ├── component-library-registry.js  # Component library registry
+│   │   ├── handlers/                # Event handler collections
 │   │   ├── mdc/                     # Material Design Components
 │   │   │   ├── register.js          # MDC registration (lazy-loaded)
 │   │   │   └── tree-utils.js        # MDC tree utilities
-│   │   └── carbon/                  # IBM Carbon Design System
-│   │       ├── register.js          # Carbon registration (lazy-loaded)
-│   │       ├── renderers.js         # Dynamic component loading
-│   │       └── icons-api.js         # Programmatic icon API
+│   │   ├── carbon/                  # IBM Carbon Design System
+│   │   │   ├── register.js          # Carbon registration (lazy-loaded)
+│   │   │   ├── renderers.js         # Dynamic component loading
+│   │   │   └── icons-api.js         # Programmatic icon API
+│   │   └── zoo/                     # Custom Zooy components
 │   ├── dom/                         # DOM utilities
 │   ├── events/                      # Event types and utilities
 │   ├── uri/                         # URI parsing and manipulation
 │   └── user/                        # User management
-├── chunks/                          # Rollup-generated chunks
-│   ├── main-[hash].js               # Main framework bundle
-│   ├── register-[hash].js           # MDC registration chunk (~240KB)
-│   └── register-[hash].js           # Carbon registration chunk (~19KB)
-├── main.js                          # Entry point (exports from chunks)
-├── rollup.config.js                 # Build configuration
+├── dist/                            # Build output (not committed)
+│   ├── zooy.es.js                   # ES module entry point
+│   ├── zooy.cjs.js                  # CommonJS entry point
+│   └── chunks/                      # Code-split chunks
+│       ├── main-[hash].js           # Main framework bundle (~101KB, 27KB gzipped)
+│       ├── register-[hash].js       # MDC registration chunk (~463KB, 62KB gzipped)
+│       └── register-[hash].js       # Carbon registration chunk (~34KB, 7KB gzipped)
+├── docs/                            # Documentation
+│   ├── architecture/                # Architecture docs
+│   ├── migration/                   # Migration guides
+│   └── guides/                      # Usage guides
+├── vite.config.js                   # Build configuration
 ├── eslint.config.js                 # ESLint configuration
 └── package.json                     # Project dependencies
 ```
