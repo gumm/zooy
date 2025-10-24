@@ -1,7 +1,7 @@
 {
   "name": "zooy",
   "description": "UI Building Blocks",
-  "version": "35.3.0",
+  "version": "36.0.0",
   "main": "./dist/zooy.cjs.js",
   "module": "./dist/zooy.es.js",
   "type": "module",
