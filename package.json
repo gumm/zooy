@@ -36,19 +36,19 @@
     "url": "git+https://github.com/gumm/zooy.git"
   },
   "dependencies": {
-    "@carbon/icons": "^11.69.0",
-    "@carbon/web-components": "2.40.1",
+    "@carbon/icons": "^11.70.0",
+    "@carbon/web-components": "^2.41.0",
     "@ibm/plex": "^6.4.1",
     "badu": "^8.6.0",
     "material-components-web": "^14.0.0",
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {
-    "eslint": "^9.37.0",
+    "eslint": "^9.38.0",
     "esm": "^3.2.25",
     "husky": "^9.1.7",
-    "ramda": "^0.30.1",
+    "ramda": "^0.32.0",
     "sass": "^1.93.2",
-    "vite": "^7.1.11"
+    "vite": "^7.1.12"
   }
 }
